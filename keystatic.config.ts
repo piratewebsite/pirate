@@ -906,9 +906,9 @@ ui: {
   navigation: {
     'Site Pages and Posts': [
       'home',
+      'contactPage',
       'pages',
       'posts',
-      'contactPage',
     ],
     'Content Modules': [
       'bio',
