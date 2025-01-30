@@ -1,16 +1,7 @@
 showFeature: false
 featureImage: {}
 youtube:
-  discriminant: true
-  value:
-    url: https://youtu.be/z_wmefqR8-w
-    title: Setting a video feature on the homepage
-    controls: false
-    useCustomPlayer: true
-    mute: true
-    loop: false
-    start: 0
-    videoOnly: false
+  discriminant: false
 cta: Keystatic Cloud Sign Up
 showBioOnHome: true
 showApp: false
@@ -23,14 +14,13 @@ showTestOnHome: false
 pitch: How It Works
 pitch2: Social Media That YOU Control
 pitch3: High Seas Freedom
-featureOrder: 1
-bioOrder: 3
-appOrder: .nan
-galleryOrder: .nan
-postsOrder: 2
-resumeOrder: .nan
-faqOrder: .nan
-testimonialsOrder: .nan
-infoblockOrder: .nan
-infoblock2Order: .nan
-infoblock3Order: .nan
+sectionOrdering:
+  - posts
+  - bio
+  - resume
+  - feature
+  - gallery
+  - testimonials
+  - infoblock1
+  - infoblock2
+  - infoblock3

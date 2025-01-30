@@ -555,20 +555,33 @@ export default config({
         divider1: fields.empty(),
         divider6: fields.empty(),
         
-        featureOrder: fields.number({ label: 'Feature Section Order', defaultValue: 1 }),
-        bioOrder: fields.number({ label: 'Profile Section Order', defaultValue: 2 }),
-        appOrder: fields.number({ label: 'App Section Order', defaultValue: 3 }),
-        galleryOrder: fields.number({ label: 'Gallery Section Order', defaultValue: 4 }),
-        postsOrder: fields.number({ label: 'Posts Section Order', defaultValue: 5 }),
-        resumeOrder: fields.number({ label: 'Resume Section Order', defaultValue: 11 }),
-        faqOrder: fields.number({ label: 'FAQ Section Order', defaultValue: 6 }),
-        testimonialsOrder: fields.number({ label: 'Testimonials Section Order', defaultValue: 7 }),
-        infoblockOrder: fields.number({ label: 'Content Block 1 Order', defaultValue: 8 }),
-        infoblock2Order: fields.number({ label: 'Content Block 2 Order', defaultValue: 9 }),
-        infoblock3Order: fields.number({ label: 'Content Block 3 Order', defaultValue: 10 }),
+        sectionOrdering: fields.array(
+          fields.select({
+            label: 'Section',
+            options: [
+              { label: 'Feature Section', value: 'feature' },
+              { label: 'Bio Section', value: 'bio' },
+              { label: 'App Section', value: 'app' },
+              { label: 'Gallery Section', value: 'gallery' },
+              { label: 'Posts Section', value: 'posts' },
+              { label: 'Resume Section', value: 'resume' },
+              { label: 'FAQ Section', value: 'faq' },
+              { label: 'Testimonials Section', value: 'testimonials' },
+              { label: 'Content Block 1', value: 'infoblock1' },
+              { label: 'Content Block 2', value: 'infoblock2' },
+              { label: 'Content Block 3', value: 'infoblock3' }
+            ],
+            defaultValue: 'feature'
+          }),
+          {
+            label: 'Section Ordering',
+            description: 'Drag to reorder sections - position in list determines display order',
+            itemLabel: (props) => props.value,
+          }
+        ),
 
         
-        divider5: fields.empty(),        
+        divider5: fields.empty(),
         
         
         photosectiontitle: fields.text({ label: 'Photo Section Title Header'  }),

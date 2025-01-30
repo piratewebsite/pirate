@@ -173,36 +173,52 @@ const createSection = (
   order: order ?? defaultOrder,
   component
 });
-const sections: Section[] = [
-  createSection('feature', homepage?.showFeature, homepage?.featureOrder, Feature, 1),
-  createSection('bio', homepage?.showBioOnHome, homepage?.bioOrder, Bio, 2),
-  createSection('app', homepage?.showApp, homepage?.appOrder, App, 3),
-  createSection('gallery', homepage?.showHomeGallery, homepage?.galleryOrder, PhotoSection, 4),
-  createSection('posts', homepage?.showPosts, homepage?.postsOrder, showPosts, 5),
-  createSection('faq', homepage?.showFaqOnHome, homepage?.faqOrder, Faqs, 6),
-  createSection('testimonials', homepage?.showTestOnHome, homepage?.testimonialsOrder, Testimonials, 7),
-  { 
-    name: 'infoblock', 
-    show: !!selectedPitch, 
-    order: homepage?.infoblockOrder ?? 8, 
-    component: InfoBlock 
-  },
-  { 
-    name: 'infoblock2', 
-    show: !!selectedPitch2, 
-    order: homepage?.infoblock2Order ?? 9, 
-    component: InfoBlock 
-  },
-  { 
-    name: 'infoblock3', 
-    show: !!selectedPitch3, 
-    order: homepage?.infoblock3Order ?? 10, 
-    component: InfoBlock 
-  },
-  createSection('resume', homepage?.showResume, homepage?.resumeOrder, Resume, 11),
+const sections: Section[] = (homeContent.data.sectionOrdering || []).map((sectionName: string, index: number) => {
+  switch (sectionName) {
+    case 'feature':
+      return createSection('feature', homepage?.showFeature, index, Feature, index);
+    case 'bio':
+      return createSection('bio', homepage?.showBioOnHome, index, Bio, index);
+    case 'app':
+      return createSection('app', homepage?.showApp, index, App, index);
+    case 'gallery':
+      return createSection('gallery', homepage?.showHomeGallery, index, PhotoSection, index);
+    case 'posts':
+      return createSection('posts', homepage?.showPosts, index, showPosts, index);
+    case 'faq':
+      return createSection('faq', homepage?.showFaqOnHome, index, Faqs, index);
+    case 'testimonials':
+      return createSection('testimonials', homepage?.showTestOnHome, index, Testimonials, index);
+    case 'resume':
+      return createSection('resume', homepage?.showResume, index, Resume, index);
+    case 'infoblock1':
+      return {
+        name: 'infoblock',
+        show: !!selectedPitch,
+        order: index,
+        component: InfoBlock
+      };
+    case 'infoblock2':
+      return {
+        name: 'infoblock2',
+        show: !!selectedPitch2,
+        order: index,
+        component: InfoBlock
+      };
+    case 'infoblock3':
+      return {
+        name: 'infoblock3',
+        show: !!selectedPitch3,
+        order: index,
+        component: InfoBlock
+      };
+    default:
+      return null;
+  }
+}).filter(Boolean) as Section[];
 
   
-];
+
 
 const sortedSections = sections  .filter(section => section.show)
   .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
@@ -227,7 +243,11 @@ flex-direction: column;
 
 
 
-<PageLayout title={homeContent.data.title} description={pwaSettings.data.description}>
+<PageLayout
+  title={homeContent.data.title}
+  description={pwaSettings.data.description}
+  themeMode={siteSettings.data.themeMode ?? 'user'}
+>
 
   
   
