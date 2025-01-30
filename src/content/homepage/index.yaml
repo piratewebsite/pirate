@@ -1,26 +1,12 @@
-showFeature: false
-featureImage: {}
-youtube:
-  discriminant: false
-cta: Keystatic Cloud Sign Up
-showBioOnHome: true
-showApp: false
-showHomeGallery: false
-showResume: false
-showPosts: true
-showMore: true
-showFaqOnHome: false
-showTestOnHome: false
-pitch: How It Works
-pitch2: Social Media That YOU Control
-pitch3: High Seas Freedom
 sectionOrdering:
   - posts
   - bio
-  - resume
   - feature
-  - gallery
-  - testimonials
-  - infoblock1
-  - infoblock2
-  - infoblock3
+featureImage: {}
+youtube:
+  discriminant: false
+showMore: true
+cta: Keystatic Cloud Sign Up
+pitch: How It Works
+pitch2: Social Media That YOU Control
+pitch3: High Seas Freedom
