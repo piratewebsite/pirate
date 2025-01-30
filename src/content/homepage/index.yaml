@@ -1,7 +1,6 @@
 sectionOrdering:
   - posts
   - bio
-  - feature
 featureImage: {}
 youtube:
   discriminant: false
