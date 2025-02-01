@@ -59,7 +59,7 @@ Setup takes about 4 minutes and <strong><i>requires a valid email address</i></s
 
 </div>
 
-## 🏴‍☠️ Core Features
+## 🏴‍☠️ Preview
 
 <div align="center">
   <img src="public/images/pwa/screenshot.png" alt="Pirate CMS Dashboard" width="600">
