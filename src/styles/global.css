@@ -496,7 +496,7 @@ button.topper{background:var(--theme-header) !important;}
 	  body:has(#homemap) {overflow-y:auto !important;}
 
 
-	  body:has(.home) #footer{display: none;}
+	  /* body:has(.home) #footer{display: none;} */
 
 	  #footer{padding-bottom: 80px;}
 
