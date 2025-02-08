@@ -597,7 +597,8 @@ button.topper{background:var(--theme-header) !important;}
 		a[target="_blank"]::after {
 			content: '';
 			background: no-repeat var(--icon-external-link);
-			padding-right: 1rem;
+			padding-right: 3rem;
+			margin-left: .5rem;
 		}
 		
 		:root {
