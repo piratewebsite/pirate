@@ -404,9 +404,9 @@ button.topper{background:var(--theme-header) !important;}
 
 	   @media (max-width: 48rem) {
 
-		.home .slider .post-card1 {
+		/* .home .slider .post-card1 {
 			min-width: 70vw;
-		  }
+		  } */
 
 		  .grid-container .iframe-container, .grid-container .iframe-container iframe {
 			position: relative;
