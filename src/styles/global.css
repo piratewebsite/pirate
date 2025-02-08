@@ -237,7 +237,18 @@ body:has(.contactpage) #missioncontrol{display:none !important}
 
 button.topper{background:var(--theme-header) !important;}
 
+a[href]:not(:where(
+  [href^="#"],
+  [href^="javascript:" i],  
+  [href^="/"]:not([href^="//"]),
+  /* [href*="//pirateweb.org"],
+  [href*="//tool.pirateweb.org"], */
+)):after {
+  content: '↗️';
+  padding-left:1rem;
+}
 
+a[href]{display:flex;}
 	  
 	  .backimage{
 		height: 100vh;
