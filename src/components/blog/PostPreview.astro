@@ -35,8 +35,9 @@ const useCustomPlayer = post.data.youtube?.value?.useCustomPlayer ?? true;
 
 
 <div class="post-card1">
-    <div>
+    <div style="text-align: center; justify-content:center;">
     {post.data.externalUrl ? (
+
         <div data-active="false" class="iframe-container inactive panel"
         style={{
                         display: "flex",
@@ -45,7 +46,7 @@ const useCustomPlayer = post.data.youtube?.value?.useCustomPlayer ?? true;
                         columnGap: "0.4vw",
                         textAlign: "center",
                         flexDirection: "column",
-                        padding: "1vh 1vw",
+                        padding: "0 1vw",
                         fontSize: "clamp(1rem, 1rem, 1rem)",
                     }}>
             <iframe
@@ -59,7 +60,21 @@ const useCustomPlayer = post.data.youtube?.value?.useCustomPlayer ?? true;
                 class="exturl"
             ></iframe>
         </div>
-        <a href={post.data.externalUrl} rel="noreferrer" target="_blank"><h2 class="title ext" style={{ color: "", fontSize: "clamp(1.3rem, 2.4vw, 1rem)" }}>{post.data.title}</h2></a>
+
+<div
+                    class="panel"
+                    style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        rowGap: "0",
+                        columnGap: "0.4vw",
+                        textAlign: "center",
+                        flexDirection: "column",
+                        padding: "1vh 1vw",
+                        fontSize: "clamp(1rem, 1rem, 1rem)",
+                    }}
+                >
+<h2 class="title ext" style={{ margin: "0 auto", textAlign:'center', fontSize: "clamp(1.3rem, 2.4vw, 1rem)" }}><a href={post.data.externalUrl} rel="noreferrer" target="_blank">{post.data.title}</a></h2></div>
         
     ) : post.data.youtube?.discriminant && post.data.youtube.value?.videoOnly && thumbnailUrl ? (
         <div class="video-container" data-video-id={videoId} data-use-custom-player={useCustomPlayer}>
