@@ -594,7 +594,7 @@ button.topper{background:var(--theme-header) !important;}
 		}
 
 
-		a[target="_blank"]::after {
+		.contentpanel a[target="_blank"]::after {
 			content: '';
 			background: no-repeat var(--icon-external-link);
 			padding-right: 3rem;
