@@ -237,6 +237,8 @@ body:has(.contactpage) #missioncontrol{display:none !important}
 
 button.topper{background:var(--theme-header) !important;}
 
+
+
 a[href]:not(:where(
   [href^="#"],
   [href^="javascript:" i],  
@@ -244,8 +246,10 @@ a[href]:not(:where(
   /* [href*="//pirateweb.org"],
   [href*="//tool.pirateweb.org"], */
 )):after {
-  content: '↗️';
+  content: 'open ↗';
   padding-left:1rem;
+  display:flex;
+  flex-direction: column;
 }
 
 a[href]{display:flex;}
