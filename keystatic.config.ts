@@ -378,6 +378,9 @@ export default config({
           defaultValue: false,
         }),
         siteUrl: fields.text({ label: 'Site Url', description: 'The address to your website' }),
+        title: fields.text({ label: 'Home Page Title', defaultValue: 'Home Page Title', }),
+        description: fields.text({ label: 'SEO/App Description', description: 'The description is used as the description of the homepage for SEO, and on Android in the PWA install dialogue window', }),
+        
         name: fields.text({ label: 'App Name' }),
         shortName: fields.text({ label: 'Short Name' }),
 
@@ -391,7 +394,8 @@ export default config({
           directory: 'public/images/pwa',
           publicPath: '/images/pwa',
         }),
-        description: fields.text({ label: 'SEO/App Description', description: 'The description is used as the title of the homepage for SEO, and on Android in the PWA install dialogue window', }),
+
+  
 
         divider2: fields.empty(),
 

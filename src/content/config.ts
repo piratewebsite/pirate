@@ -205,6 +205,7 @@ const collections = {
       name: z.string().optional(),
       shortName: z.string().optional(),
       screenshot: z.string().optional(),
+      title: z.string().optional(),
       description: z.string().optional(),
       themeColor: z.string().optional(),
       backgroundColor: z.string().optional(),
@@ -238,6 +239,7 @@ const collections = {
           videoOnly: z.boolean().optional(),
         }).optional()
       }).optional(),
+      title: z.string().optional(),
       cta: z.string().optional(),
       showBioOnHome: z.boolean().optional(),
       showApp: z.boolean().optional(),

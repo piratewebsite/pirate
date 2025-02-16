@@ -22,7 +22,7 @@ const socialImageURL = ogImage ? new URL(ogImage, Astro.site).href : new URL("/s
 <meta charset="utf-8" />
 <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport" />
 <meta content="IE=edge" http-equiv="X-UA-Compatible" />
-<title>{siteTitle}</title>
+<title>{title}</title>
 
 {/* Icons / Favicon */}
 <link href={siteConfig.logoImage} rel="icon" type="image/svg+xml" />
@@ -30,7 +30,7 @@ const socialImageURL = ogImage ? new URL(ogImage, Astro.site).href : new URL("/s
 <link href={canonicalURL.toString()} rel="canonical" />
 
 {/* Primary Meta Tags */}
-<meta content={siteTitle} name="title" />
+<meta content={title} name="title" />
 <meta content={description} name="description" />
 <meta content={siteConfig.author} name="author" />
 

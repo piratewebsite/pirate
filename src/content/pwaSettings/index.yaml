@@ -1,9 +1,10 @@
 showRobots: false
 siteUrl: https://pirateweb.org
+title: Title of another Pirate site
+description: Thanks for being a pirate!
 name: PIRATE
 shortName: PIRATE
 screenshot: /images/pwa/screenshot.png
-description: Become A PIRATE!
 themeColor: rgba(0, 0, 0, 1)
 backgroundColor: rgba(0, 0, 0, 1)
 startUrl: /
