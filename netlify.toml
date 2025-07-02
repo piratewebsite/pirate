@@ -19,7 +19,7 @@
       style-src 'self' 'unsafe-inline' https: *.googleapis.com;
       img-src 'self' data: https: http: blob: *.googleapis.com *.gstatic.com *.google.com *.twitter.com *.twimg.com *.rss.com *.youtube.com;
       media-src 'self';
-      frame-src *;
+      frame-src *.rss.com *;
       font-src 'self' data: *.gstatic.com *.googleapis.com;
       frame-ancestors *;
     """    
