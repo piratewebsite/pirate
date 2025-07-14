@@ -18,9 +18,6 @@ export const siteConfig: SiteConfig = {
 	lang: "en",
 	ogLocale: "en",
 	sortPostsByUpdatedDate: false,
-	webmentions: {
-		link: "https://webmention.io/{{siteUrl}}/webmention",
-	},
 };
 
 import { getMenuItems } from './utils/getMenuItems';

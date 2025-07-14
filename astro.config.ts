@@ -98,7 +98,7 @@ export default defineConfig({
   output: output,
   prefetch: true,
   image: {
-		domains: ["webmention.io"],
+
 	},
   site: pwaConfig.siteUrl ?? 'https://example.com',  redirects: {
     '/admin': '/keystatic'

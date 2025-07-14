@@ -157,7 +157,6 @@ export default config({
           description: 'Optional: Leave blank for alphabetical sorting'
         }),
 
-        isWebmention: fields.checkbox({ label: 'Is Webmention', defaultValue: true }),
       },
       slugField: 'friendlyName'
       
