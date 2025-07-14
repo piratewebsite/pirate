@@ -1,10 +1,20 @@
 ---
 import PageLayout from "@/layouts/Base.astro";
+const meta = {
+  description: "Contact",
+  title: "Contact",
+  ogImage: ""
+};
 ---
 
-<PageLayout title="Thank You" description="Thank you for contacting us">
 
 
+<PageLayout
+  meta={meta}
+  title={meta.title}
+  description={meta.description}
+  ogImage={meta.ogImage}
+>
 
     <style>
       html, body { height: 100%; margin: 0; padding: 0; }
