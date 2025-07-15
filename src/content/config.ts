@@ -54,23 +54,43 @@ const contactPage = defineCollection({
   }),
 });
 
-const collections = {
-  posts: defineCollection({
-    type: 'content',
-    schema: postSchema,
-  }),
-
-  contactPage,
-
-  pages: defineCollection({
-    type: 'content',
+export const collections = {
+  // Home collection
+  home: defineCollection({
+    type: 'data',
     schema: z.object({
-      title: z.string().optional(),
-      description: z.string().optional(),
-      content: z.string().optional(),
-    }),
+      sectionOrdering: z.array(z.string()).optional(),
+      featureImage: z.object({
+        src: z.string().optional(),
+        alt: z.string().optional(),
+      }).optional(),
+      youtube: z.object({
+        value: z.object({
+          url: z.string().optional(),
+          title: z.string().optional(),
+          controls: z.boolean().optional(),
+          useCustomPlayer: z.boolean().optional(),
+          mute: z.boolean().optional(),
+          loop: z.boolean().optional(),
+          start: z.number().optional(),
+          end: z.number().optional(),
+          videoOnly: z.boolean().optional(),
+        }).optional()
+      }).optional(),
+      photosectiontitle: z.string().optional(),
+      locationtitle: z.string().optional(),
+      faqsectiontitle: z.string().optional(),
+      testimonialtitle: z.string().optional(),
+      postsectiontitle: z.string().optional(),
+      pitch: z.string().optional(),
+      pitch2: z.string().optional(),
+      pitch3: z.string().optional(),
+      cta: z.string().optional(),
+      showMore: z.boolean().optional()
+    })
   }),
 
+  // CTAs collection
   CTAs: defineCollection({
     type: 'data',
     schema: z.object({
@@ -78,11 +98,62 @@ const collections = {
       ctaUrl: z.string().optional(),
       description: z.string().optional(),
       showFancy: z.boolean().optional(),
-      showTransition: z.boolean().optional(),
-    }),
+      showTransition: z.boolean().optional()
+    })
   }),
 
-  
+  // StyleApps collection
+  styleapps: defineCollection({
+    type: 'data',
+    schema: z.object({
+      backgroundImage: z.string().optional(),
+      backgroundVideo: z.string().optional(),
+      siteFont: z.string().optional(),
+      borderRadius: z.string().optional(),
+      lightBg: z.string().optional(),
+      lightAccent2: z.string().optional(),
+      darkBg: z.string().optional(),
+      darkAccent2: z.string().optional(),
+      lightHeader: z.string().optional(),
+      darkHeader: z.string().optional(),
+      lightText: z.string().optional(),
+      darkText: z.string().optional(),
+      customCSS: z.string().optional()
+    })
+  }),
+
+  posts: defineCollection({
+    type: 'content',
+    schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    publishDate: z.date(),
+    updatedDate: z.date().optional(),
+    coverImage: z.object({
+      src: z.string(),
+      alt: z.string(),
+    }).optional(),
+    tags: z.array(z.string()).default([]),
+    draft: z.boolean().default(false),
+  }),
+  }),
+
+
+
+  contactPage,
+
+  pages: defineCollection({
+    type: 'content',
+    schema: z.object({
+      title: z.string(),
+      description: z.string().optional(),
+      layout: z.string().optional(),
+      draft: z.boolean().optional(),
+    }),
+    slug: ({ defaultSlug, id }) => {
+      return id.split('/').pop()?.replace(/\.(md|mdx|mdoc)$/, '') || defaultSlug;
+    },
+  }),
 
   pitches: defineCollection({
     type: 'data',
@@ -115,7 +186,7 @@ const collections = {
   resume: defineCollection({
     type: 'content',
     schema: z.object({
-      section: z.string(),
+      section: z.string().optional(),
       showTitle: z.boolean().optional(),
       content: z.string().optional(),
     }),
@@ -159,12 +230,17 @@ const collections = {
     }),
   }),
 
+
+
+
+
   socialLinks: defineCollection({
     type: 'data',
     schema: z.object({
       friendlyName: z.string().optional(),
       link: z.string().optional(),
       icon: z.string().optional(),
+      isWebmention: z.boolean().optional(),
       order: z.any().transform(val => 
         (val === '.nan' || val === 'nan' || Number.isNaN(val)) ? undefined : Number(val)
       ).optional()
@@ -216,60 +292,6 @@ const collections = {
     }),
   }),
 
-  home: defineCollection({
-    type: 'data',
-    schema: z.object({
-      showFeature: z.boolean().optional(),
-      featureImage: z.object({
-        src: z.string().optional(),
-        alt: z.string().optional(),
-      }).optional(),
-      youtube: z.object({
-        discriminant: z.boolean(),
-        value: z.object({
-          url: z.string().optional(),
-          title: z.string().optional(),
-          controls: z.boolean().optional(),
-          useCustomPlayer: z.boolean().optional(),
-          mute: z.boolean().optional(),
-          loop: z.boolean().optional(),
-          start: z.number().optional(),
-          end: z.number().optional(),
-          videoOnly: z.boolean().optional(),
-        }).optional()
-      }).optional(),
-      title: z.string().optional(),
-      cta: z.string().optional(),
-      showBioOnHome: z.boolean().optional(),
-      showApp: z.boolean().optional(),
-      showHomeGallery: z.boolean().optional(),
-      showResume: z.boolean().optional(),
-      showPosts: z.boolean().optional(),
-      showMore: z.boolean().optional(),
-      showFaqOnHome: z.boolean().optional(),
-      showTestOnHome: z.boolean().optional(),
-      pitch: z.string().optional(),
-      pitch2: z.string().optional(),
-      pitch3: z.string().optional(),
-      featureOrder: z.number().optional(),
-      bioOrder: z.number().optional(),
-      appOrder: z.number().optional(),
-      galleryOrder: z.number().optional(),
-      postsOrder: z.number().optional(),
-      resumeOrder: z.number().optional(),
-      faqOrder: z.number().optional(),
-      testimonialsOrder: z.number().optional(),
-      infoblockOrder: z.number().optional(),
-      infoblock2Order: z.number().optional(),
-      infoblock3Order: z.number().optional(),
-      photosectiontitle: z.string().optional(),
-      locationtitle: z.string().optional(),
-      faqsectiontitle: z.string().optional(),
-      testimonialtitle: z.string().optional(),
-      postsectiontitle: z.string().optional(),
-    }),
-  }),
-
   photoSettings: defineCollection({
     type: 'data',
     schema: z.object({
@@ -285,29 +307,6 @@ const collections = {
         image: z.string().optional(),
         caption: z.string().optional(),
       })).optional(),
-    }),
-  }),
-
-  styleAppearance: defineCollection({
-    type: 'data',
-    schema: z.object({
-      backgroundImage: z.string().optional(),
-      backgroundVideo: z.string().optional(),
-      siteFont: z.string().optional(),
-      borderRadius: z.string().optional(),
-      lightBg: z.string().optional(),
-      lightAccent: z.string().optional(),
-      lightAccent2: z.string().optional(),
-      darkBg: z.string().optional(),
-      darkAccent: z.string().optional(),
-      darkAccent2: z.string().optional(),
-      lightHeader: z.string().optional(),
-      darkHeader: z.string().optional(),
-      lightText: z.string().optional(),
-      darkText: z.string().optional(),
-      lightLink: z.string().optional(),
-      darkLink: z.string().optional(),
-      customCSS: z.string().optional(),
     }),
   }),
 
@@ -372,7 +371,7 @@ const collections = {
   }),
 };
 
-export { collections };
+
 
 export type PitchData = {
   slug: string;

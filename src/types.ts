@@ -9,7 +9,6 @@ export interface SiteConfig {
 	ogLocale: string;
 	sortPostsByUpdatedDate: boolean;
 	title: string | undefined;
-
 }
 
 export interface PaginationLink {
@@ -24,7 +23,6 @@ export interface SiteMeta {
 	ogImage?: string | undefined;
 	title?: string;
 }
-
 
 
 export interface Author {
@@ -67,3 +65,19 @@ export interface PwaSettings {
   siteUrl?: string;
   screenshot?: string;
 }
+
+export type StyleSettings = {
+  lightBg: string;
+  lightLink: string;
+  lightText: string;
+  lightAccent: string;
+  lightAccent2: string;
+  lightHeader: string;
+  darkBg: string;
+  darkLink: string;
+  darkText: string;
+  darkAccent: string;
+  darkAccent2: string;
+  darkHeader: string;
+  borderRadius: string;
+};

@@ -6,8 +6,7 @@ import tailwind from "@astrojs/tailwind";
 import icon from "astro-icon";
 import fs from "fs";
 import rehypeExternalLinks from "rehype-external-links";
-import remarkUnwrapImages from "remark-unwrap-images";
-import { remarkReadingTime } from "./src/utils/remark-reading-time";
+// import remarkUnwrapImages from "remark-unwrap-images";
 import AstroPWA from '@vite-pwa/astro';
 import markdoc from "@astrojs/markdoc";
 import keystatic from '@keystatic/astro';
@@ -20,7 +19,7 @@ export const reader = createReader(process.cwd(), keystaticConfig);
 
 const isVercel = !!process.env.VERCEL;
 const adapter = isVercel ? vercel() : netlify();
-const output = isVercel ? 'server' : 'server';
+const output = isVercel ? 'server' : 'static';
 
 const pwaSettings = await reader.singletons.pwaSettings.read();
 
@@ -85,7 +84,7 @@ export default defineConfig({
       rel: ["nofollow", "noopener", "noreferrer"],
       target: "_blank"
     }]],
-    remarkPlugins: [remarkUnwrapImages, remarkReadingTime],
+    remarkPlugins: [],
     remarkRehype: {
       footnoteLabelProperties: {
         className: [""]
@@ -98,7 +97,7 @@ export default defineConfig({
   output: output,
   prefetch: true,
   image: {
-
+		domains: ["webmention.io"],
 	},
   site: pwaConfig.siteUrl ?? 'https://example.com',  redirects: {
     '/admin': '/keystatic'
@@ -128,5 +127,3 @@ function rawFonts(ext: string[]) {
     },
   };
 }
-
-

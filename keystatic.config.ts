@@ -157,6 +157,7 @@ export default config({
           description: 'Optional: Leave blank for alphabetical sorting'
         }),
 
+
       },
       slugField: 'friendlyName'
       
@@ -255,7 +256,7 @@ export default config({
     
     menuItems: collection({
       label: 'Menu Items',
-      path: 'src/content/menu/*',
+      path: 'src/content/menuItems/*',
       slugField: 'name', 
       schema: {
         name: fields.text({ label: 'Name' }),
@@ -437,7 +438,7 @@ export default config({
     }),
     home: singleton({
       label: 'Home Page',
-      path: 'src/content/homepage/',
+      path: 'src/content/home/',
       schema: {
 
         sectionOrdering: fields.array(
@@ -651,7 +652,7 @@ export default config({
       },
     }),        
     
-    styleAppearance: singleton({
+    styleapps: singleton({
       label: 'Appearance',
       path: 'src/content/styleapps/',
       schema: {
@@ -905,7 +906,7 @@ ui: {
       'menuItems',
       'socialCard',
       'photoSettings',
-      'styleAppearance',
+      'styleapps',
       'language',
       'resumeSettings',
       'socialLinks',

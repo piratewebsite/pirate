@@ -83,6 +83,7 @@ Setup takes about 4 minutes and <strong><i>requires a valid email address</i></s
 ### 🔍 Discovery Features
 - **Pagefind Search**: Instant static site search
 - **RSS/Atom Feeds**: Built-in content syndication
+- **Webmentions**: Track engagement across social networks
 
 ### 🛠️ Developer Experience
 - **Type-Safe Content**: Auto-generated TypeScript definitions

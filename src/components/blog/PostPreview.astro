@@ -8,13 +8,16 @@ type Props = {
     withDesc?: boolean;
 };
 import { getEntry } from 'astro:content';
+import { formatDate } from '../../utils/date';
+
 const { post, withDesc = false } = Astro.props;
+const siteSettings = await getEntry('siteSettings', 'main');
+const { showTitles, showDates = true } = siteSettings?.data ?? {};
+const formattedDate = post.data.publishDate ? formatDate(post.data.publishDate) : '';
+
 const defaultImageSrc = `${import.meta.env.BASE_URL}socialCard.webp`;
 const defaultImageWidth = 900; 
 const defaultImageHeight = 600; 
-
-const siteSettings = await getEntry('siteSettings', 'main');
-const { showTitles } = siteSettings.data;
 
 function getYouTubeId(url: string) {
   const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
@@ -26,6 +29,11 @@ function getYouTubeThumbnail(videoId: string) {
   return `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
 }
 
+
+if ('slug' in post) {
+  const slug = post.slug;
+  // use slug
+}
 
 const videoId = post.data.youtube?.value?.url ? getYouTubeId(post.data.youtube.value.url) : null;
 const thumbnailUrl = videoId ? getYouTubeThumbnail(videoId) : null;
@@ -161,6 +169,15 @@ const useCustomPlayer = post.data.youtube?.value?.useCustomPlayer ?? true;
     )}
     </div>
 </div>
+
+<!-- Update your template where you want to show the date -->
+{showDates && formattedDate && (
+  <time datetime={post.data.publishDate instanceof Date ? 
+    post.data.publishDate.toISOString() : 
+    new Date(post.data.publishDate).toISOString()}>
+    {formattedDate}
+  </time>
+)}
 
 <style>
     .iframe-container {

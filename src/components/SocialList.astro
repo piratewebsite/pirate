@@ -4,7 +4,7 @@ import { Icon } from "astro-icon/components";
 // import BlueCheck from "@/components/BlueCheck.astro";
 
 const siteSettings = await getEntry('siteSettings', 'main');
-const { showCheck } = siteSettings.data;
+const showCheck = siteSettings?.data?.showCheck;
 
 interface SocialLink {
   id: string;
