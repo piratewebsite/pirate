@@ -68,7 +68,7 @@ Setup takes about 4 minutes and <strong><i>requires a valid email address</i></s
 </div>
 
 ### 🚀 Modern Foundation
-- **Next-Gen Architecture**: Built with Astro v4 + TypeScript 5 + React 18
+- **Next-Gen Architecture**: Built with Astro v5 + TypeScript 5 + Tailwind 6
 - **Performance First**: 100/100 PageSpeed scores out of the box
 - **PWA Ready**: Install as native app with offline support
 
