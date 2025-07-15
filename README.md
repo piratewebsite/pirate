@@ -7,7 +7,7 @@
   
   <!-- Badges -->
   <p>
-    <img src="https://img.shields.io/badge/Astro-4.0-FF5D01?logo=astro" alt="Astro 4">
+    <img src="https://img.shields.io/badge/Astro-5.0-FF5D01?logo=astro" alt="Astro 5">
     <img src="https://img.shields.io/badge/TypeScript-5.0-3178C6?logo=typescript" alt="TypeScript 5">
     <img src="https://img.shields.io/badge/React-18-61DAFB?logo=react" alt="React 18">
     <img src="https://img.shields.io/badge/PWA-Enabled-5A0FC8?logo=pwa" alt="PWA Enabled">
