@@ -379,7 +379,7 @@ export const collections = {
       showTransition: z.boolean().optional()
     })
   }),
-};
+
 
 
 export type PitchData = {
