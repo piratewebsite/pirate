@@ -46,7 +46,7 @@ const optimizedImage = await getImage({
 
 <div id="feature">
   {content.CTAs && (
-    <div class="homeCTA">
+    <div className="homeCTA">
       <CTAs 
         title={content.CTAs.title}
         description={content.CTAs.description}
@@ -59,7 +59,7 @@ const optimizedImage = await getImage({
   
   {
     content.youtube && content.youtube.url ? (
-      <div class="featured">
+      <div className="featured">
         <YouTubeEmbed
           url={content.youtube.url}
           title={content.youtube.title}
@@ -72,7 +72,7 @@ const optimizedImage = await getImage({
         />
       </div>
     ) : content.featureImage && content.featureImage.src ? (
-      <div class="featured">
+      <div className="featured">
         <Image
           src={optimizedImage.src}
           alt={content.featureImage.alt || ""}
