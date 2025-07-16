@@ -103,7 +103,7 @@ export default config({
 
     CTAs: collection({
       label: 'Call-To-Actions',
-      path: 'src/content/ctas/*',
+      path: 'src/content/CTAs/*',
       schema: {
         title: fields.text({ label: 'CTA Title', description: 'The text on the CTA Button' }),
         ctaUrl: fields.text({ label: 'CTA Url', description: 'The location of your CTA', defaultValue: '/', validation: { length: { min: 1 } } }),
