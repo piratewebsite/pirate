@@ -1,26 +1,12 @@
- ---
-import PageLayout from "@/layouts/Base.astro";
-const meta = {
-  description: "Contact",
-  title: "Contact",
-  ogImage: ""
-};
+---
+
 ---
 
 
-
-<PageLayout
-  meta={meta}
-  title={meta.title}
-  description={meta.description}
-  ogImage={meta.ogImage}
->
-
     <style>
-      html, body { height: 100%; margin: 0; padding: 0; }
-      body { width: 100vw; height: 100vh; overflow: hidden;}
+
       #menu-bar {
-        position: fixed;
+        position: absolute;
         width: 100vw;
         z-index: 10;
         top:0;
@@ -203,4 +189,3 @@ const meta = {
     <iframe id="video-frame" allow="autoplay; fullscreen"></iframe>
 
 
-</PageLayout>
