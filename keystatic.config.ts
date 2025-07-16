@@ -28,7 +28,7 @@ export default config({
         content: fields.markdoc({ label: 'Content' }),
         
 
-        // updatedDate: fields.datetime({ label: 'Updated Date' }),
+
 
         coverImage: fields.object({
           src: fields.image({
