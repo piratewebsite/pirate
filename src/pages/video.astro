@@ -20,7 +20,7 @@ const meta = {
       html, body { height: 100%; margin: 0; padding: 0; }
       body { width: 100vw; height: 100vh; overflow: hidden;}
       #menu-bar {
-        position: fixed;
+        position: relative;
         width: 100vw;
         z-index: 10;
         top:0;
@@ -38,8 +38,8 @@ const meta = {
       .menu-checkbox { margin-left: 8px; }
       .menu-label { font-size: 0.95em; }
       #video-frame {
-        position: fixed;
-        top: 60px; left: 0;
+        position: relative;
+        top: 0; left: 0;
         width: 100vw; height: 100vh;
         border: none;
         z-index: 1;
