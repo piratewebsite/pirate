@@ -179,10 +179,6 @@ pnpm clean
 
 
 
-## Acknowledgment
-
-This theme was heavily inspired by [Astro Cactus](https://github.com/chrismwilliams/astro-theme-cactus/)
-
 ## 🏴‍☠️ Thank you
 
 We really appreciate you choosing to become a PIRATE!
