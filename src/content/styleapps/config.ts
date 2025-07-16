@@ -38,31 +38,107 @@ const postSchema = z.object({
   }).optional(),
 });
 
-const collections = {
-  posts: defineCollection({
-    type: 'content',
-    schema: postSchema,
+const contactPage = defineCollection({
+  type: 'data',
+  schema: z.object({
+    content: z.string().optional(),
+    showName: z.boolean().optional(),
+    showPhone: z.boolean().optional(),
+    showMessage: z.boolean().optional(),
+    showUpload: z.boolean().optional(),
+    extraFieldLabel: z.string().optional(),
+    showExtraField: z.boolean().optional(),
+    showMap: z.boolean().optional(),
+    extraFieldLabel2: z.string().optional(),
+    showExtraField2: z.boolean().optional(),
+  }),
+});
+
+export const collections = {
+  // Home collection
+  home: defineCollection({
+    type: 'data',
+    schema: z.object({
+      sectionOrdering: z.array(z.string()).optional(),
+      featureImage: z.object({
+        src: z.string().optional(),
+        alt: z.string().optional(),
+      }).optional(),
+      youtube: z.object({
+        value: z.object({
+          url: z.string().optional(),
+          title: z.string().optional(),
+          controls: z.boolean().optional(),
+          useCustomPlayer: z.boolean().optional(),
+          mute: z.boolean().optional(),
+          loop: z.boolean().optional(),
+          start: z.number().optional(),
+          end: z.number().optional(),
+          videoOnly: z.boolean().optional(),
+        }).optional()
+      }).optional(),
+      photosectiontitle: z.string().optional(),
+      locationtitle: z.string().optional(),
+      faqsectiontitle: z.string().optional(),
+      testimonialtitle: z.string().optional(),
+      postsectiontitle: z.string().optional(),
+      pitch: z.string().optional(),
+      pitch2: z.string().optional(),
+      pitch3: z.string().optional(),
+      cta: z.string().optional(),
+      showMore: z.boolean().optional()
+    })
   }),
 
 
+
+  // StyleApps collection
+  styleapps: defineCollection({
+    type: 'data',
+    schema: z.object({
+      backgroundImage: z.string().optional(),
+      backgroundVideo: z.string().optional(),
+      siteFont: z.string().optional(),
+      borderRadius: z.string().optional(),
+      lightBg: z.string().optional(),
+      lightAccent2: z.string().optional(),
+      darkBg: z.string().optional(),
+      darkAccent2: z.string().optional(),
+      lightHeader: z.string().optional(),
+      darkHeader: z.string().optional(),
+      lightText: z.string().optional(),
+      darkText: z.string().optional(),
+      customCSS: z.string().optional()
+    })
+  }),
+
+  posts: defineCollection({
+    type: 'content',
+    schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    publishDate: z.date(),
+    updatedDate: z.date().optional(),
+    coverImage: z.object({
+      src: z.string(),
+      alt: z.string(),
+    }).optional(),
+    tags: z.array(z.string()).default([]),
+    draft: z.boolean().default(false),
+  }),
+  }),
+
+
+
+  contactPage,
 
   pages: defineCollection({
     type: 'content',
     schema: z.object({
-      title: z.string().optional(),
+      title: z.string(),
       description: z.string().optional(),
-      content: z.string().optional(),
-    }),
-  }),
-
-  CTAs: defineCollection({
-    type: 'data',
-    schema: z.object({
-      title: z.string().optional(),
-      ctaUrl: z.string().optional(),
-      description: z.string().optional(),
-      showFancy: z.boolean().optional(),
-      showTransition: z.boolean().optional(),
+      layout: z.string().optional(),
+      draft: z.boolean().optional(),
     }),
   }),
 
@@ -70,6 +146,7 @@ const collections = {
     type: 'data',
     schema: z.object({
       title: z.string().optional(),
+      showTwocol: z.boolean().optional(),
       showTitle: z.boolean().optional(),
       image: z.string().optional(),
       imageAlt: z.string().optional(),
@@ -96,7 +173,7 @@ const collections = {
   resume: defineCollection({
     type: 'content',
     schema: z.object({
-      section: z.string(),
+      section: z.string().optional(),
       showTitle: z.boolean().optional(),
       content: z.string().optional(),
     }),
@@ -122,23 +199,8 @@ const collections = {
     }),
   }),
 
-  piratePosts: defineCollection({
-    type: 'content',
-    schema: z.object({
-      title: z.string().optional(),
-      content: z.string().optional(),
-      createdAt: z.string().or(z.date()).transform((val) => new Date(val)),
-    }),
-  }),
 
-  pirateFeeds: defineCollection({
-    type: 'data',
-    schema: z.object({
-      title: z.string().optional(),
-      feedUrl: z.string().optional(),
-      order: z.number().optional(),
-    }),
-  }),
+
 
 
 
@@ -149,14 +211,12 @@ const collections = {
       friendlyName: z.string().optional(),
       link: z.string().optional(),
       icon: z.string().optional(),
+      isWebmention: z.boolean().optional(),
       order: z.any().transform(val => 
         (val === '.nan' || val === 'nan' || Number.isNaN(val)) ? undefined : Number(val)
       ).optional()
     }),
   }),
-
-
-
 
   siteSettings: defineCollection({
     type: 'data',
@@ -191,6 +251,7 @@ const collections = {
       name: z.string().optional(),
       shortName: z.string().optional(),
       screenshot: z.string().optional(),
+      title: z.string().optional(),
       description: z.string().optional(),
       themeColor: z.string().optional(),
       backgroundColor: z.string().optional(),
@@ -199,59 +260,6 @@ const collections = {
       icon192: z.string().optional(),
       icon512: z.string().optional(),
       location: z.string().optional(),
-    }),
-  }),
-
-  home: defineCollection({
-    type: 'data',
-    schema: z.object({
-      showFeature: z.boolean().optional(),
-      featureImage: z.object({
-        src: z.string().optional(),
-        alt: z.string().optional(),
-      }).optional(),
-      youtube: z.object({
-        discriminant: z.boolean(),
-        value: z.object({
-          url: z.string().optional(),
-          title: z.string().optional(),
-          controls: z.boolean().optional(),
-          useCustomPlayer: z.boolean().optional(),
-          mute: z.boolean().optional(),
-          loop: z.boolean().optional(),
-          start: z.number().optional(),
-          end: z.number().optional(),
-          videoOnly: z.boolean().optional(),
-        }).optional()
-      }).optional(),
-      cta: z.string().optional(),
-      showBioOnHome: z.boolean().optional(),
-      showApp: z.boolean().optional(),
-      showHomeGallery: z.boolean().optional(),
-      showResume: z.boolean().optional(),
-      showPosts: z.boolean().optional(),
-      showMore: z.boolean().optional(),
-      showFaqOnHome: z.boolean().optional(),
-      showTestOnHome: z.boolean().optional(),
-      pitch: z.string().optional(),
-      pitch2: z.string().optional(),
-      pitch3: z.string().optional(),
-      featureOrder: z.number().optional(),
-      bioOrder: z.number().optional(),
-      appOrder: z.number().optional(),
-      galleryOrder: z.number().optional(),
-      postsOrder: z.number().optional(),
-      resumeOrder: z.number().optional(),
-      faqOrder: z.number().optional(),
-      testimonialsOrder: z.number().optional(),
-      infoblockOrder: z.number().optional(),
-      infoblock2Order: z.number().optional(),
-      infoblock3Order: z.number().optional(),
-      photosectiontitle: z.string().optional(),
-      locationtitle: z.string().optional(),
-      faqsectiontitle: z.string().optional(),
-      testimonialtitle: z.string().optional(),
-      postsectiontitle: z.string().optional(),
     }),
   }),
 
@@ -273,29 +281,6 @@ const collections = {
     }),
   }),
 
-  styleAppearance: defineCollection({
-    type: 'data',
-    schema: z.object({
-      backgroundImage: z.string().optional(),
-      backgroundVideo: z.string().optional(),
-      siteFont: z.string().optional(),
-      borderRadius: z.string().optional(),
-      lightBg: z.string().optional(),
-      lightAccent: z.string().optional(),
-      lightAccent2: z.string().optional(),
-      darkBg: z.string().optional(),
-      darkAccent: z.string().optional(),
-      darkAccent2: z.string().optional(),
-      lightHeader: z.string().optional(),
-      darkHeader: z.string().optional(),
-      lightText: z.string().optional(),
-      darkText: z.string().optional(),
-      lightLink: z.string().optional(),
-      darkLink: z.string().optional(),
-      customCSS: z.string().optional(),
-    }),
-  }),
-
   language: defineCollection({
     type: 'data',
     schema: z.object({
@@ -314,6 +299,7 @@ const collections = {
       viewall: z.string().optional(),
       shareText: z.string().optional(),
       copyButton: z.string().optional(),
+      siteDisclaimer: z.string().optional(),
     }),
   }),
 
@@ -333,15 +319,7 @@ const collections = {
     }),
   }),
 
-  pirateSocial: defineCollection({
-    type: 'data',
-    schema: z.object({
-      profile: z.string().optional(),
-      description: z.string().optional(),
-      autoDeletePiratePosts: z.boolean().optional(),
-      autoDeleteTime: z.number().optional(),
-    }),
-  }),
+
 
   resumeSettings: defineCollection({
     type: 'data',
@@ -354,9 +332,31 @@ const collections = {
       rightColumnItems: z.array(z.string()).optional(),
     }),
   }),
+
+  CTAs: defineCollection({
+    type: 'data',
+    schema: z.object({
+      title: z.string().optional(),
+      ctaUrl: z.string().optional(),
+      description: z.string().optional(),
+      showFancy: z.boolean().optional(),
+      showTransition: z.boolean().optional()
+    })
+  }),
 };
 
-export { collections };
+  // ctas: defineCollection({
+  //   type: 'data',
+  //   schema: z.object({
+  //     title: z.string().optional(),
+  //     ctaUrl: z.string().optional(),
+  //     description: z.string().optional(),
+  //     showFancy: z.boolean().optional(),
+  //     showTransition: z.boolean().optional()
+  //   })
+  // });
+
+
 
 export type PitchData = {
   slug: string;

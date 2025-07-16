@@ -1,6 +1,6 @@
 galleryMode: directory
 showCaptions: true
-showBioOnPhotos: false
+showBioOnPhotos: true
 showFaqsOnPhotos: false
 showTestimonialsOnPhotos: false
 defaultDirectory: Favorites
