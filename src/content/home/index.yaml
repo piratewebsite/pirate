@@ -1,7 +1,9 @@
 sectionOrdering:
-  - posts
   - bio
-featureImage: {}
+  - posts
+featureImage:
+  src: /images/homepage/featureImage/src.webp
+  alt: Welcome to PIrate
 youtube:
   discriminant: false
 showMore: true

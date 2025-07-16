@@ -97,7 +97,8 @@ export default defineConfig({
   output: output,
   prefetch: true,
   image: {
-		domains: ["webmention.io"],
+		responsiveStyles: true,
+    layout: 'constrained',
 	},
   site: pwaConfig.siteUrl ?? 'https://example.com',  redirects: {
     '/admin': '/keystatic'
@@ -115,6 +116,7 @@ export default defineConfig({
     defaultLocale: 'en',
     locales: ['en'],
   },
+  
 });
 
 function rawFonts(ext: string[]) {
