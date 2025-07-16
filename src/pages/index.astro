@@ -226,9 +226,9 @@ flex-direction: column;
   themeMode={siteSettings?.data?.themeMode ?? 'user'}>
   
   
-  <div className="scroll-snap-container prose-pirate flex flex-col home">
+	<div class="scroll-snap-container prose-pirate flex flex-col home">
 		{sortedSections.map(section => (
-			<section className={section.name === 'resume' ? 'resume' : ''}>
+			<section class={section.name === 'resume' ? 'resume' : ''}>
 				{(() => {
 					switch (section.name) {
 						case 'feature':
@@ -249,12 +249,10 @@ flex-direction: column;
                 } : undefined,
                 // Only include featureImage if it exists and matches the expected type
                 ...(homeData.featureImage && typeof homeData.featureImage === 'object'
-                  && typeof homeData.featureImage.src === 'string'
-                  && typeof homeData.featureImage.alt === 'string'
                   ? {
                       featureImage: {
-                        src: homeData.featureImage.src,
-                        alt: homeData.featureImage.alt
+                        src: (homeData.featureImage as any).src ?? '',
+                        alt: (homeData.featureImage as any).alt ?? ''
                       }
                     }
                   : {})
@@ -262,9 +260,9 @@ flex-direction: column;
 						case 'bio':
 							return <Bio />;
 						case 'app':
-              return (<h2 className="glow text-[clamp(1.4rem,3.9vw,4rem)] shadow-text text-center theme-accent backdrop-blur-lg" style={{ marginBottom: 0 }}>{homeData.locationtitle}</h2><App />);
+							return (<h2 class="glow text-[clamp(1.4rem,3.9vw,4rem)] shadow-text text-center theme-accent backdrop-blur-lg" style="margin-bottom:0;">{homeData.locationtitle}</h2><App />);
 						case 'gallery':
-							return (<h2 className="glow text-[clamp(1.4rem,3.9vw,4rem)] shadow-text text-center theme-accent backdrop-blur-lg">{homeData.photosectiontitle}</h2><PhotoSection />);
+							return (<h2 class="glow text-[clamp(1.4rem,3.9vw,4rem)] shadow-text text-center theme-accent backdrop-blur-lg">{homeData.photosectiontitle}</h2><PhotoSection />);
 						case 'infoblock':
 							return selectedPitch && <InfoBlock pitch={{...selectedPitch, slug: selectedPitch.slug, showTwocol: selectedPitch.showTwocol}} />;
 						case 'infoblock2':
@@ -288,20 +286,20 @@ flex-direction: column;
 							return (
 								<>
 									
-                  <div style={{ padding: "2vh 3%" }} className={`contentpanel ${defaultView === 'swipe' ? 'slider panels horizontal-slider' : 'grid-container'}`}>
+									<div style="padding:2vh 3%" class={`contentpanel ${defaultView === 'swipe' ? 'slider panels horizontal-slider' : 'grid-container'}`}>
 									
                     
                     {homeData.postsectiontitle && (
-                      <h2 className="posties glow text-[clamp(1.4rem,3.9vw,4rem)] shadow-text text-center theme-accent backdrop-blur-lg" style={{ display: "grid", placeContent: "center", marginBottom: "2vh", minWidth: "50%", width: "100%" }}>
+                      <h2 class="posties glow text-[clamp(1.4rem,3.9vw,4rem)] shadow-text text-center theme-accent backdrop-blur-lg" style="display:grid; place-content:center; margin-bottom:2vh; min-width:50%; width:100%;">
                         {homeData.postsectiontitle}
                       </h2>
                     )}
 
                     {allPostsSorted.map((p) => <PostPreview post={p} withDesc />)}
 										{ShowMore && (
-                      <a className="viewmore no-underline text-white text-center block" href="/posts/" style={{ padding: "1vh 1rem", margin: "0 50px 50px 50px" }}>
+											<a class="viewmore no-underline text-white text-center block" href="/posts/" style="padding:1vh 1rem; margin:0 50px 50px 50px;">
                         {language?.data?.viewmore}
-                      </a>
+											</a>
 										)}
 									</div>
 								</>
@@ -309,13 +307,13 @@ flex-direction: column;
 						case 'faq':
 							return (
 								<>
-									<h2 className="glow text-[clamp(1.4rem,3.9vw,4rem)] shadow-text text-center theme-accent backdrop-blur-lg">{homeData.faqsectiontitle}</h2>
+									<h2 class="glow text-[clamp(1.4rem,3.9vw,4rem)] shadow-text text-center theme-accent backdrop-blur-lg">{homeData.faqsectiontitle}</h2>
 									<Faqs />
 								</>
 							);
 						case 'testimonials':
-							return <div className="testi">
-								<h2 className="glow text-[clamp(1.4rem,3.9vw,4rem)] shadow-text text-center theme-accent backdrop-blur-lg">{homeData.testimonialtitle}</h2><Testimonials /></div>;
+							return <div class="testi" style="">
+								<h2 class="glow text-[clamp(1.4rem,3.9vw,4rem)] shadow-text text-center theme-accent backdrop-blur-lg">{homeData.testimonialtitle}</h2><Testimonials /></div>;
 						default:
 							return null;
 					}
@@ -325,8 +323,7 @@ flex-direction: column;
 			</section>
 		))}
     
-  {homeCTA && (
-    <section style={{ display: "grid", placeContent: "center", padding: "10vh 0" }}>
+    {homeCTA && (      <section style="display:grid; place-content:center; padding:10vh 0">
       <CTAs 
         title={homeCTA.data.title ?? ''}
         description={homeCTA.data.description || ''}
@@ -342,9 +339,11 @@ flex-direction: column;
 
 {!showCheck && 
 
-
-
-<br /><br />
+<script async src="https://js.stripe.com/v3/pricing-table.js"></script>
+<h2 class="glow text-[clamp(1.4rem,3.9vw,4rem)] shadow-text text-center theme-accent backdrop-blur-lg">Buy This Website</h2>
+<stripe-pricing-table pricing-table-id="prctbl_1Qe7TQIbXHwBH2q3OBiMeCaf"
+publishable-key="pk_test_51Qe75VIbXHwBH2q3XjaYKRUr0AUGprwFX2ottMpaxZqAqiEoBS5nGA4GatemfTmUHs6CSPWFhBzPJjH2qv0JuLLI00421mokn9">
+</stripe-pricing-table><br /><br />
 
 }
 
