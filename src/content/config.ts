@@ -369,16 +369,16 @@ export const collections = {
   }),
 };
 
-  ctas: defineCollection({
-    type: 'data',
-    schema: z.object({
-      title: z.string().optional(),
-      ctaUrl: z.string().optional(),
-      description: z.string().optional(),
-      showFancy: z.boolean().optional(),
-      showTransition: z.boolean().optional()
-    })
-  });
+  // ctas: defineCollection({
+  //   type: 'data',
+  //   schema: z.object({
+  //     title: z.string().optional(),
+  //     ctaUrl: z.string().optional(),
+  //     description: z.string().optional(),
+  //     showFancy: z.boolean().optional(),
+  //     showTransition: z.boolean().optional()
+  //   })
+  // });
 
 
 
