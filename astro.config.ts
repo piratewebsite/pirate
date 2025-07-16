@@ -110,7 +110,11 @@ export default defineConfig({
     },
     plugins: [rawFonts([".ttf", ".woff"])],
   },
-  adapter: adapter
+  adapter: adapter,
+  i18n: {
+    defaultLocale: 'en',
+    locales: ['en'],
+  },
 });
 
 function rawFonts(ext: string[]) {
