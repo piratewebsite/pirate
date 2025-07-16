@@ -378,7 +378,7 @@ export const collections = {
       showFancy: z.boolean().optional(),
       showTransition: z.boolean().optional()
     })
-  }),
+  });
 
 
 
