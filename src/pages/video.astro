@@ -6,10 +6,10 @@
   <style>
     html{overflow-x: hidden;}
 
-      input[type="text"], input[type="number"], input[type="email"], input[type="password"] {
+    input[type="text"], input[type="number"], input[type="email"], input[type="password"] {
     font-size: 16px !important;
   }
-  
+
       #menu-bar {
         position: absolute;
         width: 100vw;
@@ -53,155 +53,155 @@
         border: none;
         z-index: 1;
       }
-   @media (max-width: 48rem) {
-      #bigbox{display:flex; flex-direction: column !important; padding:5vh 0; gap:2vh;}
+   @media (max-width: 38rem) {
+      #bigbox{display:flex; flex-direction: column !important; padding:10px 0 0 0; gap:2vh;}
       .menu-label { font-size: 1.8em; justify-content: center; align-items: center; align-content: center; }
+#checkboxes .menu-label {width: 18vw;}
+      
    }
 
       #start-input, #stop-input {max-width:30px; border:0px solid red;}
       #share-link { color: #fff; font-size: 0.9em; word-break: break-all; margin-left: 12px; }
       #copy-btn { margin-left: 8px; }
     </style>
-      <script>
-      // Utility: Extract YouTube video ID from URL or ID
-      function extractVideoId(input: string) {
-        if (!input) return null;
-        if (/^[a-zA-Z0-9_-]{11}$/.test(input)) return input;
-        let match = input.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/);
-        if (match) return match[1];
-        match = input.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
-        if (match) return match[1];
-        match = input.match(/\/(embed|v)\/([a-zA-Z0-9_-]{11})/);
-        if (match) return match[2];
-        match = input.match(/([a-zA-Z0-9_-]{11})/);
-        if (match) return match[1];
-        return null;
+<script>
+// Utility: Extract YouTube video ID from URL or ID
+function extractVideoId(input: string) {
+  if (!input) return null;
+  if (/^[a-zA-Z0-9_-]{11}$/.test(input)) return input;
+  let match = input.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/);
+  if (match) return match[1];
+  match = input.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
+  if (match) return match[1];
+  match = input.match(/\/(embed|v)\/([a-zA-Z0-9_-]{11})/);
+  if (match) return match[2];
+  match = input.match(/([a-zA-Z0-9_-]{11})/);
+  if (match) return match[1];
+  return null;
+}
+
+// Update video and query string
+function updateVideoAndLink() {
+  const videoInputEl = document.getElementById('video-input') as HTMLInputElement | null;
+  const startInputEl = document.getElementById('start-input') as HTMLInputElement | null;
+  const stopInputEl = document.getElementById('stop-input') as HTMLInputElement | null;
+  const loopCheckboxEl = document.getElementById('loop-checkbox') as HTMLInputElement | null;
+  const muteCheckboxEl = document.getElementById('mute-checkbox') as HTMLInputElement | null;
+  const controlsCheckboxEl = document.getElementById('controls-checkbox') as HTMLInputElement | null;
+  const autoplayCheckboxEl = document.getElementById('autoplay-checkbox') as HTMLInputElement | null;
+  const hideMenuCheckboxEl = document.getElementById('hide-menu-checkbox') as HTMLInputElement | null;
+  const videoFrameEl = document.getElementById('video-frame') as HTMLIFrameElement | null;
+  const shareLinkEl = document.getElementById('share-link') as HTMLElement | null;
+
+  const videoInput = videoInputEl ? videoInputEl.value.trim() : '';
+  const start = startInputEl ? startInputEl.value.trim() : '';
+  const stop = stopInputEl ? stopInputEl.value.trim() : '';
+  const loop = loopCheckboxEl ? loopCheckboxEl.checked : true;
+  const mute = muteCheckboxEl ? muteCheckboxEl.checked : true;
+  const controls = controlsCheckboxEl ? controlsCheckboxEl.checked : true;
+  const autoplay = autoplayCheckboxEl ? autoplayCheckboxEl.checked : true;
+  const hideMenu = hideMenuCheckboxEl ? hideMenuCheckboxEl.checked : false;
+
+  const videoId = extractVideoId(videoInput);
+  let embedUrl = '';
+  if (videoId) {
+    embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=${autoplay ? 1 : 0}&controls=${controls ? 1 : 0}&mute=${mute ? 1 : 0}&modestbranding=1`;
+    if (start) embedUrl += `&start=${parseFloat(start)}`;
+    if (stop) embedUrl += `&end=${parseFloat(stop)}`;
+    if (loop) embedUrl += `&loop=1&playlist=${videoId}`;
+  }
+  if (videoFrameEl && 'src' in videoFrameEl) videoFrameEl.src = embedUrl;
+
+  // Build query string
+  const params = new URLSearchParams();
+  if (videoInput) params.set('video', videoInput);
+  if (start) params.set('start', start);
+  if (stop) params.set('stop', stop);
+  if (loop) params.set('loop', 'true');
+  if (mute) params.set('mute', 'true');
+  if (controls) params.set('controls', 'true');
+  if (autoplay) params.set('autoplay', 'true');
+  if (hideMenu) params.set('hideControlsMenu', 'true');
+  const shareUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+  if (shareLinkEl) shareLinkEl.textContent = shareUrl;
+}
+
+// Copy link logic
+function copyShareLink() {
+  const shareLinkEl = document.getElementById('share-link');
+  const copyBtnEl = document.getElementById('copy-btn');
+  const link = shareLinkEl && 'textContent' in shareLinkEl ? shareLinkEl.textContent : '';
+  if (link) {
+    navigator.clipboard.writeText(link).then(() => {
+      if (copyBtnEl && 'textContent' in copyBtnEl) {
+        copyBtnEl.textContent = 'Link Copied';
+        setTimeout(() => { if (copyBtnEl) copyBtnEl.textContent = 'Copy Link'; }, 1500);
       }
-
-      // Update video and query string
-      function updateVideoAndLink() {
-        const videoInputEl = document.getElementById('video-input');
-        const startInputEl = document.getElementById('start-input');
-        const stopInputEl = document.getElementById('stop-input');
-        const loopCheckboxEl = document.getElementById('loop-checkbox');
-        const muteCheckboxEl = document.getElementById('mute-checkbox');
-        const controlsCheckboxEl = document.getElementById('controls-checkbox');
-        const autoplayCheckboxEl = document.getElementById('autoplay-checkbox');
-        const hideMenuCheckboxEl = document.getElementById('hide-menu-checkbox');
-        const videoFrameEl = document.getElementById('video-frame');
-        const shareLinkEl = document.getElementById('share-link');
-
-        const videoInput = videoInputEl && 'value' in videoInputEl ? (videoInputEl as HTMLInputElement).value.trim() : '';
-        const start = startInputEl && 'value' in startInputEl ? (startInputEl as HTMLInputElement).value.trim() : '';
-        const stop = stopInputEl && 'value' in stopInputEl ? (stopInputEl as HTMLInputElement).value.trim() : '';
-        const loop = loopCheckboxEl && 'checked' in loopCheckboxEl ? loopCheckboxEl.checked : true;
-        const mute = muteCheckboxEl && 'checked' in muteCheckboxEl ? muteCheckboxEl.checked : true;
-        const controls = controlsCheckboxEl && 'checked' in controlsCheckboxEl ? controlsCheckboxEl.checked : true;
-        const autoplay = autoplayCheckboxEl && 'checked' in autoplayCheckboxEl ? autoplayCheckboxEl.checked : true;
-        const hideMenu = hideMenuCheckboxEl && 'checked' in hideMenuCheckboxEl ? hideMenuCheckboxEl.checked : false;
-
-        const videoId = extractVideoId(videoInput);
-        let embedUrl = '';
-        if (videoId) {
-          embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=${autoplay ? 1 : 0}&controls=${controls ? 1 : 0}&mute=${mute ? 1 : 0}&modestbranding=1`;
-          if (start) embedUrl += `&start=${parseFloat(start)}`;
-          if (stop) embedUrl += `&end=${parseFloat(stop)}`;
-          if (loop) embedUrl += `&loop=1&playlist=${videoId}`;
-        }
-        if (videoFrameEl && 'src' in videoFrameEl) videoFrameEl.src = embedUrl;
-
-        // Build query string
-        const params = new URLSearchParams();
-        if (videoInput) params.set('video', videoInput);
-        if (start) params.set('start', start);
-        if (stop) params.set('stop', stop);
-        if (loop) params.set('loop', 'true');
-        if (mute) params.set('mute', 'true');
-        if (controls) params.set('controls', 'true');
-        if (autoplay) params.set('autoplay', 'true');
-        if (hideMenu) params.set('hideControlsMenu', 'true');
-        const shareUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
-        if (shareLinkEl) shareLinkEl.textContent = shareUrl;
-      }
-
-      // Copy link logic
-      function copyShareLink() {
-        const shareLinkEl = document.getElementById('share-link');
-        const copyBtnEl = document.getElementById('copy-btn');
-        const link = shareLinkEl && 'textContent' in shareLinkEl ? shareLinkEl.textContent : '';
-        if (link) {
-          navigator.clipboard.writeText(link).then(() => {
-            if (copyBtnEl && 'textContent' in copyBtnEl) {
-              copyBtnEl.textContent = 'Link Copied';
-              setTimeout(() => { if (copyBtnEl) copyBtnEl.textContent = 'Copy Link'; }, 1500);
-            }
-          });
-        }
-      }
-
-      // On load: initialize from query string
-      window.addEventListener('DOMContentLoaded', () => {
-        const params = new URLSearchParams(window.location.search);
-        const videoInputEl = document.getElementById('video-input');
-        const startInputEl = document.getElementById('start-input');
-        const stopInputEl = document.getElementById('stop-input');
-        const loopCheckboxEl = document.getElementById('loop-checkbox');
-        const muteCheckboxEl = document.getElementById('mute-checkbox');
-        const controlsCheckboxEl = document.getElementById('controls-checkbox');
-        const autoplayCheckboxEl = document.getElementById('autoplay-checkbox');
-        const hideMenuCheckboxEl = document.getElementById('hide-menu-checkbox');
-        const menuBarEl = document.getElementById('menu-bar');
-
-        if (videoInputEl && 'value' in videoInputEl) videoInputEl.value = params.get('video') || '';
-        if (startInputEl && 'value' in startInputEl) startInputEl.value = params.get('start') || '';
-        if (stopInputEl && 'value' in stopInputEl) stopInputEl.value = params.get('stop') || '';
-        if (loopCheckboxEl && 'checked' in loopCheckboxEl) loopCheckboxEl.checked = params.get('loop') !== 'false';
-        if (muteCheckboxEl && 'checked' in muteCheckboxEl) muteCheckboxEl.checked = params.get('mute') !== 'false';
-        if (controlsCheckboxEl && 'checked' in controlsCheckboxEl) controlsCheckboxEl.checked = params.get('controls') !== 'false';
-        if (autoplayCheckboxEl && 'checked' in autoplayCheckboxEl) autoplayCheckboxEl.checked = params.get('autoplay') !== 'false';
-        if (hideMenuCheckboxEl && 'checked' in hideMenuCheckboxEl) hideMenuCheckboxEl.checked = params.get('hideControlsMenu') === 'true';
-
-        const hideControlsMenu = params.get('hideControlsMenu') === 'true';
-        if (hideControlsMenu && menuBarEl) {
-          menuBarEl.classList.add('hidden');
-        }
-        updateVideoAndLink();
-
-        // Add listeners
-        document.querySelectorAll('#menu-bar input').forEach(el => {
-          el.addEventListener('input', updateVideoAndLink);
-          el.addEventListener('change', updateVideoAndLink);
-        });
-        const copyBtnEl = document.getElementById('copy-btn');
-        if (copyBtnEl) copyBtnEl.addEventListener('click', copyShareLink);
-      });
-    </script>
-
-    <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const clearBtn = document.getElementById('clear-btn');
-    clearBtn?.addEventListener('click', () => {
-      const videoInputEl = document.getElementById('video-input');
-      const startInputEl = document.getElementById('start-input');
-      const stopInputEl = document.getElementById('stop-input');
-      const loopCheckboxEl = document.getElementById('loop-checkbox');
-      const muteCheckboxEl = document.getElementById('mute-checkbox');
-      const controlsCheckboxEl = document.getElementById('controls-checkbox');
-      const autoplayCheckboxEl = document.getElementById('autoplay-checkbox');
-      const hideMenuCheckboxEl = document.getElementById('hide-menu-checkbox');
-
-      if (videoInputEl && 'value' in videoInputEl) videoInputEl.value = '';
-      if (startInputEl && 'value' in startInputEl) startInputEl.value = '';
-      if (stopInputEl && 'value' in stopInputEl) stopInputEl.value = '';
-      if (loopCheckboxEl && 'checked' in loopCheckboxEl) loopCheckboxEl.checked = true;
-      if (muteCheckboxEl && 'checked' in muteCheckboxEl) muteCheckboxEl.checked = true;
-      if (controlsCheckboxEl && 'checked' in controlsCheckboxEl) controlsCheckboxEl.checked = true;
-      if (autoplayCheckboxEl && 'checked' in autoplayCheckboxEl) autoplayCheckboxEl.checked = true;
-      if (hideMenuCheckboxEl && 'checked' in hideMenuCheckboxEl) hideMenuCheckboxEl.checked = false;
-
-      if (typeof updateVideoAndLink === 'function') updateVideoAndLink();
     });
+  }
+}
+
+// On load: initialize from query string
+window.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  const videoInputEl = document.getElementById('video-input') as HTMLInputElement | null;
+  const startInputEl = document.getElementById('start-input') as HTMLInputElement | null;
+  const stopInputEl = document.getElementById('stop-input') as HTMLInputElement | null;
+  const loopCheckboxEl = document.getElementById('loop-checkbox') as HTMLInputElement | null;
+  const muteCheckboxEl = document.getElementById('mute-checkbox') as HTMLInputElement | null;
+  const controlsCheckboxEl = document.getElementById('controls-checkbox') as HTMLInputElement | null;
+  const autoplayCheckboxEl = document.getElementById('autoplay-checkbox') as HTMLInputElement | null;
+  const hideMenuCheckboxEl = document.getElementById('hide-menu-checkbox') as HTMLInputElement | null;
+  const menuBarEl = document.getElementById('menu-bar');
+
+  if (videoInputEl) videoInputEl.value = params.get('video') || '';
+  if (startInputEl) startInputEl.value = params.get('start') || '';
+  if (stopInputEl) stopInputEl.value = params.get('stop') || '';
+  if (loopCheckboxEl) loopCheckboxEl.checked = params.get('loop') !== 'false';
+  if (muteCheckboxEl) muteCheckboxEl.checked = params.get('mute') !== 'false';
+  if (controlsCheckboxEl) controlsCheckboxEl.checked = params.get('controls') !== 'false';
+  if (autoplayCheckboxEl) autoplayCheckboxEl.checked = params.get('autoplay') !== 'false';
+  if (hideMenuCheckboxEl) hideMenuCheckboxEl.checked = params.get('hideControlsMenu') === 'true';
+
+  const hideControlsMenu = params.get('hideControlsMenu') === 'true';
+  if (hideControlsMenu && menuBarEl) {
+    menuBarEl.classList.add('hidden');
+  }
+  updateVideoAndLink();
+
+  // Add listeners
+  document.querySelectorAll('#menu-bar input').forEach(el => {
+    el.addEventListener('input', updateVideoAndLink);
+    el.addEventListener('change', updateVideoAndLink);
   });
+  const copyBtnEl = document.getElementById('copy-btn');
+  if (copyBtnEl) copyBtnEl.addEventListener('click', copyShareLink);
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const clearBtn = document.getElementById('clear-btn');
+  clearBtn?.addEventListener('click', () => {
+    const videoInputEl = document.getElementById('video-input') as HTMLInputElement | null;
+    const startInputEl = document.getElementById('start-input') as HTMLInputElement | null;
+    const stopInputEl = document.getElementById('stop-input') as HTMLInputElement | null;
+    const loopCheckboxEl = document.getElementById('loop-checkbox') as HTMLInputElement | null;
+    const muteCheckboxEl = document.getElementById('mute-checkbox') as HTMLInputElement | null;
+    const controlsCheckboxEl = document.getElementById('controls-checkbox') as HTMLInputElement | null;
+    const autoplayCheckboxEl = document.getElementById('autoplay-checkbox') as HTMLInputElement | null;
+    const hideMenuCheckboxEl = document.getElementById('hide-menu-checkbox') as HTMLInputElement | null;
+
+    if (videoInputEl) videoInputEl.value = '';
+    if (startInputEl) startInputEl.value = '';
+    if (stopInputEl) stopInputEl.value = '';
+    if (loopCheckboxEl) loopCheckboxEl.checked = true;
+    if (muteCheckboxEl) muteCheckboxEl.checked = true;
+    if (controlsCheckboxEl) controlsCheckboxEl.checked = true;
+    if (autoplayCheckboxEl) autoplayCheckboxEl.checked = true;
+    if (hideMenuCheckboxEl) hideMenuCheckboxEl.checked = false;
+
+    updateVideoAndLink();
+  });
+});
 </script>
 
     <div id="menu-bar">
