@@ -17,7 +17,7 @@
         gap: 2vw;
         padding: 2px 0;
         justify-content: center;
-        height:60px;
+
       }
       #menu-bar.hidden { display: none; }
       .menu-input { min-width: 20px; max-width: 400px; padding: 4px; }
@@ -30,14 +30,15 @@
         border: none;
         z-index: 1;
       }
-
-      
+   @media (max-width: 48rem) {
+      #bigbox{display:flex; flex-direction: column !important; padding:5vh 0; gap:2vh;}
+   }
 
       #start-input, #stop-input {max-width:30px; border:0px solid red;}
       #share-link { color: #fff; font-size: 0.9em; word-break: break-all; margin-left: 12px; }
       #copy-btn { margin-left: 8px; }
     </style>
-    <script>
+      <script>
       // Utility: Extract YouTube video ID from URL or ID
       function extractVideoId(input: string) {
         if (!input) return null;
@@ -107,7 +108,7 @@
         if (link) {
           navigator.clipboard.writeText(link).then(() => {
             if (copyBtnEl && 'textContent' in copyBtnEl) {
-              copyBtnEl.textContent = 'Copied!';
+              copyBtnEl.textContent = 'Link Copied';
               setTimeout(() => { if (copyBtnEl) copyBtnEl.textContent = 'Copy Link'; }, 1500);
             }
           });
@@ -152,18 +153,47 @@
       });
     </script>
 
+    <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const clearBtn = document.getElementById('clear-btn');
+    clearBtn?.addEventListener('click', () => {
+      const videoInputEl = document.getElementById('video-input');
+      const startInputEl = document.getElementById('start-input');
+      const stopInputEl = document.getElementById('stop-input');
+      const loopCheckboxEl = document.getElementById('loop-checkbox');
+      const muteCheckboxEl = document.getElementById('mute-checkbox');
+      const controlsCheckboxEl = document.getElementById('controls-checkbox');
+      const autoplayCheckboxEl = document.getElementById('autoplay-checkbox');
+      const hideMenuCheckboxEl = document.getElementById('hide-menu-checkbox');
+
+      if (videoInputEl && 'value' in videoInputEl) videoInputEl.value = '';
+      if (startInputEl && 'value' in startInputEl) startInputEl.value = '';
+      if (stopInputEl && 'value' in stopInputEl) stopInputEl.value = '';
+      if (loopCheckboxEl && 'checked' in loopCheckboxEl) loopCheckboxEl.checked = true;
+      if (muteCheckboxEl && 'checked' in muteCheckboxEl) muteCheckboxEl.checked = true;
+      if (controlsCheckboxEl && 'checked' in controlsCheckboxEl) controlsCheckboxEl.checked = true;
+      if (autoplayCheckboxEl && 'checked' in autoplayCheckboxEl) autoplayCheckboxEl.checked = true;
+      if (hideMenuCheckboxEl && 'checked' in hideMenuCheckboxEl) hideMenuCheckboxEl.checked = false;
+
+      if (typeof updateVideoAndLink === 'function') updateVideoAndLink();
+    });
+  });
+</script>
+
     <div id="menu-bar">
-      <div id="bigbox" style="display: flex; flexFlow: row; align-items: center; padding-left:10px;">
-        <input type="text" id="video-input" class="menu-input" placeholder="Paste Link" style="padding: .5vh .2vw; min-width:105px; width: 100%; max-width: 500px; text-align:center; font-size: clamp(.6rem,1vw,1rem); transition: all .4s ease-in-out; background:rgba(0,0,0,.2); color:#ddd; outline:1px solid #999; border:1px solid var(--theme-ui-colors-siteColor);" aria-label="Paste Link To Video" />
+      <div id="bigbox" style="display: flex;">
+        
 
 
-        <div id="timers" style="display: flex; flex-direction:row; gap: 10px; align-items: center; width:100%; padding:0 0 0 10px;">
+        <div id="timers" style="display: flex; flex-direction:row; gap: 10px; align-items: center; width:100%; padding:0 10px;">
+<input type="text" id="video-input" class="menu-input" placeholder="Paste Link" style="padding: .5vh .2vw; min-width:105px; width: 100%; max-width: 500px; text-align:center; font-size: clamp(.6rem,1vw,1rem); transition: all .4s ease-in-out; background:rgba(0,0,0,.2); color:#ddd; outline:1px solid #999; border:1px solid var(--theme-ui-colors-siteColor);" aria-label="Paste Link To Video" />
+
           <input type="text" id="start-input" class="menu-input" placeholder="Start" style="padding: .5vh .2vw; min-width:30px; width: 40px; max-width: 500px; text-align:center; font-size: clamp(.6rem,1vw,1rem); transition: all .4s ease-in-out; background:rgba(0,0,0,.2); color:#ddd; outline:1px solid #999; border:1px solid var(--theme-ui-colors-siteColor);" aria-label="Video Start Time" />
           <input type="text" id="stop-input" class="menu-input" placeholder="Stop" style="padding: .5vh .2vw; min-width:30px; width: 40px; max-width: 500px; text-align:center; font-size: clamp(.6rem,1vw,1rem); transition: all .4s ease-in-out; background:rgba(0,0,0,.2); color:#ddd; outline:1px solid #999; border:1px solid var(--theme-ui-colors-siteColor);" aria-label="Video Stop Time" />
         </div>
 
 
-        <div id="checkboxes" style="display: flex; flex-direction:row; gap: 5px; align-items: center; padding:0 5px 5px 10px; justify-content:center; background:rgba(0,0,0,.1); outline:1px solid #777; border-radius:var(--theme-ui-colors-borderRadius); font-size:clamp(.5rem,1.2vw,1rem);">
+        <div id="checkboxes" style="display: flex; flex-direction:row; gap: 5px; align-items: center; padding:0 10px 5px 0; justify-content:center; background:rgba(0,0,0,.1); outline:0px solid #777; border-radius:var(--theme-ui-colors-borderRadius); font-size:clamp(.5rem,1.2vw,1rem);">
           <label class="menu-label">Loop
             <input type="checkbox" id="loop-checkbox" class="menu-checkbox" checked />
           </label>
@@ -179,13 +209,24 @@
           <label class="menu-label">Hide
             <input type="checkbox" id="hide-menu-checkbox" class="menu-checkbox" />
           </label>
+
+
         </div>
-        <div id="pastebox" style="display: none; flex-direction:row; gap: 2vw; align-items: center; justify-content:center; width:100%;">
+
+                <div id="pastebox" style="display: none; flex-direction:row; gap: 2vw; align-items: center; justify-content:center; width:100%;">
           <span id="share-link"></span>
         </div>
-        <button id="copy-btn" aria-label="Create Link" style={{ display: "flex", gap: '.5vw', justifyContent: "center", padding: ".6vh .5vw", width:'100%', minWidth:'60px', maxHeight: "", margin: "0 auto", textAlign: 'center', fontSize: '14px', fontWeight: 'light', textShadow: '0 1px 0 #444', marginLeft:'', }} className="button font print">
+
+<button id="copy-btn" class="button font print" aria-label="Create Link" style={{ display: "flex", gap: '.5vw', justifyContent: "center", padding: ".6vh .5vw", width:'auto', minWidth:'60px', maxHeight: "", margin: "0 0 0 0", textAlign: 'center', outline:'1px solid #6B1D1D', fontSize: '11px', fontWeight: 'light', textShadow: '0 1px 0 #444', marginLeft:'', }}>
 Copy Link
 </button>
+
+<button id="clear-btn" aria-label="Clear Form" style="margin-left: 5px; padding: .6vh .5vw; min-width:60px; font-size:14px; outline:none; border:none;background:transparent; color:#ddd">
+  Clear
+</button>
+
+        
+
       </div>
     </div>
     <iframe id="video-frame" allow="autoplay; fullscreen"></iframe>
