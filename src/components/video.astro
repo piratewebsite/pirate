@@ -4,7 +4,7 @@
 <html lang="en">
 
       <style>
-
+    html{overflow-x: hidden;}
       #menu-bar {
         position: absolute;
         width: 100vw;
@@ -17,12 +17,30 @@
         gap: 2vw;
         padding: 2px 0;
         justify-content: center;
-
+        font-family: sans-serif !important;
+        font-size:10px;
       }
       #menu-bar.hidden { display: none; }
       .menu-input { min-width: 20px; max-width: 400px; padding: 4px; }
       .menu-checkbox { margin-left: 8px; }
       .menu-label { font-size: 0.95em; }
+
+        #checkboxes {
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100%;
+    margin: 0 auto;
+    text-align: center;
+  }
+  #checkboxes .menu-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 70px;
+  }
+
       #video-frame {
         position: fixed;
         top: 0; left: 0;
@@ -32,6 +50,7 @@
       }
    @media (max-width: 48rem) {
       #bigbox{display:flex; flex-direction: column !important; padding:5vh 0; gap:2vh;}
+      .menu-label { font-size: 1.8em; justify-content: center; align-items: center; align-content: center; }
    }
 
       #start-input, #stop-input {max-width:30px; border:0px solid red;}
@@ -185,28 +204,28 @@
         
 
 
-        <div id="timers" style="display: flex; flex-direction:row; gap: 10px; align-items: center; width:100%; padding:0 10px;">
+        <div id="timers" style="display: flex; flex-direction:row; gap: 10px; align-items: center; width:100%; padding:0 10px 0 5px;">
 <input type="text" id="video-input" class="menu-input" placeholder="Paste Link" style="padding: .5vh .2vw; min-width:105px; width: 100%; max-width: 500px; text-align:center; font-size: clamp(.6rem,1vw,1rem); transition: all .4s ease-in-out; background:rgba(0,0,0,.2); color:#ddd; outline:1px solid #999; border:1px solid var(--theme-ui-colors-siteColor);" aria-label="Paste Link To Video" />
 
-          <input type="text" id="start-input" class="menu-input" placeholder="Start" style="padding: .5vh .2vw; min-width:30px; width: 40px; max-width: 500px; text-align:center; font-size: clamp(.6rem,1vw,1rem); transition: all .4s ease-in-out; background:rgba(0,0,0,.2); color:#ddd; outline:1px solid #999; border:1px solid var(--theme-ui-colors-siteColor);" aria-label="Video Start Time" />
-          <input type="text" id="stop-input" class="menu-input" placeholder="Stop" style="padding: .5vh .2vw; min-width:30px; width: 40px; max-width: 500px; text-align:center; font-size: clamp(.6rem,1vw,1rem); transition: all .4s ease-in-out; background:rgba(0,0,0,.2); color:#ddd; outline:1px solid #999; border:1px solid var(--theme-ui-colors-siteColor);" aria-label="Video Stop Time" />
+          <input type="text" id="start-input" class="menu-input" placeholder="Start" style="padding: .5vh .2vw; min-width:40px; width: 40px; max-width: 500px; text-align:center; font-size: clamp(.6rem,1vw,1rem); transition: all .4s ease-in-out; background:rgba(0,0,0,.2); color:#ddd; outline:1px solid #999; border:1px solid var(--theme-ui-colors-siteColor);" aria-label="Video Start Time" />
+          <input type="text" id="stop-input" class="menu-input" placeholder="Stop" style="padding: .5vh .2vw; min-width:40px; width: 40px; max-width: 500px; text-align:center; font-size: clamp(.6rem,1vw,1rem); transition: all .4s ease-in-out; background:rgba(0,0,0,.2); color:#ddd; outline:1px solid #999; border:1px solid var(--theme-ui-colors-siteColor);" aria-label="Video Stop Time" />
         </div>
 
 
         <div id="checkboxes" style="display: flex; flex-direction:row; gap: 5px; align-items: center; padding:0 10px 5px 0; justify-content:center; background:rgba(0,0,0,.1); outline:0px solid #777; border-radius:var(--theme-ui-colors-borderRadius); font-size:clamp(.5rem,1.2vw,1rem);">
-          <label class="menu-label">Loop
+          <label class="menu-label">Loop<br />
             <input type="checkbox" id="loop-checkbox" class="menu-checkbox" checked />
           </label>
-          <label class="menu-label">Mute
+          <label class="menu-label">Mute<br />
             <input type="checkbox" id="mute-checkbox" class="menu-checkbox" checked />
           </label>
-          <label class="menu-label">Controls
+          <label class="menu-label">Controls<br />
             <input type="checkbox" id="controls-checkbox" class="menu-checkbox" checked />
           </label>
-          <label class="menu-label">Autoplay
+          <label class="menu-label">Autoplay<br />
             <input type="checkbox" id="autoplay-checkbox" class="menu-checkbox" checked />
           </label>
-          <label class="menu-label">Hide
+          <label class="menu-label">Hide<br />
             <input type="checkbox" id="hide-menu-checkbox" class="menu-checkbox" />
           </label>
 
@@ -217,7 +236,7 @@
           <span id="share-link"></span>
         </div>
 
-<button id="copy-btn" class="button font print" aria-label="Create Link" style={{ display: "flex", gap: '.5vw', justifyContent: "center", padding: ".6vh .5vw", width:'auto', minWidth:'60px', maxHeight: "", margin: "0 0 0 0", textAlign: 'center', outline:'1px solid #6B1D1D', fontSize: '11px', fontWeight: 'light', textShadow: '0 1px 0 #444', marginLeft:'', }}>
+<button id="copy-btn" class="button font print" aria-label="Create Link" style={{ display: "flex", gap: '.5vw', justifyContent: "center", padding: ".6vh 3vw", width:'auto', minWidth:'60px', maxWidth: "100px", margin: "0 auto", textAlign: 'center', outline:'1px solid #6B1D1D', fontSize: '11px', fontWeight: 'light', textShadow: '0 1px 0 #444', marginLeft:'', }}>
 Copy Link
 </button>
 
