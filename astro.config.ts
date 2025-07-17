@@ -6,7 +6,6 @@ import tailwind from "@astrojs/tailwind";
 import icon from "astro-icon";
 import fs from "fs";
 import rehypeExternalLinks from "rehype-external-links";
-// import remarkUnwrapImages from "remark-unwrap-images";
 import AstroPWA from '@vite-pwa/astro';
 import markdoc from "@astrojs/markdoc";
 import keystatic from '@keystatic/astro';
@@ -23,6 +22,21 @@ const output = isVercel ? 'server' : 'static';
 
 const pwaSettings = await reader.singletons.pwaSettings.read();
 
+// Get dynamic site URL based on environment
+const getSiteUrl = () => {
+  if (pwaSettings?.siteUrl) {
+    return pwaSettings.siteUrl;
+  }
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  if (process.env.NETLIFY_URL) {
+    return process.env.NETLIFY_URL;
+  }
+  return 'https://pirateweb.org'; // Your actual domain from the pwaSettings
+};
+
+const siteUrl = getSiteUrl();
 
 const pwaConfig = pwaSettings || {
   startUrl: '/',
@@ -34,12 +48,11 @@ const pwaConfig = pwaSettings || {
   display: 'standalone',
   icon192: '/icon-192x192.png',
   icon512: '/icon-512x512.png',
-  siteUrl: 'https://example.com',
+  siteUrl: siteUrl,
   screenshot: '/socialCard.webp', 
 };
 
 export default defineConfig({
-
   integrations: [mdx(), react(), icon(), tailwind({
     applyBaseStyles: false
   }), sitemap(), keystatic(),
@@ -79,7 +92,8 @@ export default defineConfig({
       maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
     }
   }),  
-  markdoc()],  markdown: {
+  markdoc()],
+  markdown: {
     rehypePlugins: [[rehypeExternalLinks, {
       rel: ["nofollow", "noopener", "noreferrer"],
       target: "_blank"
@@ -97,10 +111,11 @@ export default defineConfig({
   output: output,
   prefetch: true,
   image: {
-		responsiveStyles: true,
+    responsiveStyles: true,
     layout: 'constrained',
-	},
-  site: pwaConfig.siteUrl ?? 'https://example.com',  redirects: {
+  },
+  site: siteUrl,
+  redirects: {
     '/admin': '/keystatic'
   },
   vite: {
@@ -116,7 +131,6 @@ export default defineConfig({
     defaultLocale: 'en',
     locales: ['en'],
   },
-  
 });
 
 function rawFonts(ext: string[]) {

@@ -10,7 +10,7 @@ showTheme: true
 showSwitch: true
 showSearch: true
 showFooter: true
-showCheck: true
+showCheck: false
 showTitles: true
 showDates: false
 enableImageBlur: true

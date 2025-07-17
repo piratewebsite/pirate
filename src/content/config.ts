@@ -130,7 +130,7 @@ export const collections = {
 
 
 
-  contactPage,
+
 
   pages: defineCollection({
     type: 'content',
@@ -199,23 +199,7 @@ export const collections = {
     }),
   }),
 
-  piratePosts: defineCollection({
-    type: 'content',
-    schema: z.object({
-      title: z.string().optional(),
-      content: z.string().optional(),
-      createdAt: z.string().or(z.date()).transform((val) => new Date(val)),
-    }),
-  }),
 
-  pirateFeeds: defineCollection({
-    type: 'data',
-    schema: z.object({
-      title: z.string().optional(),
-      feedUrl: z.string().optional(),
-      order: z.number().optional(),
-    }),
-  }),
 
 
 
@@ -335,15 +319,7 @@ export const collections = {
     }),
   }),
 
-  pirateSocial: defineCollection({
-    type: 'data',
-    schema: z.object({
-      profile: z.string().optional(),
-      description: z.string().optional(),
-      autoDeletePiratePosts: z.boolean().optional(),
-      autoDeleteTime: z.number().optional(),
-    }),
-  }),
+
 
   resumeSettings: defineCollection({
     type: 'data',
