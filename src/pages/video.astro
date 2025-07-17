@@ -69,10 +69,10 @@
         const videoInput = videoInputEl && 'value' in videoInputEl ? (videoInputEl as HTMLInputElement).value.trim() : '';
         const start = startInputEl && 'value' in startInputEl ? (startInputEl as HTMLInputElement).value.trim() : '';
         const stop = stopInputEl && 'value' in stopInputEl ? (stopInputEl as HTMLInputElement).value.trim() : '';
-        const loop = loopCheckboxEl && 'checked' in loopCheckboxEl ? loopCheckboxEl.checked : false;
-        const mute = muteCheckboxEl && 'checked' in muteCheckboxEl ? muteCheckboxEl.checked : false;
+        const loop = loopCheckboxEl && 'checked' in loopCheckboxEl ? loopCheckboxEl.checked : true;
+        const mute = muteCheckboxEl && 'checked' in muteCheckboxEl ? muteCheckboxEl.checked : true;
         const controls = controlsCheckboxEl && 'checked' in controlsCheckboxEl ? controlsCheckboxEl.checked : true;
-        const autoplay = autoplayCheckboxEl && 'checked' in autoplayCheckboxEl ? autoplayCheckboxEl.checked : false;
+        const autoplay = autoplayCheckboxEl && 'checked' in autoplayCheckboxEl ? autoplayCheckboxEl.checked : true;
         const hideMenu = hideMenuCheckboxEl && 'checked' in hideMenuCheckboxEl ? hideMenuCheckboxEl.checked : false;
 
         const videoId = extractVideoId(videoInput);
@@ -130,10 +130,10 @@
         if (videoInputEl && 'value' in videoInputEl) videoInputEl.value = params.get('video') || '';
         if (startInputEl && 'value' in startInputEl) startInputEl.value = params.get('start') || '';
         if (stopInputEl && 'value' in stopInputEl) stopInputEl.value = params.get('stop') || '';
-        if (loopCheckboxEl && 'checked' in loopCheckboxEl) loopCheckboxEl.checked = params.get('loop') === 'true';
-        if (muteCheckboxEl && 'checked' in muteCheckboxEl) muteCheckboxEl.checked = params.get('mute') === 'true';
+        if (loopCheckboxEl && 'checked' in loopCheckboxEl) loopCheckboxEl.checked = params.get('loop') !== 'false';
+        if (muteCheckboxEl && 'checked' in muteCheckboxEl) muteCheckboxEl.checked = params.get('mute') !== 'false';
         if (controlsCheckboxEl && 'checked' in controlsCheckboxEl) controlsCheckboxEl.checked = params.get('controls') !== 'false';
-        if (autoplayCheckboxEl && 'checked' in autoplayCheckboxEl) autoplayCheckboxEl.checked = params.get('autoplay') === 'true';
+        if (autoplayCheckboxEl && 'checked' in autoplayCheckboxEl) autoplayCheckboxEl.checked = params.get('autoplay') !== 'false';
         if (hideMenuCheckboxEl && 'checked' in hideMenuCheckboxEl) hideMenuCheckboxEl.checked = params.get('hideControlsMenu') === 'true';
 
         const hideControlsMenu = params.get('hideControlsMenu') === 'true';
@@ -165,16 +165,16 @@
 
         <div id="checkboxes" style="display: flex; flex-direction:row; gap: 5px; align-items: center; padding:0 5px 5px 10px; justify-content:center; background:rgba(0,0,0,.1); outline:1px solid #777; border-radius:var(--theme-ui-colors-borderRadius); font-size:clamp(.5rem,1.2vw,1rem);">
           <label class="menu-label">Loop
-            <input type="checkbox" id="loop-checkbox" class="menu-checkbox" />
+            <input type="checkbox" id="loop-checkbox" class="menu-checkbox" checked />
           </label>
           <label class="menu-label">Mute
-            <input type="checkbox" id="mute-checkbox" class="menu-checkbox" />
+            <input type="checkbox" id="mute-checkbox" class="menu-checkbox" checked />
           </label>
           <label class="menu-label">Controls
             <input type="checkbox" id="controls-checkbox" class="menu-checkbox" checked />
           </label>
           <label class="menu-label">Autoplay
-            <input type="checkbox" id="autoplay-checkbox" class="menu-checkbox" />
+            <input type="checkbox" id="autoplay-checkbox" class="menu-checkbox" checked />
           </label>
           <label class="menu-label">Hide
             <input type="checkbox" id="hide-menu-checkbox" class="menu-checkbox" />
