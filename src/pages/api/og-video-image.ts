@@ -23,10 +23,10 @@ export const GET: APIRoute = async ({ url }) => {
       <svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
         <defs>
           <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur in="SourceAlpha" stdDeviation="8"/>
-            <feOffset dx="0" dy="4" result="offsetblur"/>
+            <feGaussianBlur in="SourceAlpha" stdDeviation="10"/>
+            <feOffset dx="0" dy="5" result="offsetblur"/>
             <feComponentTransfer>
-              <feFuncA type="linear" slope="0.5"/>
+              <feFuncA type="linear" slope="0.6"/>
             </feComponentTransfer>
             <feMerge>
               <feMergeNode/>
@@ -39,14 +39,14 @@ export const GET: APIRoute = async ({ url }) => {
         <image href="data:${mimeType};base64,${base64Image}" width="1200" height="630" preserveAspectRatio="xMidYMid slice"/>
         
         <!-- Semi-transparent overlay for better contrast -->
-        <rect width="1200" height="630" fill="rgba(0,0,0,0.15)"/>
+        <rect width="1200" height="630" fill="rgba(0,0,0,0.2)"/>
         
-        <!-- Play button -->
-        <g filter="url(#shadow)" transform="translate(600, 315)">
-          <!-- White circle background -->
-          <circle cx="0" cy="0" r="60" fill="rgba(255, 255, 255, 0.95)"/>
-          <!-- Black play triangle -->
-          <polygon points="-20,-30 -20,30 35,0" fill="#000" opacity="0.9"/>
+        <!-- Play button matching Bluesky's style -->
+        <g filter="url(#shadow)" transform="translate(550, 265)">
+          <!-- Play triangle with rounded edges like Bluesky -->
+          <path fill="#1C2736" fill-rule="evenodd" clip-rule="evenodd" 
+                d="M 10 3 A 2 2 0 0 0 8 5 L 8 95 A 2 2 0 0 0 11 96.5 L 91 51.5 A 2 2 0 0 0 91 48.5 L 11 3.5 Z" 
+                transform="scale(1.2)"/>
         </g>
       </svg>
     `;
