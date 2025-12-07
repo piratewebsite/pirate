@@ -260,6 +260,8 @@ export const collections = {
       MAX_POSTS: z.number().optional(),
       MAX_POSTS_PER_PAGE: z.number().optional(),
       showShare: z.boolean().optional(),
+      showSearch: z.boolean().optional(),
+      searchMethod: z.enum(['client', 'pagefind', 'hybrid']).optional(),
       videoTimeLimitMinutes: z.number().min(-1).max(30).optional(),
     }),
   }),
@@ -280,6 +282,12 @@ export const collections = {
       display: z.enum(['standalone', 'fullscreen', 'minimal-ui', 'browser']).optional(),
       icon192: z.string().optional(),
       icon512: z.string().optional(),
+    }),
+  }),
+
+  formSettings: defineCollection({
+    type: 'data',
+    schema: z.object({
       location: z.string().optional(),
       showMap: z.boolean().optional(),
       // Contact form configuration
@@ -292,6 +300,15 @@ export const collections = {
       showExtraField2: z.boolean().optional(),
       extraFieldLabel2: z.string().optional(),
       formContent: z.string().optional(),
+      // Map contact information
+      mapTitle: z.string().optional(),
+      mapDescription: z.string().optional(),
+      businessName: z.string().optional(),
+      addressLine1: z.string().optional(),
+      addressLine2: z.string().optional(),
+      mapPhone: z.string().optional(),
+      mapFax: z.string().optional(),
+      mapAdditionalText: z.string().optional(),
     }),
   }),
 

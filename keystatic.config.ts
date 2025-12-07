@@ -261,32 +261,6 @@ export default config({
               ],
               defaultValue: 'contentblock'
             }),
-            customTitle: fields.text({
-              label: 'Section Title Override (Optional)',
-              description: 'Override the component\'s default title. Most sections have their own title settings - only use this if you need a different title.',
-              validation: { isRequired: false }
-            }),
-            customDescription: fields.text({
-              label: 'Section Description (Optional)',
-              description: 'Add descriptive text that appears below the section title.',
-              validation: { isRequired: false }
-            }),
-            showTitle: fields.checkbox({
-              label: 'Show Title',
-              description: 'Display the section title and description',
-              defaultValue: true
-            }),
-            sectionWidth: fields.select({
-              label: 'Section Width',
-              description: 'Control the width of this section',
-              options: [
-                { label: 'Narrow (Blog-style)', value: 'narrow' },
-                { label: 'Normal', value: 'normal' },
-                { label: 'Wide', value: 'wide' },
-                { label: 'Full Width', value: 'full' }
-              ],
-              defaultValue: 'normal'
-            }),
             contentBlockSlug: fields.relationship({
               label: 'Select Content Block',
               description: 'Choose which content block to display (appears only when "Content Block" is selected above)',
@@ -305,26 +279,38 @@ export default config({
               collection: 'CTAs',
               validation: { isRequired: false }
             }),
-            showSearch: fields.checkbox({
-              label: 'Show Search Bar',
-              description: 'Show/hide the search bar in Magic Search sections',
-              defaultValue: true
-            }),
-            searchMethod: fields.select({
-              label: 'Search Method',
-              description: 'Choose search method for Magic Search: Client-side (fast, title/description only) or Pagefind (full content, requires build)',
-              options: [
-                { label: 'Client-side (Fast)', value: 'client' },
-                { label: 'Pagefind (Full Content)', value: 'pagefind' },
-                { label: 'Hybrid (Both)', value: 'hybrid' }
-              ],
-              defaultValue: 'client'
-            }),
             hideCollapseButton: fields.checkbox({
               label: 'Hide Collapse Button',
               description: 'Hide the collapse/expand button for this section. When unchecked, users can collapse this section and the state persists.',
               defaultValue: false
-            })
+            }),
+            showTitle: fields.checkbox({
+              label: 'Show Title',
+              description: 'Display the section title and description',
+              defaultValue: true
+            }),
+            customTitle: fields.text({
+              label: 'Section Title Override (Optional)',
+              description: 'Override the component\'s default title. Most sections have their own title settings - only use this if you need a different title.',
+              validation: { isRequired: false }
+            }),
+            customDescription: fields.text({
+              label: 'Section Description (Optional)',
+              description: 'Add descriptive text that appears below the section title.',
+              validation: { isRequired: false }
+            }),
+            // sectionWidth: fields.select({
+            //   label: 'Section Width',
+            //   description: 'Control the width of this section',
+            //   options: [
+            //     { label: 'Narrow (Blog-style)', value: 'narrow' },
+            //     { label: 'Normal', value: 'normal' },
+            //     { label: 'Wide', value: 'wide' },
+            //     { label: 'Full Width', value: 'full' }
+            //   ],
+            //   defaultValue: 'normal'
+            // }),
+            
           }),
           {
             label: 'Page Sections',
@@ -969,6 +955,21 @@ export default config({
         showTags: fields.checkbox({ label: 'Show Post Tags', description: 'Show/hide tags displayed on individual posts', defaultValue: false }),
         showTagFilters: fields.checkbox({ label: 'Show Tag Filter Pills', description: 'Show/hide tag filter pills in search components on posts and tags pages', defaultValue: true }),
         showShare: fields.checkbox({ label: 'Show Share section on posts', description: 'Hide/Show the share this copy button on posts', defaultValue: false }),
+        showSearch: fields.checkbox({
+          label: 'Show Search Bar',
+          description: 'Show/hide the search bar in Magic Search sections',
+          defaultValue: true
+        }),
+        searchMethod: fields.select({
+          label: 'Search Method',
+          description: 'Choose search method for Magic Search: Client-side (fast, title/description only) or Pagefind (full content, requires build)',
+          options: [
+            { label: 'Client-side (Fast)', value: 'client' },
+            { label: 'Pagefind (Full Content)', value: 'pagefind' },
+            { label: 'Hybrid (Both)', value: 'hybrid' }
+          ],
+          defaultValue: 'hybrid'
+        }),
         divider3: fields.empty(),
         // videoTimeLimitMinutes: fields.number({ 
         //   label: 'Video Time Limit (Minutes)', 
@@ -993,63 +994,6 @@ export default config({
         
         name: fields.text({ label: 'App Name' }),
         shortName: fields.text({ label: 'Short Name' }),
-
-        location: fields.text({ label: 'Location Map', description: 'Copy the src url from the google maps location share embed section'  }),
-        showMap: fields.checkbox({
-          label: 'Show Map in Contact Forms',
-          description: 'Display the location map alongside contact forms',
-          defaultValue: true
-        }),
-
-        divider_contact: fields.empty(),
-        
-        // Contact Form Field Configuration
-        showName: fields.checkbox({
-          label: 'Show Name Field',
-          description: 'Display name field in contact forms',
-          defaultValue: true
-        }),
-        showPhone: fields.checkbox({
-          label: 'Show Phone Field',
-          description: 'Display phone field in contact forms',
-          defaultValue: true
-        }),
-        showMessage: fields.checkbox({
-          label: 'Show Message Field',
-          description: 'Display message textarea in contact forms',
-          defaultValue: true
-        }),
-        showUpload: fields.checkbox({
-          label: 'Show Upload Field',
-          description: 'Display file upload field in contact forms',
-          defaultValue: true
-        }),
-        showExtraField: fields.checkbox({
-          label: 'Show Extra Field',
-          description: 'Display an additional custom text field',
-          defaultValue: false
-        }),
-        extraFieldLabel: fields.text({
-          label: 'Extra Field Label',
-          description: 'Label for the extra text field',
-          defaultValue: 'Extra Field'
-        }),
-        showExtraField2: fields.checkbox({
-          label: 'Show Extra Field 2',
-          description: 'Display a second additional custom text field',
-          defaultValue: false
-        }),
-        extraFieldLabel2: fields.text({
-          label: 'Extra Field Label 2',
-          description: 'Label for the second extra text field',
-          defaultValue: 'Extra Field 2'
-        }),
-        formContent: fields.text({
-          label: 'Form Introduction Text',
-          description: 'Text to display above the contact form',
-          multiline: true,
-          defaultValue: 'For all inquiries, please complete the form below:'
-        }),
 
         divider: fields.empty(),
 
@@ -1107,6 +1051,117 @@ export default config({
             isRequired: true
           }
         })
+      }
+    }),
+    formSettings: singleton({
+      label: 'Form Settings',
+      path: 'src/content/formSettings/',
+      schema: {
+        location: fields.text({ 
+          label: 'Location Map', 
+          description: 'Copy the src url from the google maps location share embed section'
+        }),
+        showMap: fields.checkbox({
+          label: 'Show Map in Contact Forms',
+          description: 'Display the location map alongside contact forms',
+          defaultValue: true
+        }),
+
+        divider_contact: fields.empty(),
+        
+        // Contact Form Field Configuration
+        showName: fields.checkbox({
+          label: 'Show Name Field',
+          description: 'Display name field in contact forms',
+          defaultValue: true
+        }),
+        showPhone: fields.checkbox({
+          label: 'Show Phone Field',
+          description: 'Display phone field in contact forms',
+          defaultValue: true
+        }),
+        showMessage: fields.checkbox({
+          label: 'Show Message Field',
+          description: 'Display message textarea in contact forms',
+          defaultValue: true
+        }),
+        showUpload: fields.checkbox({
+          label: 'Show Upload Field',
+          description: 'Display file upload field in contact forms',
+          defaultValue: true
+        }),
+        showExtraField: fields.checkbox({
+          label: 'Show Extra Field',
+          description: 'Display an additional custom text field',
+          defaultValue: false
+        }),
+        extraFieldLabel: fields.text({
+          label: 'Extra Field Label',
+          description: 'Label for the extra text field',
+          defaultValue: 'Extra Field'
+        }),
+        showExtraField2: fields.checkbox({
+          label: 'Show Extra Field 2',
+          description: 'Display a second additional custom text field',
+          defaultValue: false
+        }),
+        extraFieldLabel2: fields.text({
+          label: 'Extra Field Label 2',
+          description: 'Label for the second extra text field',
+          defaultValue: 'Extra Field 2'
+        }),
+        formContent: fields.text({
+          label: 'Form Introduction Text',
+          description: 'Text to display above the contact form',
+          multiline: true,
+          defaultValue: 'For all inquiries, please complete the form below:'
+        }),
+
+        divider_map: fields.empty(),
+
+        // Map Contact Information
+        mapTitle: fields.text({
+          label: 'Map Section Title',
+          description: 'Title to display above map contact information',
+          validation: { isRequired: false }
+        }),
+        mapDescription: fields.text({
+          label: 'Map Section Description',
+          description: 'Description text to display with map',
+          multiline: true,
+          validation: { isRequired: false }
+        }),
+        businessName: fields.text({
+          label: 'Business Name',
+          description: 'Company/Business name to display below map',
+          validation: { isRequired: false }
+        }),
+        addressLine1: fields.text({
+          label: 'Address Line 1',
+          description: 'Street address',
+          validation: { isRequired: false }
+        }),
+        addressLine2: fields.text({
+          label: 'Address Line 2',
+          description: 'City, State, ZIP',
+          validation: { isRequired: false }
+        }),
+        mapPhone: fields.text({
+          label: 'Phone Number',
+          description: 'Phone number (will be clickable)',
+          validation: { isRequired: false }
+        }),
+        mapFax: fields.text({
+          label: 'Fax Number',
+          description: 'Fax number to display',
+          validation: { isRequired: false }
+        }),
+        mapAdditionalText: fields.text({
+          label: 'Additional Text',
+          description: 'Any additional text to display below contact information',
+          multiline: true,
+          validation: { isRequired: false }
+        }),
       }
     }),
     photoSettings: singleton({
@@ -1442,6 +1497,7 @@ ui: {
     'Settings': [
       'siteSettings',
       'pwaSettings',
+      'formSettings',
       'menuItems',
       'footerMenuItems',
       'socialCard',

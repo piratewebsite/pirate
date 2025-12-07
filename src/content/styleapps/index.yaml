@@ -1,4 +1,3 @@
-backgroundImage: /images/styleapps/backgroundImage.svg
 siteFont: Orbitron
 borderRadius: 10px
 lightBg: rgba(192, 185, 185, 0.57)
@@ -7,6 +6,8 @@ darkBg: rgba(34, 34, 34, 1)
 darkAccent2: rgba(0, 0, 0, 1)
 lightHeader: rgba(0, 0, 0, 0.9)
 darkHeader: rgba(0, 0, 0, 0.9)
+lightCardBg: rgba(0, 0, 0, 1)
+darkCardBg: rgba(0, 0, 0, 1)
 lightText: rgba(0, 0, 0, 1)
 darkText: rgba(243, 231, 231, 1)
 customCSS: >-

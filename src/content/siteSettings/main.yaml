@@ -15,3 +15,5 @@ showSocial: true
 showTags: true
 showTagFilters: true
 showShare: true
+showSearch: true
+searchMethod: hybrid

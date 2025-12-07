@@ -4,13 +4,6 @@ title: Title of another Pirate site
 description: Thanks for being a pirate!
 name: PIRATE
 shortName: PIRATE
-showMap: false
-showName: true
-showPhone: false
-showMessage: true
-showUpload: false
-showExtraField: false
-showExtraField2: false
 screenshot: /images/pwa/screenshot.png
 themeColor: rgba(0, 0, 0, 1)
 backgroundColor: rgba(0, 0, 0, 1)
