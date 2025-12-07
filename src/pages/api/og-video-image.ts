@@ -41,12 +41,9 @@ export const GET: APIRoute = async ({ url }) => {
         <!-- Semi-transparent overlay for better contrast -->
         <rect width="1200" height="630" fill="rgba(0,0,0,0.2)"/>
         
-        <!-- Play button matching Bluesky's style -->
-        <g filter="url(#shadow)" transform="translate(550, 265)">
-          <!-- Play triangle with rounded edges like Bluesky -->
-          <path fill="#1C2736" fill-rule="evenodd" clip-rule="evenodd" 
-                d="M 10 3 A 2 2 0 0 0 8 5 L 8 95 A 2 2 0 0 0 11 96.5 L 91 51.5 A 2 2 0 0 0 91 48.5 L 11 3.5 Z" 
-                transform="scale(1.2)"/>
+        <!-- Play button matching Bluesky's style (scaled 5x and centered) -->
+        <g filter="url(#shadow)" transform="translate(540, 255) scale(5)">
+          <path fill="#1C2736" fill-rule="evenodd" clip-rule="evenodd" d="M6.514 2.143A1 1 0 0 0 5 3v18a1 1 0 0 0 1.514.858l15-9a1 1 0 0 0 0-1.716l-15-9Z"/>
         </g>
       </svg>
     `;
