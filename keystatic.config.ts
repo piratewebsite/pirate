@@ -956,8 +956,8 @@ export default config({
         showLogo: fields.checkbox({ label: 'Show Logo', description: 'Hide/Show the logo in the header', defaultValue: true }),
         showHome: fields.checkbox({ label: 'Show Home Link', description: 'Hide/Show the Home Link', defaultValue: true }),
         showTheme: fields.checkbox({ label: 'Show Theme', description: 'Hide/Show the theme selector', defaultValue: true }),
-        showSwitch: fields.checkbox({ label: 'Show Switch', description: 'Hide/Show the layout selector', defaultValue: true }),
-        showSearch: fields.checkbox({ label: 'Show Search', description: 'Hide/Show the search in the header', defaultValue: true }),
+        // showSwitch: fields.checkbox({ label: 'Show Switch', description: 'Hide/Show the layout selector', defaultValue: true }),
+        // showSearch: fields.checkbox({ label: 'Show Search', description: 'Hide/Show the search in the header', defaultValue: true }),
         showFooter: fields.checkbox({ label: 'Show Footer', description: 'Hide/Show the Footer', defaultValue: true }),
         showTitles: fields.checkbox({ label: 'Show Post Titles', description: 'Hide/Show the post titles', defaultValue: false }),
         showDates: fields.checkbox({ label: 'Show Dates', description: 'Hide/Show the post dates', defaultValue: true }),
@@ -970,12 +970,12 @@ export default config({
         showTagFilters: fields.checkbox({ label: 'Show Tag Filter Pills', description: 'Show/hide tag filter pills in search components on posts and tags pages', defaultValue: true }),
         showShare: fields.checkbox({ label: 'Show Share section on posts', description: 'Hide/Show the share this copy button on posts', defaultValue: false }),
         divider3: fields.empty(),
-        videoTimeLimitMinutes: fields.number({ 
-          label: 'Video Time Limit (Minutes)', 
-          description: 'Set to -1 to disable timer, 0 for immediate paywall, or 1-30 minutes for timed limit',
-          defaultValue: -1,
-          validation: { min: -1, max: 30 }
-        }),
+        // videoTimeLimitMinutes: fields.number({ 
+        //   label: 'Video Time Limit (Minutes)', 
+        //   description: 'Set to -1 to disable timer, 0 for immediate paywall, or 1-30 minutes for timed limit',
+        //   defaultValue: -1,
+        //   validation: { min: -1, max: 30 }
+        // }),
       },
     }),
     pwaSettings: singleton({

@@ -7,8 +7,6 @@ showHeader: true
 showLogo: true
 showHome: true
 showTheme: true
-showSwitch: true
-showSearch: true
 showFooter: true
 showTitles: true
 showDates: true
@@ -17,4 +15,3 @@ showSocial: true
 showTags: true
 showTagFilters: true
 showShare: true
-videoTimeLimitMinutes: -1
