@@ -4,14 +4,17 @@ showMap: true
 showName: true
 showPhone: true
 showMessage: true
-showUpload: false
-showExtraField: false
+showUpload: true
+showExtraField: true
 extraFieldLabel: Extra Field
-showExtraField2: false
+showExtraField2: true
 extraFieldLabel2: Extra Field 2
 formContent: 'For all inquiries, please complete the form below:'
-businessName: Hytron Manufacturing
-addressLine1: 15582 Chemical Lane
-addressLine2: Huntington Beach, CA 92649
-mapPhone: (714) 903-6701
-mapFax: (714) 903-4381
+mapTitle: Section Title Here
+mapDescription: A section description goes here.
+businessName: Business Name
+addressLine1: 12345 Street Name
+addressLine2: City, State and Zip
+mapPhone: 555 123 4567
+mapFax: (555) 123-4568
+mapAdditionalText: Some additional text can go here.
