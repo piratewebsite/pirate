@@ -282,7 +282,7 @@ export default config({
             hideCollapseButton: fields.checkbox({
               label: 'Hide Collapse Button',
               description: 'Hide the collapse/expand button for this section. When unchecked, users can collapse this section and the state persists.',
-              defaultValue: false
+              defaultValue: true
             }),
             showTitle: fields.checkbox({
               label: 'Show Title',
