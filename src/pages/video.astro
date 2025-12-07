@@ -188,7 +188,7 @@ if (videoParam || videoIdParam) {
   }
 }
 
-// For video thumbnails, add play button overlay using our API endpoint
+// Use our API endpoint to generate a composite image with play button overlay
 const ogImageWithPlayButton = videoId && videoThumbnail !== defaultImage
   ? `${Astro.url.origin}/api/og-video-image?thumbnail=${encodeURIComponent(videoThumbnail)}`
   : videoThumbnail;
