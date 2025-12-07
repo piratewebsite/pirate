@@ -106,10 +106,6 @@ export default config({
                 validation: { isRequired: false }
               }),
               controls: fields.checkbox({ label: 'Use YouTube Player Controls' }),
-              useCustomPlayer: fields.checkbox({ 
-                label: 'Use Custom Player Controls', 
-                defaultValue: true 
-              }),
               mute: fields.checkbox({ label: 'Mute Video' }),
               loop: fields.checkbox({ label: 'Loop Video' }),
               start: fields.number({ 
@@ -131,7 +127,6 @@ export default config({
                 description: 'Display the mute button (which also acts as play/pause control)',
                 defaultValue: false 
               }),
-              videoOnly: fields.checkbox({ label: 'Video Only', defaultValue: false }),
               svgatorSync: fields.checkbox({
                 label: 'Sync with SVGator Animation',
                 description: 'Enable synchronization with overlay SVG animation',
@@ -170,10 +165,6 @@ export default config({
                 validation: { isRequired: false }
               }),
               controls: fields.checkbox({ label: 'Use YouTube Player Controls' }),
-              useCustomPlayer: fields.checkbox({ 
-                label: 'Use Custom Player Controls', 
-                defaultValue: true 
-              }),
               mute: fields.checkbox({ label: 'Mute Video', defaultValue: true }),
               loop: fields.checkbox({ label: 'Loop Video' }),
               start: fields.number({ 
@@ -195,7 +186,6 @@ export default config({
                 description: 'Display the mute button (which also acts as play/pause control)',
                 defaultValue: false 
               }),
-              videoOnly: fields.checkbox({ label: 'Video Only', defaultValue: false }),
               svgatorSync: fields.checkbox({ 
                 label: 'Sync with SVGator Animation',
                 description: 'Sync this video with an SVGator SVG animation',
@@ -742,10 +732,6 @@ export default config({
                 validation: { isRequired: false }
               }),
               controls: fields.checkbox({ label: 'Use YouTube Player Controls' }),
-              useCustomPlayer: fields.checkbox({ 
-                label: 'Use Custom Player Controls', 
-                defaultValue: true 
-              }),
               mute: fields.checkbox({ label: 'Mute Video' }),
               loop: fields.checkbox({ label: 'Loop Video' }),
               start: fields.number({ 
@@ -762,7 +748,6 @@ export default config({
                 description: 'Show thumbnail with play button instead of loading video immediately.',
                 defaultValue: true 
               }),
-              videoOnly: fields.checkbox({ label: 'Video Only', defaultValue: false }),
             }),
             false: fields.empty(),
           }
@@ -1333,18 +1318,7 @@ export default config({
         copyButton: fields.text({ label: 'Copy' }),
         siteDisclaimer: fields.text({ label: 'Site Disclaimer', multiline: true }),
         
-        // Magic Search Component Labels
-        magicSearchPlaceholder: fields.text({ label: 'Magic Search Placeholder', defaultValue: 'Search posts by title or description...' }),
-        magicSearchTopics: fields.text({ label: 'Magic Search Topics Label', defaultValue: 'Topics:' }),
-        magicSearchAll: fields.text({ label: 'Magic Search All Label', defaultValue: 'All' }),
-        magicSearchShowing: fields.text({ label: 'Magic Search Showing Text', defaultValue: 'Showing' }),
-        magicSearchOf: fields.text({ label: 'Magic Search Of Text', defaultValue: 'of' }),
-        magicSearchPosts: fields.text({ label: 'Magic Search Posts Text', defaultValue: 'posts' }),
-        magicSearchPost: fields.text({ label: 'Magic Search Post Text (singular)', defaultValue: 'post' }),
-        magicSearchShowMoreTopics: fields.text({ label: 'Magic Search Show More Topics', defaultValue: 'Show More Topics ▼' }),
-        magicSearchShowLessTopics: fields.text({ label: 'Magic Search Show Less Topics', defaultValue: 'Show Less Topics ▲' }),
-        magicSearchNoResults: fields.text({ label: 'Magic Search No Results Title', defaultValue: 'No posts found' }),
-        magicSearchNoResultsDesc: fields.text({ label: 'Magic Search No Results Description', defaultValue: 'Try adjusting your search or filter criteria' }),
+        
         
         // temp: fields.text({ label: 'temp', multiline: true }),
       },

@@ -316,18 +316,7 @@ export const collections = {
       shareText: z.string().optional(),
       copyButton: z.string().optional(),
       siteDisclaimer: z.string().optional(),
-      // Magic Search labels
-      magicSearchPlaceholder: z.string().optional(),
-      magicSearchTopics: z.string().optional(),
-      magicSearchAll: z.string().optional(),
-      magicSearchShowing: z.string().optional(),
-      magicSearchOf: z.string().optional(),
-      magicSearchPosts: z.string().optional(),
-      magicSearchPost: z.string().optional(),
-      magicSearchShowMoreTopics: z.string().optional(),
-      magicSearchShowLessTopics: z.string().optional(),
-      magicSearchNoResults: z.string().optional(),
-      magicSearchNoResultsDesc: z.string().optional(),
+
     }),
   }),
 
