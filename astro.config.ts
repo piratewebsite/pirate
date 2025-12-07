@@ -17,7 +17,7 @@ export const reader = createReader(process.cwd(), keystaticConfig);
 
 const isVercel = !!process.env.VERCEL;
 const adapter = isVercel ? vercel() : netlify();
-const output = 'static'; // Use server mode for both platforms to enable dynamic OG images
+const output: 'static' | 'server' = 'server'; // Use server mode with prerender=true for static pages
 
 const pwaSettings = await reader.singletons.pwaSettings.read();
 
