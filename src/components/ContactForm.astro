@@ -1,28 +1,33 @@
 ---
-import PageLayout from "@/layouts/Base.astro";
-import { createReader } from '@keystatic/core/reader';
-import keystaticConfig from '../../keystatic.config';
+import { getEntry } from 'astro:content';
+import App from './App.astro';
 
-const meta = {
-  description: "Contact",
-  title: "Contact",
-};
+interface Props {
+  showTitle?: boolean;
+  customTitle?: string;
+  customDescription?: string;
+  formName?: string;
+}
 
-const reader = createReader(process.cwd(), keystaticConfig);
-const contactPage = await reader.singletons.contactPage.read();
+const { showTitle = true, customTitle, customDescription, formName = 'contact' } = Astro.props;
 
-const showName = contactPage?.showName ?? true;
-const showPhone = contactPage?.showPhone ?? true;
-const showUpload = contactPage?.showUpload ?? true;
-const showMessage = contactPage?.showMessage ?? true;
-const showExtraField = contactPage?.showExtraField ?? false;
-const extraFieldLabel = contactPage?.extraFieldLabel ?? 'Extra Field';
-const showMap = contactPage?.showMap ?? true;
-const showExtraField2 = contactPage?.showExtraField2 ?? false;
-const extraFieldLabel2 = contactPage?.extraFieldLabel2 ?? 'Extra Field 2';
-const content = (contactPage?.content ?? '').replace(/\n/g, '<br>');
+const pwaSettings = await getEntry('pwaSettings', 'index');
 
-import App from '@/components/App.astro';
+// Contact form field settings from PWA settings
+const showName = pwaSettings?.data?.showName ?? true;
+const showPhone = pwaSettings?.data?.showPhone ?? true;
+const showUpload = pwaSettings?.data?.showUpload ?? true;
+const showMessage = pwaSettings?.data?.showMessage ?? true;
+const showExtraField = pwaSettings?.data?.showExtraField ?? false;
+const extraFieldLabel = pwaSettings?.data?.extraFieldLabel ?? 'Extra Field';
+const showMap = pwaSettings?.data?.showMap ?? true;
+const showExtraField2 = pwaSettings?.data?.showExtraField2 ?? false;
+const extraFieldLabel2 = pwaSettings?.data?.extraFieldLabel2 ?? 'Extra Field 2';
+const content = (pwaSettings?.data?.formContent ?? '').replace(/\n/g, '<br>');
+
+// Use custom title/description if provided, otherwise use defaults
+const displayTitle = customTitle || 'Contact';
+const displayDescription = customDescription;
 ---
 
 <style>
@@ -78,32 +83,55 @@ import App from '@/components/App.astro';
     transition: opacity 0.5s ease-in;
   }
 
-  .backimage {
-    display: none !important;
+  .contact-section {
+    padding: 2rem 0;
+  }
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .section-title {
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    margin-bottom: 0.5rem;
+  }
+
+  .section-description {
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    opacity: 0.8;
+    margin-bottom: 1rem;
+  }
+
+  .hidden {
+    display: none;
   }
 </style>
 
-<PageLayout
-  meta={meta}
-  themeMode="user"
->
-  <br />
-  {content && (
-    <div class="content-area contactpage" style="padding-bottom: 2vh; max-width: 500px; margin:0 auto;" set:html={content}>
-      </div>
-    )}
+<div class="contact-section">
+  {showTitle && (
+    <div class="section-header">
+      <h2 class="section-title">{displayTitle}</h2>
+      {displayDescription && (
+        <p class="section-description">{displayDescription}</p>
+      )}
+      {!displayDescription && content && (
+        <div class="section-description" set:html={content}></div>
+      )}
+    </div>
+  )}
+  
   <div class="flexbutt" style={`gap: 4vw; padding: 0 4%; ${showMap ? '' : 'justify-content: center;'}`}>
     <form
       class="flexcheek"
-      name="contact"
+      name={formName}
       method="POST"
       data-netlify="true"
-      data-netlify-honeypot="bot-field"
       action="/thanks/"
-      enc-type="multipart/form-data"
+      enctype="multipart/form-data"
       style="justify-content: center; width: 100%; padding: 5vh 0 0 0; max-width: 500px; margin: 0 auto;"
     >
-      <input type="hidden" name="form-name" value="contact" />
+      <input type="hidden" name="form-name" value={formName} />
 
       {showName && (
         <p>
@@ -143,20 +171,18 @@ import App from '@/components/App.astro';
         </p>
       )}
 
-    
-
       {showMessage && (
-      <p>
-        <label html-for="message" aria-label="Your Message">
-          <textarea id="message" name="message" placeholder="Message"></textarea>
-        </label>
-      </p>
+        <p>
+          <label html-for="message" aria-label="Your Message">
+            <textarea id="message" name="message" placeholder="Message"></textarea>
+          </label>
+        </p>
       )}
 
       {showUpload && (
         <p>
           <label html-for="attachment1" style={{ padding: '0', color: '', display: 'flex', width: '100%', fontSize: '90%', gap: '15px', justifyContent: 'center', alignItems: 'center' }}>
-            <input class="file-input hidden button" type="file" id="attachment1" name="attachment1" />
+            <input class="file-input button" type="file" id="attachment1" name="attachment1" />
             ZIP files preferred
           </label>
         </p>
@@ -175,7 +201,4 @@ import App from '@/components/App.astro';
       </div>
     )}
   </div>
-  <br />
-  <br />
-  <br />
-</PageLayout>
+</div>

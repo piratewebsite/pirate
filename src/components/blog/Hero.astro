@@ -6,7 +6,7 @@ import YouTubeEmbed from '../YouTubeEmbed.astro';
 import Share from "@/components/Share.astro"
 import { getEntry } from 'astro:content';
 const siteSettings = await getEntry('siteSettings', 'main');
-const { showTitles, showTags, showDates, showShare, showSocial } = siteSettings.data;
+const { showTitles, showTags, showDates, showShare, showSocial } = siteSettings?.data || {};
 import SocialList from "@/components/SocialList.astro";
 
 
@@ -20,22 +20,28 @@ const {
     content: { data },
 } = Astro.props;
 
-const dateTimeOptions: Intl.DateTimeFormatOptions = {
-    month: "long",
-};
+const hasOverlay = data.overlayImage || data.overlaySvg;
 ---
 {
   (data.youtube && data.youtube.discriminant && data.youtube.value && data.youtube.value.url) ? (
-    <YouTubeEmbed 
-      title={data.youtube.value.title}
-      url={data.youtube.value.url}
-      controls={data.youtube.value.controls}
-      mute={data.youtube.value.mute}
-      loop={data.youtube.value.loop}
-      start={data.youtube.value.start}
-      end={data.youtube.value.end}
-      useCustomPlayer={data.youtube.value.useCustomPlayer}
-    />
+    <div class="video-container-with-overlay" style="position: relative;">
+      <YouTubeEmbed 
+        title={data.youtube.value.title}
+        url={data.youtube.value.url}
+        controls={data.youtube.value.controls}
+        mute={data.youtube.value.mute}
+        autoplay={data.youtube.value.mute ? true : false}
+        loop={data.youtube.value.loop}
+        start={data.youtube.value.start}
+        end={data.youtube.value.end}
+        clickToLoad={data.youtube.value.clickToLoad}
+        useCustomPlayer={data.youtube.value.useCustomPlayer}
+        overlayImage={data.overlayImage}
+        overlayImageAlt={data.overlayImageAlt}
+        overlaySvg={data.overlaySvg}
+        overlaySvgAlt={data.overlaySvgAlt}
+      />
+    </div>
   ) : data.coverImage && data.coverImage.src ? (
     <div class=" mb-6">
       <Image
@@ -69,14 +75,13 @@ const dateTimeOptions: Intl.DateTimeFormatOptions = {
 {typeof showDates !== 'undefined' && showDates && (
     <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
         <p class="font-semibold">
-            <FormattedDate date={data.publishDate} dateTimeOptions={dateTimeOptions} />
+            <FormattedDate date={data.publishDate} />
         </p>
         {data.updatedDate && (
             <span class="rounded-lg bg-quote/10 p-1 text-quote">
                 Last Updated:{" "}
                 <FormattedDate
                     date={data.updatedDate}
-                    dateTimeOptions={dateTimeOptions}
                 />
             </span>
         )}

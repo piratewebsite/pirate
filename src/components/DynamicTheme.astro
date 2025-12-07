@@ -10,12 +10,14 @@ const defaultStyleSettings: StyleSettings = {
   lightAccent: '#000000',
   lightAccent2: '#000000',
   lightHeader: '#000000',
+  lightCardBg: '#f5f5f5',
   darkBg: '#000000',
   darkLink: '#ffffff',
   darkText: '#ffffff',
   darkAccent: '#ffffff',
   darkAccent2: '#ffffff',
   darkHeader: '#ffffff',
+  darkCardBg: '#1a1a1a',
   borderRadius: '0px'
 };
 
@@ -50,18 +52,10 @@ try {
 ---
 
 <script is:inline define:vars={{ styleSettings, themeMode }}>
-  function getInitialTheme() {
-    if (themeMode === 'light' || themeMode === 'dark') {
-      return themeMode;
-    }
-    const savedTheme = localStorage.getItem('theme');
-    return savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-  }
-
   function applyTheme() {
     const root = document.documentElement;
     const body = document.body;
-    const theme = root.dataset.theme;
+    const theme = root.dataset.theme || 'light'; // Default fallback if no theme set yet
   
     root.style.setProperty('--theme-bg-light', styleSettings.lightBg);
     root.style.setProperty('--theme-link-light', styleSettings.lightLink);
@@ -69,6 +63,7 @@ try {
     root.style.setProperty('--theme-accent-light', styleSettings.lightAccent);
     root.style.setProperty('--theme-accent2-light', styleSettings.lightAccent2);
     root.style.setProperty('--theme-header-light', styleSettings.lightHeader);
+    root.style.setProperty('--theme-card-bg-light', styleSettings.lightCardBg || styleSettings.lightHeader);
 
     root.style.setProperty('--theme-bg-dark', styleSettings.darkBg);
     root.style.setProperty('--theme-link-dark', styleSettings.darkLink);
@@ -76,6 +71,7 @@ try {
     root.style.setProperty('--theme-accent-dark', styleSettings.darkAccent);
     root.style.setProperty('--theme-accent2-dark', styleSettings.darkAccent2);
     root.style.setProperty('--theme-header-dark', styleSettings.darkHeader);
+    root.style.setProperty('--theme-card-bg-dark', styleSettings.darkCardBg || styleSettings.darkHeader);
 
     root.style.setProperty('--border-radius', styleSettings.borderRadius);
 
@@ -88,21 +84,22 @@ try {
   }
 
   function updateCurrentTheme(theme) {
-    const root = document.documentElement;
-    root.dataset.theme = theme;
-    localStorage.setItem('theme', theme);
+    // DynamicTheme no longer manages theme state - only applies styling
+    // Theme state is managed by ThemeProvider
   }
 
-  document.documentElement.dataset.theme = getInitialTheme();
+  // Apply theme styling immediately and on navigation
   applyTheme();
+  
+  // Handle both regular navigation and view transitions (if enabled later)
+  document.addEventListener('DOMContentLoaded', applyTheme);
   document.addEventListener('astro:page-load', applyTheme);
-
-  window.toggleTheme = function() {
-    const currentTheme = document.documentElement.dataset.theme;
-    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-    updateCurrentTheme(newTheme);
+  document.addEventListener('astro:after-swap', applyTheme);
+  
+  // Listen for theme changes from ThemeProvider
+  document.addEventListener('theme-change', (e) => {
     applyTheme();
-  }
+  });
 </script>
 <style set:html={customCSS}></style>
 <style define:vars={{ resumeName }}>
