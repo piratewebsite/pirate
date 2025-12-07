@@ -55,12 +55,10 @@ export const GET: APIRoute = async ({ url, request }) => {
       .jpeg({ quality: 90 })
       .toBuffer();
 
-    return new Response(compositedImage, {
+    return new Response(new Uint8Array(compositedImage), {
       headers: {
         'Content-Type': 'image/jpeg',
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
+        'Cache-Control': 'public, max-age=31536000, immutable'
       }
     });
   } catch (error) {
