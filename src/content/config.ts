@@ -332,6 +332,7 @@ export const collections = {
       shareText: z.string().optional(),
       copyButton: z.string().optional(),
       siteDisclaimer: z.string().optional(),
+      socialMessage: z.string().optional(),
 
     }),
   }),

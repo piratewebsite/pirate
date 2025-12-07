@@ -1317,6 +1317,7 @@ export default config({
         shareText: fields.text({ label: 'Share This' }),
         copyButton: fields.text({ label: 'Copy' }),
         siteDisclaimer: fields.text({ label: 'Site Disclaimer', multiline: true }),
+        socialMessage: fields.text({ label: 'Social Links Message', defaultValue: "I'm Social" }),
         
         
         
