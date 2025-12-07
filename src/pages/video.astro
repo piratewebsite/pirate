@@ -187,12 +187,19 @@ if (videoParam || videoIdParam) {
     }
   }
 }
+
+// For video thumbnails, add play button overlay using an image service
+// This creates a URL that includes the thumbnail with a play button overlay
+const ogImageWithPlayButton = videoId && videoThumbnail !== defaultImage
+  ? `https://images.weserv.nl/?url=${encodeURIComponent(videoThumbnail)}&w=1200&h=630&fit=cover&a=attention&overlay=https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/circle-play.svg&ow=200&oh=200&ox=center&oy=center`
+  : videoThumbnail;
+
 ---
 <PageLayout 
   title={videoTitle} 
   description={videoDescription} 
   themeMode="user"
-  ogImage={videoThumbnail}
+  ogImage={ogImageWithPlayButton}
 >
 <style>
 html{overflow-x: hidden !important;}
