@@ -130,7 +130,8 @@ if (videoParam || videoIdParam) {
     // For YouTube videos, fetch real metadata from API during SSR
     if (detected.platform === 'youtube') {
       try {
-        const metadataUrl = new URL('/api/video-metadata', Astro.url.origin);
+        // Try both metadata endpoints for compatibility with Bluesky bot
+        const metadataUrl = new URL('/api/metadata', Astro.url.origin);
         metadataUrl.searchParams.set('videoId', detected.id);
         
         const response = await fetch(metadataUrl.toString());
@@ -139,14 +140,16 @@ if (videoParam || videoIdParam) {
           videoTitle = metadata.title || videoTitle;
           videoDescription = metadata.description || videoDescription;
           videoThumbnail = metadata.thumbnail || videoThumbnail;
+          console.log('✅ Fetched metadata:', { videoTitle, videoDescription, videoThumbnail });
         } else {
+          console.warn('⚠️ Metadata API returned status:', response.status);
           // Fallback to default thumbnail if API fails
-          videoThumbnail = `https://img.youtube.com/vi/${detected.id}/maxresdefault.jpg`;
+          videoThumbnail = `https://img.youtube.com/vi/${detected.id}/hqdefault.jpg`;
         }
       } catch (error) {
         console.error('Failed to fetch video metadata:', error);
         // Fallback to default thumbnail
-        videoThumbnail = `https://img.youtube.com/vi/${detected.id}/maxresdefault.jpg`;
+        videoThumbnail = `https://img.youtube.com/vi/${detected.id}/hqdefault.jpg`;
       }
     } else {
       // For non-YouTube platforms, use generic metadata
@@ -168,7 +171,7 @@ if (videoParam || videoIdParam) {
     if (videoId) {
       // Try to fetch metadata for YouTube
       try {
-        const metadataUrl = new URL('/api/video-metadata', Astro.url.origin);
+        const metadataUrl = new URL('/api/metadata', Astro.url.origin);
         metadataUrl.searchParams.set('videoId', videoId);
         
         const response = await fetch(metadataUrl.toString());
@@ -176,13 +179,13 @@ if (videoParam || videoIdParam) {
           const metadata = await response.json();
           videoTitle = metadata.title || videoTitle;
           videoDescription = metadata.description || videoDescription;
-          videoThumbnail = metadata.thumbnail || `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+          videoThumbnail = metadata.thumbnail || `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
         } else {
-          videoThumbnail = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+          videoThumbnail = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
         }
       } catch (error) {
         console.error('Failed to fetch video metadata:', error);
-        videoThumbnail = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+        videoThumbnail = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
       }
     }
   }
