@@ -3,19 +3,15 @@ title: home
 slug: home
 useTemplateSystem: true
 sections:
+  - type: contentblock
+    contentBlockSlug: about
+    hideCollapseButton: true
+    showTitle: true
   - type: faqs
     hideCollapseButton: true
     showTitle: false
   - type: posts
     hideCollapseButton: true
-    showTitle: true
-  - type: form
-    hideCollapseButton: false
-    showTitle: true
-    customTitle: Contact Me!
-    customDescription: Please please please!
-  - type: app
-    hideCollapseButton: false
     showTitle: true
   - type: magicsearch
     hideCollapseButton: false
@@ -26,7 +22,8 @@ sections:
   - type: resume
     hideCollapseButton: false
     showTitle: true
-  - type: photos
-    hideCollapseButton: false
+  - type: youtubefeeds
+    feedConfig: news-channels
+    hideCollapseButton: true
     showTitle: true
 ---

@@ -10,17 +10,43 @@ interface Props {
 
 const { slug, sectionWidth = 'normal' } = Astro.props;
 
-
+console.log('ContentBlock loading:', slug);
 
 // Load the content block
 let contentBlock;
 try {
   contentBlock = await getEntry('contentBlocks', slug);
+  console.log('ContentBlock loaded:', slug, 'exists:', !!contentBlock);
   if (!contentBlock) {
+    console.error('❌ ContentBlock not found:', slug);
     return null;
   }
 } catch (error) {
+  console.error('❌ Error loading ContentBlock:', slug, error);
   return null;
+}
+
+// Try to load content from directory-based .mdoc files if they exist
+let contentFromFile = null;
+let secondaryContentFromFile = null;
+
+try {
+  if (typeof process !== 'undefined' && process.versions && process.versions.node) {
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    const contentPath = path.join(process.cwd(), 'content/contentBlocks', slug, 'content.mdoc');
+    const secondaryPath = path.join(process.cwd(), 'content/contentBlocks', slug, 'secondaryContent.mdoc');
+    
+    if (fs.existsSync(contentPath)) {
+      contentFromFile = fs.readFileSync(contentPath, 'utf-8');
+    }
+    if (fs.existsSync(secondaryPath)) {
+      secondaryContentFromFile = fs.readFileSync(secondaryPath, 'utf-8');
+    }
+  }
+} catch (error) {
+  console.error('Error loading content files:', error);
 }
 
 // Try to load secondary content from separate file if it exists
@@ -45,6 +71,7 @@ try {
 const { 
   title,
   content,
+  secondaryContent,
   layout = 'single',
   contentAlignment = 'left',
   spacing = 'normal',
@@ -62,9 +89,7 @@ const {
   ctaAlignment = 'left',
   showTitle = true,
   youtube,
-  videoPosition = 'top',
-  tagline,
-  subheading1
+  videoPosition = 'top'
 } = contentBlock.data;
 
 const hasOverlay = overlayImage || overlaySvg;
@@ -97,29 +122,51 @@ if (slug === 'video-header') {
 // Handle main content rendering
 let renderedMainContent: any = null;
 
-// Check if content is a markdoc object that needs rendering
-if (content && typeof content === 'object' && content !== null) {
+// Priority: 1) Check for content from separate .mdoc file, 2) Check content field from YAML
+const mainContentToRender = contentFromFile || content;
+
+if (mainContentToRender && typeof mainContentToRender === 'object' && mainContentToRender !== null) {
   try {
-    const renderedMain = await render(content);
+    const renderedMain = await render(mainContentToRender);
     if (renderedMain && renderedMain.Content) {
       renderedMainContent = renderedMain.Content;
-
+      console.log('Main content rendered successfully for:', slug);
     }
   } catch (renderError) {
-
+    console.error('Error rendering main content for', slug, ':', renderError);
   }
+} else if (mainContentToRender && typeof mainContentToRender === 'string') {
+  // If it's a string (from .mdoc file), process as markdown
+  actualContent = processMarkdown(mainContentToRender);
+  console.log('Main content processed as markdown for:', slug);
+} else if (mainContentToRender) {
+  console.log('Content exists but is unexpected type for:', slug, 'Type:', typeof mainContentToRender);
+} else {
+  console.log('No content field for:', slug);
 }
 
 // Handle secondary content for two-column layouts
 let renderedSecondaryContent: any = null;
 
 if (layout === 'two-column' || layout === 'two-column-equal') {
-  // Use the secondary content from file if available
-  if (secondaryContentText && secondaryContentText.trim()) {
+  // Priority: 1) Check for secondaryContent from separate .mdoc file, 2) Check secondaryContent field from YAML
+  const secondaryToRender = secondaryContentFromFile || secondaryContent;
+  
+  if (secondaryToRender && typeof secondaryToRender === 'object' && secondaryToRender !== null) {
+    try {
+      const renderedSec = await render(secondaryToRender);
+      if (renderedSec && renderedSec.Content) {
+        renderedSecondaryContent = renderedSec.Content;
+      }
+    } catch (renderError) {
+      console.error('Error rendering secondary content:', renderError);
+    }
+  } else if (secondaryToRender && typeof secondaryToRender === 'string') {
+    // If it's a string (from .mdoc file), process as markdown
+    actualSecondaryContent = processMarkdown(secondaryToRender);
+  } else if (secondaryContentText && secondaryContentText.trim()) {
+    // Fallback to old file loading method
     actualSecondaryContent = processMarkdown(secondaryContentText);
-    // console.log('Secondary content loaded and processed for:', slug);
-  } else {
-    // console.log('No secondary content found for:', slug);
   }
 }
 
@@ -289,25 +336,15 @@ function getCTAButtonClasses(style = 'primary') {
 
     {/* Main Content Area */}
     <div class={`main-content ${layout === 'two-column' ? 'lg:col-span-3' : layout === 'two-column-equal' ? 'lg:col-span-1' : 'col-span-full'}`}>
-      {tagline && (
-        <div class="tagline mb-4">
-          <p class="text-lg font-semibold text-gray-700 dark:text-gray-300">{tagline}</p>
-        </div>
-      )}
-      
-      {subheading1 && (
-        <div class="subheading mb-4">
-          <h3 class="text-xl font-medium text-gray-800 dark:text-gray-200">{subheading1}</h3>
-        </div>
-      )}
-      
       {/* Render content - handle both body (for .mdoc files), markdoc content field, and YAML content field */}
-      {(contentBlock.body || content || renderedMainContent) && (
+      {(contentBlock.body || renderedMainContent || actualContent) && (
         <div class="prose prose-lg max-w-none dark:prose-invert">
           {contentBlock.body ? (
             <div set:html={processMarkdown(contentBlock.body)} />
           ) : renderedMainContent ? (
             <renderedMainContent />
+          ) : actualContent ? (
+            <div set:html={actualContent} />
           ) : typeof content === 'string' ? (
             <div set:html={processMarkdown(content)} />
           ) : (

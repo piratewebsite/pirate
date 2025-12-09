@@ -180,6 +180,7 @@ export const collections = {
   }),
 
   // Content Blocks - loaded from content/contentBlocks/
+  // Handles both flat YAML files and directory-based entries with .mdoc content
   contentBlocks: defineCollection({
     loader: glob({ pattern: '**/*.yaml', base: './content/contentBlocks' }),
     schema: contentBlocksSchema,

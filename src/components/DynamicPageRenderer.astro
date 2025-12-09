@@ -72,7 +72,7 @@ const sectionData = await Promise.all(
       }
     } else if ((section.type === 'content' || section.type === 'contentblock') && section.contentBlockSlug) {
       try {
-        return { type: 'content', data: await getEntry('pitches', section.contentBlockSlug) };
+        return { type: 'content', data: await getEntry('contentBlocks', section.contentBlockSlug) };
       } catch (error) {
         console.log(`Content block not found: ${section.contentBlockSlug}`);
         return { type: 'content', data: null };

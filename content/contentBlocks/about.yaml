@@ -1,0 +1,11 @@
+layout: two-column
+contentAlignment: left
+spacing: normal
+bottomSpacing: none
+imagePosition: top
+ctaPosition: after-content
+ctaAlignment: left
+showTitle: true
+youtube:
+  discriminant: false
+videoPosition: top

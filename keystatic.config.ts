@@ -528,19 +528,13 @@ export default config({
     contentBlocks: collection({
       label: 'Content Blocks',
       path: 'content/contentBlocks/*',
+      slugField: 'title',
       schema: {
-        // Identification
-        slug: fields.slug({ 
-          name: { 
-            label: 'Slug',
-            description: 'URL-friendly identifier (e.g., "my-content-block")'
-          }
-        }),
-        
-        // Content
+        // Identification  
         title: fields.text({ 
           label: 'Title',
-          description: 'Display title that appears above the content'
+          description: 'Display title that appears above the content',
+          validation: { isRequired: false }
         }),
         content: fields.markdoc({
           label: 'Main Content',
@@ -1425,7 +1419,7 @@ ui: {
       'posts',
     ],
     'Content Modules': [
-      'pitches',
+      'contentBlocks',
       'CTAs',
       'youtubeFeeds',
       'faqs',
