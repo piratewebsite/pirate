@@ -27,8 +27,8 @@ try {
 }
 
 // Try to load content from directory-based .mdoc files if they exist
-let contentFromFile = null;
-let secondaryContentFromFile = null;
+let contentFromFile: string | null = null;
+let secondaryContentFromFile: string | null = null;
 
 try {
   if (typeof process !== 'undefined' && process.versions && process.versions.node) {

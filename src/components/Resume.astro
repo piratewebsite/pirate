@@ -20,7 +20,7 @@ const leftColumnItems = resumeSettings.data.leftColumnItems || [];
 const rightColumnItems = resumeSettings.data.rightColumnItems || [];
 
 function sortResumeItems(items: CollectionEntry<'resume'>[], order: string[]): CollectionEntry<'resume'>[] {
-  return order.map(slug => items.find(item => item.slug === slug)).filter((item): item is CollectionEntry<'resume'> => item !== undefined);
+  return order.map(slug => items.find(item => item.id === slug)).filter((item): item is CollectionEntry<'resume'> => item !== undefined);
 }
 
 const leftColumn = sortResumeItems(allResumeItems, leftColumnItems);

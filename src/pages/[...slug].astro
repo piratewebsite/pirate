@@ -18,17 +18,15 @@ export async function getStaticPaths() {
 			console.warn("Posts collection not available:", e);
 		}
 
-		const allEntries = [...pages, ...posts];
+	const allEntries = [...pages, ...posts];
 
-		return allEntries.map((entry) => {
-			const cleanSlug =
-				entry.slug ||
-				entry.id
-					.split("/")
-					.pop()
-					?.replace(/\.(md|mdx|mdoc)$/, "");
-
-			return {
+	return allEntries.map((entry) => {
+		const cleanSlug =
+			entry.data.slug ||
+			entry.id
+				.split("/")
+				.pop()
+				?.replace(/\.(md|mdx|mdoc)$/, "");			return {
 				params: { slug: cleanSlug },
 				props: { entry },
 			};
