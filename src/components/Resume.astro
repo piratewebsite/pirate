@@ -1,5 +1,5 @@
 ---
-import { getCollection, type CollectionEntry } from 'astro:content';
+import { getCollection, type CollectionEntry, render } from 'astro:content';
 import { getEntry } from 'astro:content';
 
 interface Props {
@@ -29,7 +29,7 @@ const rightColumn = sortResumeItems(allResumeItems, rightColumnItems);
 // Render the content for each item
 const renderContent = async (items: CollectionEntry<'resume'>[]) => {
   return Promise.all(items.map(async (item) => {
-    const { Content } = await item.render();
+    const { Content } = await render(item);
     return { ...item, Content };
   }));
 };

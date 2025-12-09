@@ -163,7 +163,7 @@ export const collections = {
 
   // Resume - loaded from content/resume/
   resume: defineCollection({
-    loader: glob({ pattern: '**/*.yaml', base: './content/resume' }),
+    loader: glob({ pattern: '**/*.mdoc', base: './content/resume' }),
     schema: resumeSchema,
   }),
 
@@ -175,7 +175,7 @@ export const collections = {
 
   // FAQs - loaded from content/faqs/
   faqs: defineCollection({
-    loader: glob({ pattern: '**/*.yaml', base: './content/faqs' }),
+    loader: glob({ pattern: '**/*.mdoc', base: './content/faqs' }),
     schema: faqsSchema,
   }),
 
