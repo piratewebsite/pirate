@@ -116,7 +116,57 @@ const { headings = [] } = (post.rendered as { headings?: any[] } | undefined) ??
     height: auto !important;
   }
 }
+
+/* JavaScript-controlled landscape class for webviews that don't support orientation media queries */
+.landscape-mode #blog-hero {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 9999 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.landscape-mode #blog-hero .video-container-with-overlay,
+.landscape-mode #blog-hero > div {
+  height: 100vh !important;
+  width: 100vw !important;
+}
+
+.landscape-mode header,
+.landscape-mode #rotation-notice {
+  display: none !important;
+}
 </style>
+
+<script>
+// Detect orientation changes for webviews (like social media apps) that don't support CSS orientation media queries
+function checkOrientation() {
+  const isMobile = window.innerWidth <= 928; // 58rem = 928px
+  const isLandscape = window.innerWidth > window.innerHeight;
+  
+  if (isMobile && isLandscape) {
+    document.body.classList.add('landscape-mode');
+  } else {
+    document.body.classList.remove('landscape-mode');
+  }
+}
+
+// Check on load
+checkOrientation();
+
+// Check on resize (includes orientation changes)
+window.addEventListener('resize', checkOrientation);
+
+// Check on orientation change (for devices that support it)
+if (window.screen?.orientation) {
+  window.screen.orientation.addEventListener('change', checkOrientation);
+} else if ('onorientationchange' in window) {
+  window.addEventListener('orientationchange', checkOrientation);
+}
+</script>
 
 <BaseLayout 
   title={title} 
