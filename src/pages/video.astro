@@ -255,12 +255,30 @@ width: 60px;
     z-index: 1;
     display: none; 
   }
+
 @media (max-width: 58rem) {
   #bigbox{display:flex; flex-direction: column !important; padding:10px 0 0 0; gap:2vh;}
   .menu-label { font-size: 1.8em; justify-content: center; align-items: center; align-content: center; }
   #video-frame {height: 66vh;}
 /* #checkboxes .menu-label {width: 18vw;} */
   
+}
+
+/* Landscape orientation on mobile devices */
+@media (max-width: 58rem) and (orientation: landscape) {
+  #video-frame {
+    height: 85vh !important;
+    width: 100vw !important;
+  }
+}
+
+/* Portrait orientation on mobile - adjust for aspect ratio */
+@media (max-width: 58rem) and (orientation: portrait) {
+  #video-frame {
+    height: auto !important;
+    aspect-ratio: 16/9;
+    width: 100vw !important;
+  }
 }
 
   #start-input, #stop-input {max-width:30px; border:0px solid red;}
