@@ -55,7 +55,7 @@ const articleDate = updatedDate?.toISOString() ?? publishDate.toISOString();
 const { headings = [] } = (post.rendered as { headings?: any[] } | undefined) ?? {};
 ---
 
-<style>
+<style is:global>
 /* Rotation notice overlay - only show in portrait mode on mobile */
 #rotation-notice {
   display: none;
@@ -115,29 +115,6 @@ const { headings = [] } = (post.rendered as { headings?: any[] } | undefined) ??
     width: 100vw !important;
     height: auto !important;
   }
-}
-
-/* JavaScript-controlled landscape class for webviews that don't support orientation media queries */
-.landscape-mode #blog-hero {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  z-index: 9999 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-.landscape-mode #blog-hero .video-container-with-overlay,
-.landscape-mode #blog-hero > div {
-  height: 100vh !important;
-  width: 100vw !important;
-}
-
-.landscape-mode header,
-.landscape-mode #rotation-notice {
-  display: none !important;
 }
 </style>
 
