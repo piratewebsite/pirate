@@ -72,16 +72,6 @@ const { headings = [] } = (post.rendered as { headings?: any[] } | undefined) ??
   margin: 0;
 }
 
-#rotation-notice a {
-  color: white;
-  text-decoration: underline;
-  font-weight: 700;
-}
-
-#rotation-notice.in-webview {
-  background: rgba(59, 130, 246, 0.9);
-}
-
 @keyframes pulse {
   0%, 100% { opacity: 0.9; }
   50% { opacity: 1; }
@@ -89,13 +79,6 @@ const { headings = [] } = (post.rendered as { headings?: any[] } | undefined) ??
 
 @media (max-width: 58rem) and (orientation: portrait) {
   #rotation-notice {
-    display: block;
-  }
-}
-
-/* Always show in webview on mobile */
-@media (max-width: 58rem) {
-  #rotation-notice.in-webview {
     display: block;
   }
 }
@@ -212,35 +195,8 @@ const { headings = [] } = (post.rendered as { headings?: any[] } | undefined) ??
     
     <!-- Rotation notice for mobile portrait mode -->
     <div id="rotation-notice">
-      <span id="rotation-text">📱 Rotate your device for the best viewing experience</span>
+      📱 Rotate your device for the best viewing experience
     </div>
-    
-    <script>
-      // Detect if running in a webview (social media apps, etc.)
-      function isInWebView() {
-        const ua = navigator.userAgent.toLowerCase();
-        // Check for common webview indicators
-        return (
-          ua.includes('fbav') || // Facebook
-          ua.includes('fban') || // Facebook
-          ua.includes('instagram') ||
-          ua.includes('twitter') ||
-          ua.includes('line/') ||
-          ua.includes('wv') || // Generic webview
-          (ua.includes('safari') && !ua.includes('version')) || // iOS webview
-          ua.includes('bluesky') // Bluesky
-        );
-      }
-      
-      const notice = document.getElementById('rotation-notice');
-      const textEl = document.getElementById('rotation-text');
-      
-      if (isInWebView() && notice && textEl) {
-        notice.classList.add('in-webview');
-        const currentUrl = window.location.href;
-        textEl.innerHTML = `🌐 For best experience, <a href="${currentUrl}" target="_blank" rel="noopener">open in your browser</a>`;
-      }
-    </script>
     
     <!-- Share options below video -->
     {showShare && (
