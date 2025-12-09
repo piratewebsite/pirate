@@ -27,6 +27,7 @@ export default config({
       slugField: 'title',
       path: 'src/content/post/*/',
       format: { contentField: 'content' },
+      columns: ['title', 'sticky', 'draft', 'publishDate', 'tags'],
       schema: {
         publishDate: fields.date({ 
           label: 'Publish Date', 
@@ -41,13 +42,10 @@ export default config({
         title: fields.slug({ name: { label: 'Title' } }),
         description: fields.text({ label: 'Description', validation: { length: { min: 10, max: 160 } } }),
         draft: fields.checkbox({ label: 'Draft', defaultValue: false }),
-        order: fields.conditional(
-          fields.checkbox({ label: 'Make Sticky On Homepage?' }),
-          {
-            true: fields.number({ label: 'Sort Order' }),
-            false: fields.empty()
-          }
-        ),
+        sticky: fields.checkbox({ 
+          label: 'Sticky',
+          defaultValue: false 
+        }),
         content: fields.markdoc({ label: 'Content' }),
         
 
@@ -1191,23 +1189,7 @@ export default config({
 
         divider: fields.empty(),
 
-        // showFaqsOnPhotos: fields.checkbox({
-        //   label: 'Show FAQ Module',
-        //   defaultValue: false,
-        // }),
 
-        // showTestimonialsOnPhotos: fields.checkbox({
-        //   label: 'Show Testimonials Module',
-        //   defaultValue: false,
-        // }),
-
-        // pitch: fields.relationship({
-        //   label: 'Content Block 1',
-        //   collection: 'pitches',
-        //   validation: { isRequired: false }
-        // }),
-
-        divider5: fields.empty(),
 
         defaultDirectory: fields.text({
           label: '(Directory-based Mode) Default Directory',
@@ -1222,11 +1204,6 @@ export default config({
           defaultValue: true,
         }),
 
-        // showSwitch: fields.checkbox({
-        //   label: 'Show Swipe/Scroll Icon',
-        //   description: 'Show the icon that allows switching between grid and swipe views',
-        //   defaultValue: true,
-        // }),
 
         divider2: fields.empty(),
         divider3: fields.empty(),
@@ -1381,49 +1358,10 @@ export default config({
     }),
   
 
-    // bio: singleton({
-    //   label: 'Profile',
-    //   path: 'src/content/bio/',
-    //   schema: {
-    //     title: fields.text({ label: 'Title' }),
-    //     tagline: fields.text({ label: 'Tagline' }),
-    //     description: fields.text({ label: 'Description', multiline: true }),
-    //     image: fields.image({
-    //       label: 'Image',
-    //       directory: 'public/images/bio',
-    //       publicPath: '/images/bio',
-    //     }),
-    //     phone: fields.text({ label: 'Phone' }),
-    //     subheading: fields.text({ label: 'Sub Heading' }),
-    //     subcontent: fields.text({ label: 'Sub Content', multiline: true }),
-    //     cta: fields.relationship({
-    //       label: 'CTA',
-    //       collection: 'CTAs',
-    //     }),
-    //     showSocial: fields.checkbox({ label: 'Show Social Links' }),
-    //   },
-    // }),    
 
 
-    // pirateSocial: singleton({
-    //   label: 'Settings',
-    //   path: 'src/content/pirate/',
-    //   schema: {
-    //     profile: fields.text({ label: 'Profile Name' }),
-    //     description: fields.text({ label: 'Profile Description' }),
 
-    //     // autoDeletePiratePosts: fields.checkbox({
-    //     //   label: 'Auto-delete Pirate Posts',
-    //     //   description: 'Enable this to automatically delete Pirate Posts',
-    //     //   defaultValue: false,
-    //     // }),
-    //     // autoDeleteTime: fields.number({
-    //     //   label: 'Auto-delete Time (in minutes)',
-    //     //   description: 'Set the time after which Pirate Posts will be deleted',
-    //     //   defaultValue: 1440, // 24 hours in minutes
-    //     // }),
-    //   },
-    // }),
+
 
 
 
@@ -1507,9 +1445,6 @@ ui: {
       'resumeSettings',
       'socialLinks',
     ],
-    // 'Membership': [
-    //   'membershipTokens',
-    // ]
   },
 },});
 

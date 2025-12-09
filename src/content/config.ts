@@ -38,10 +38,7 @@ const postSchema = z.object({
   overlaySvgAlt: z.string().optional(),
   tags: z.array(z.string()).default([]).transform(removeDupsAndLowerCase),
   draft: z.boolean().default(false),
-  order: z.object({
-    discriminant: z.boolean(),
-    value: z.number().optional(),
-  }).optional(),
+  sticky: z.boolean().default(false),
   externalUrl: z.string().optional(),
   youtube: z.object({
     discriminant: z.boolean(),
