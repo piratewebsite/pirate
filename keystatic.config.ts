@@ -264,7 +264,7 @@ export default config({
             contentBlockSlug: fields.relationship({
               label: 'Select Content Block',
               description: 'Choose which content block to display (appears only when "Content Block" is selected above)',
-              collection: 'contentBlocks',
+              collection: 'contentblocks',
               validation: { isRequired: false }
             }),
             feedConfig: fields.relationship({
@@ -525,9 +525,9 @@ export default config({
 
 
     
-    contentBlocks: collection({
+    contentblocks: collection({
       label: 'Content Blocks',
-      path: 'content/contentBlocks/*',
+      path: 'content/contentblocks/*',
       slugField: 'title',
       schema: {
         // Identification  
@@ -1419,7 +1419,7 @@ ui: {
       'posts',
     ],
     'Content Modules': [
-      'contentBlocks',
+      'contentblocks',
       'CTAs',
       'youtubeFeeds',
       'faqs',
