@@ -147,25 +147,58 @@ function checkOrientation() {
   const isMobile = window.innerWidth <= 928; // 58rem = 928px
   const isLandscape = window.innerWidth > window.innerHeight;
   
+  // Debug logging
+  console.log('Checking orientation:', { 
+    width: window.innerWidth, 
+    height: window.innerHeight, 
+    isMobile, 
+    isLandscape 
+  });
+  
   if (isMobile && isLandscape) {
     document.body.classList.add('landscape-mode');
+    document.documentElement.classList.add('landscape-mode');
+    console.log('Added landscape-mode class');
   } else {
     document.body.classList.remove('landscape-mode');
+    document.documentElement.classList.remove('landscape-mode');
+    console.log('Removed landscape-mode class');
   }
 }
 
-// Check on load
-checkOrientation();
+// Check on load with a slight delay to ensure DOM is ready
+setTimeout(checkOrientation, 100);
 
 // Check on resize (includes orientation changes)
-window.addEventListener('resize', checkOrientation);
+window.addEventListener('resize', () => {
+  console.log('Resize event fired');
+  checkOrientation();
+});
 
 // Check on orientation change (for devices that support it)
 if (window.screen?.orientation) {
-  window.screen.orientation.addEventListener('change', checkOrientation);
+  window.screen.orientation.addEventListener('change', () => {
+    console.log('Screen orientation change event fired');
+    checkOrientation();
+  });
 } else if ('onorientationchange' in window) {
-  window.addEventListener('orientationchange', checkOrientation);
+  window.addEventListener('orientationchange', () => {
+    console.log('Orientation change event fired');
+    setTimeout(checkOrientation, 100); // Small delay for dimensions to update
+  });
 }
+
+// Poll for changes as a fallback (for stubborn webviews)
+let lastWidth = window.innerWidth;
+let lastHeight = window.innerHeight;
+setInterval(() => {
+  if (window.innerWidth !== lastWidth || window.innerHeight !== lastHeight) {
+    console.log('Polling detected dimension change');
+    lastWidth = window.innerWidth;
+    lastHeight = window.innerHeight;
+    checkOrientation();
+  }
+}, 500);
 </script>
 
 <BaseLayout 
