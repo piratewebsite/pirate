@@ -2,5 +2,5 @@ galleryMode: directory
 showCaptions: true
 autoOpenLightbox: false
 defaultDirectory: all
-showGallerySelector: true
+showGallerySelector: false
 galleryImages: []
