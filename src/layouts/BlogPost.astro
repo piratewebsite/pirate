@@ -72,6 +72,16 @@ const { headings = [] } = (post.rendered as { headings?: any[] } | undefined) ??
   margin: 0;
 }
 
+#rotation-notice a {
+  color: white;
+  text-decoration: underline;
+  font-weight: 700;
+}
+
+#rotation-notice.in-webview {
+  background: rgba(59, 130, 246, 0.9);
+}
+
 @keyframes pulse {
   0%, 100% { opacity: 0.9; }
   50% { opacity: 1; }
@@ -79,6 +89,13 @@ const { headings = [] } = (post.rendered as { headings?: any[] } | undefined) ??
 
 @media (max-width: 58rem) and (orientation: portrait) {
   #rotation-notice {
+    display: block;
+  }
+}
+
+/* Always show in webview on mobile */
+@media (max-width: 58rem) {
+  #rotation-notice.in-webview {
     display: block;
   }
 }
@@ -117,66 +134,6 @@ const { headings = [] } = (post.rendered as { headings?: any[] } | undefined) ??
   }
 }
 </style>
-
-<script>
-// Detect orientation changes for webviews (like social media apps) that don't support CSS orientation media queries
-function checkOrientation() {
-  const isMobile = window.innerWidth <= 928; // 58rem = 928px
-  const isLandscape = window.innerWidth > window.innerHeight;
-  
-  // Debug logging
-  console.log('Checking orientation:', { 
-    width: window.innerWidth, 
-    height: window.innerHeight, 
-    isMobile, 
-    isLandscape 
-  });
-  
-  if (isMobile && isLandscape) {
-    document.body.classList.add('landscape-mode');
-    document.documentElement.classList.add('landscape-mode');
-    console.log('Added landscape-mode class');
-  } else {
-    document.body.classList.remove('landscape-mode');
-    document.documentElement.classList.remove('landscape-mode');
-    console.log('Removed landscape-mode class');
-  }
-}
-
-// Check on load with a slight delay to ensure DOM is ready
-setTimeout(checkOrientation, 100);
-
-// Check on resize (includes orientation changes)
-window.addEventListener('resize', () => {
-  console.log('Resize event fired');
-  checkOrientation();
-});
-
-// Check on orientation change (for devices that support it)
-if (window.screen?.orientation) {
-  window.screen.orientation.addEventListener('change', () => {
-    console.log('Screen orientation change event fired');
-    checkOrientation();
-  });
-} else if ('onorientationchange' in window) {
-  window.addEventListener('orientationchange', () => {
-    console.log('Orientation change event fired');
-    setTimeout(checkOrientation, 100); // Small delay for dimensions to update
-  });
-}
-
-// Poll for changes as a fallback (for stubborn webviews)
-let lastWidth = window.innerWidth;
-let lastHeight = window.innerHeight;
-setInterval(() => {
-  if (window.innerWidth !== lastWidth || window.innerHeight !== lastHeight) {
-    console.log('Polling detected dimension change');
-    lastWidth = window.innerWidth;
-    lastHeight = window.innerHeight;
-    checkOrientation();
-  }
-}, 500);
-</script>
 
 <BaseLayout 
   title={title} 
@@ -255,8 +212,35 @@ setInterval(() => {
     
     <!-- Rotation notice for mobile portrait mode -->
     <div id="rotation-notice">
-      📱 Rotate your device for the best viewing experience
+      <span id="rotation-text">📱 Rotate your device for the best viewing experience</span>
     </div>
+    
+    <script>
+      // Detect if running in a webview (social media apps, etc.)
+      function isInWebView() {
+        const ua = navigator.userAgent.toLowerCase();
+        // Check for common webview indicators
+        return (
+          ua.includes('fbav') || // Facebook
+          ua.includes('fban') || // Facebook
+          ua.includes('instagram') ||
+          ua.includes('twitter') ||
+          ua.includes('line/') ||
+          ua.includes('wv') || // Generic webview
+          (ua.includes('safari') && !ua.includes('version')) || // iOS webview
+          ua.includes('bluesky') // Bluesky
+        );
+      }
+      
+      const notice = document.getElementById('rotation-notice');
+      const textEl = document.getElementById('rotation-text');
+      
+      if (isInWebView() && notice && textEl) {
+        notice.classList.add('in-webview');
+        const currentUrl = window.location.href;
+        textEl.innerHTML = `🌐 For best experience, <a href="${currentUrl}" target="_blank" rel="noopener">open in your browser</a>`;
+      }
+    </script>
     
     <!-- Share options below video -->
     {showShare && (
