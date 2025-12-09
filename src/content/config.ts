@@ -120,7 +120,7 @@ const socialLinksSchema = z.any();
 const resumeSchema = z.any();
 const testimonialsSchema = z.any();
 const faqsSchema = z.any();
-const pitchesSchema = z.any();
+const contentBlocksSchema = z.any();
 const ctasSchema = z.any();
 const menuItemsSchema = z.any();
 
@@ -179,10 +179,10 @@ export const collections = {
     schema: faqsSchema,
   }),
 
-  // Pitches - loaded from content/pitches/
-  pitches: defineCollection({
-    loader: glob({ pattern: '**/*.yaml', base: './content/pitches' }),
-    schema: pitchesSchema,
+  // Content Blocks - loaded from content/contentBlocks/
+  contentBlocks: defineCollection({
+    loader: glob({ pattern: '**/*.yaml', base: './content/contentBlocks' }),
+    schema: contentBlocksSchema,
   }),
 
   // CTAs - loaded from content/CTAs/

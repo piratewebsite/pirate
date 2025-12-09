@@ -15,7 +15,7 @@ const { slug, sectionWidth = 'normal' } = Astro.props;
 // Load the content block
 let contentBlock;
 try {
-  contentBlock = await getEntry('pitches', slug);
+  contentBlock = await getEntry('contentBlocks', slug);
   if (!contentBlock) {
     return null;
   }
@@ -31,7 +31,7 @@ try {
     const fs = await import('fs');
     const path = await import('path');
     
-    const secondaryContentPath = path.join(process.cwd(), 'src/content/pitches', slug, 'secondaryContent.mdoc');
+    const secondaryContentPath = path.join(process.cwd(), 'content/contentBlocks', slug, 'secondaryContent.mdoc');
     if (fs.existsSync(secondaryContentPath)) {
       secondaryContentText = fs.readFileSync(secondaryContentPath, 'utf-8');
     } else {
