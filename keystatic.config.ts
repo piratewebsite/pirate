@@ -28,6 +28,8 @@ export default config({
       path: 'src/content/post/*/',
       format: { contentField: 'content' },
       columns: ['title', 'sticky', 'draft', 'publishDate', 'tags'],
+      previewUrl: '/posts/{slug}',
+      template: 'src/content/post/configuring-pirate',
       schema: {
         publishDate: fields.date({ 
           label: 'Publish Date', 
