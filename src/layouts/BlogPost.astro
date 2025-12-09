@@ -72,6 +72,12 @@ const { headings = [] } = (post.rendered as { headings?: any[] } | undefined) ??
   margin: 0;
 }
 
+#rotation-notice a {
+  color: white;
+  text-decoration: underline;
+  font-weight: 700;
+}
+
 @keyframes pulse {
   0%, 100% { opacity: 0.9; }
   50% { opacity: 1; }
@@ -195,7 +201,7 @@ const { headings = [] } = (post.rendered as { headings?: any[] } | undefined) ??
     
     <!-- Rotation notice for mobile portrait mode -->
     <div id="rotation-notice">
-      📱 Rotate your device for the best viewing experience
+      📱 Rotate your device and <a href={Astro.url.href} target="_blank" rel="noopener">open in new window</a> for best experience
     </div>
     
     <!-- Share options below video -->
