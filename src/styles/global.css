@@ -1038,3 +1038,35 @@ body:has(.video) #footer{display: none !important;}
 
 .pwa-button{display:flex; justify-content: center;}
 
+/* Landscape mode for blog posts - full screen video in webviews */
+body.landscape-mode #blog-hero,
+html.landscape-mode #blog-hero {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 9999 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+body.landscape-mode #blog-hero .video-container-with-overlay,
+body.landscape-mode #blog-hero > div,
+html.landscape-mode #blog-hero .video-container-with-overlay,
+html.landscape-mode #blog-hero > div {
+  height: 100vh !important;
+  width: 100vw !important;
+}
+
+body.landscape-mode header,
+body.landscape-mode #rotation-notice,
+html.landscape-mode header,
+html.landscape-mode #rotation-notice {
+  display: none !important;
+}
+
+body.landscape-mode article,
+html.landscape-mode article {
+  padding-top: 0 !important;
+}
