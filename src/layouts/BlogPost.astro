@@ -56,6 +56,33 @@ const { headings = [] } = (post.rendered as { headings?: any[] } | undefined) ??
 ---
 
 <style>
+/* Rotation notice overlay - only show in portrait mode on mobile */
+#rotation-notice {
+  display: none;
+  position: relative;
+  background: rgba(220, 38, 38, 0.9);
+  color: white;
+  padding: 8px 12px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  animation: pulse 2s ease-in-out infinite;
+  margin: 0;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.9; }
+  50% { opacity: 1; }
+}
+
+@media (max-width: 58rem) and (orientation: portrait) {
+  #rotation-notice {
+    display: block;
+  }
+}
+
 /* Landscape orientation on mobile devices - full screen video/hero */
 @media (max-width: 58rem) and (orientation: landscape) {
   #blog-hero {
@@ -75,8 +102,9 @@ const { headings = [] } = (post.rendered as { headings?: any[] } | undefined) ??
     width: 100vw !important;
   }
   
-  /* Hide header and other content in landscape */
-  header {
+  /* Hide header and rotation notice in landscape */
+  header,
+  #rotation-notice {
     display: none !important;
   }
 }
@@ -163,6 +191,11 @@ const { headings = [] } = (post.rendered as { headings?: any[] } | undefined) ??
             </div>
           ) : null
         }
+    </div>
+    
+    <!-- Rotation notice for mobile portrait mode -->
+    <div id="rotation-notice">
+      📱 Rotate your device for the best viewing experience
     </div>
     
     <!-- Share options below video -->
