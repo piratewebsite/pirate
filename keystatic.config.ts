@@ -25,11 +25,11 @@ export default config({
       label: 'Site Posts',
       entryLayout: 'content',
       slugField: 'title',
-      path: 'src/content/post/*/',
+      path: 'content/post/*/',
       format: { contentField: 'content' },
-      columns: ['title', 'sticky', 'draft', 'publishDate', 'tags'],
+      columns: ['title', 'sticky', 'draft', 'publishDate'],
       previewUrl: '/posts/{slug}',
-      template: 'src/content/post/configuring-pirate',
+      template: 'content/post/configuring-pirate',
       schema: {
         publishDate: fields.date({ 
           label: 'Publish Date', 
@@ -217,7 +217,7 @@ export default config({
       },
     }),    
     pages: collection({      label: 'Site Pages',
-      path: 'src/content/pages/*',
+      path: 'content/pages/*',
       slugField: 'slug',
       format: { contentField: 'content' },
       schema: {
@@ -336,7 +336,7 @@ export default config({
 
     CTAs: collection({
       label: 'Call-To-Actions',
-      path: 'src/content/CTAs/*',
+      path: 'content/CTAs/*',
       schema: {
         title: fields.text({ label: 'CTA Title', description: 'The text on the CTA Button' }),
         ctaUrl: fields.text({ label: 'CTA Url', description: 'The location of your CTA', defaultValue: '/', validation: { length: { min: 1 } } }),
@@ -352,7 +352,7 @@ export default config({
 
     socialLinks: collection({
       label: 'Social Links',
-      path: 'src/content/socialLinks/*',
+      path: 'content/socialLinks/*',
       schema: {
         friendlyName: fields.text({ label: 'Friendly Name' }),
         link: fields.text({ label: 'Link URL' }),
@@ -398,7 +398,7 @@ export default config({
     
     // youtubeFeedCollections: collection({
     //   label: 'YouTube Channel Collections',
-    //   path: 'src/content/youtubeFeedCollections/*',
+    //   path: 'content/youtubeFeedCollections/*',
     //   schema: {
     //     name: fields.text({
     //       label: 'Collection Name',
@@ -452,7 +452,7 @@ export default config({
 
     youtubeFeeds: collection({
       label: 'YouTube Feeds',
-      path: 'src/content/youtubeFeeds/*',
+      path: 'content/youtubeFeeds/*',
       schema: {
         slug: fields.slug({ 
           name: { label: 'URL Slug', description: 'Used for the filename' }
@@ -527,7 +527,7 @@ export default config({
     
     pitches: collection({
       label: 'Content Blocks',
-      path: 'src/content/pitches/*',
+      path: 'content/pitches/*',
       slugField: 'slug',
       format: { contentField: 'content' },
       schema: {
@@ -756,7 +756,7 @@ export default config({
 
     faqs: collection({
       label: 'FAQs',
-      path: 'src/content/faqs/*',
+      path: 'content/faqs/*',
       slugField: 'question',
       format: { contentField: 'answer' },
       schema: {
@@ -774,7 +774,7 @@ export default config({
 
     resume: collection({
       label: 'Resume Blocks',
-      path: 'src/content/resume/*',
+      path: 'content/resume/*',
       slugField: 'section',
       format: { contentField: 'content' },
       schema: {
@@ -792,7 +792,7 @@ export default config({
 
     testimonials: collection({
       label: 'Testimonials',
-      path: 'src/content/testimonials/*',
+      path: 'content/testimonials/*',
       slugField: 'name',
       schema: {
         name: fields.text({ label: 'Name' }),
@@ -810,7 +810,7 @@ export default config({
     
     menuItems: collection({
       label: 'Menu Items',
-      path: 'src/content/menuItems/*',
+      path: 'content/menuItems/*',
       slugField: 'name', 
       schema: {
         name: fields.text({ label: 'Name' }),
@@ -822,7 +822,7 @@ export default config({
 
     footerMenuItems: collection({
       label: 'Footer Menu Items',
-      path: 'src/content/footerMenuItems/*',
+      path: 'content/footerMenuItems/*',
       slugField: 'name', 
       schema: {
         name: fields.text({ label: 'Name' }),
@@ -834,7 +834,7 @@ export default config({
 
     rssFeeds: collection({
       label: 'RSS Feeds',
-      path: 'src/content/rss-feeds/*/',
+      path: 'content/rss-feeds/*/',
       slugField: 'name',
       schema: {
         name: fields.text({ label: 'Feed Name' }),
@@ -844,7 +844,7 @@ export default config({
 
     // membershipTokens: collection({
     //   label: 'Membership Tokens',
-    //   path: 'src/content/membershipTokens/*',
+    //   path: 'content/membershipTokens/*',
     //   slugField: 'code',
     //   schema: {
     //     code: fields.slug({
@@ -908,7 +908,7 @@ export default config({
   singletons: {
     siteSettings: singleton({
       label: 'Site Settings',
-      path: 'src/content/siteSettings/main',
+      path: 'content/siteSettings/main',
       schema: {
         logoImage: fields.image({
           label: 'Logo Image',
@@ -981,7 +981,7 @@ export default config({
     }),
     pwaSettings: singleton({
       label: 'PWA/SEO Settings',
-      path: 'src/content/pwaSettings/',
+      path: 'content/pwaSettings/',
       schema: {
         showRobots: fields.checkbox({
           label: 'SEO VISIBILITY',
@@ -1055,7 +1055,7 @@ export default config({
     }),
     formSettings: singleton({
       label: 'Form Settings',
-      path: 'src/content/formSettings/',
+      path: 'content/formSettings/',
       schema: {
         location: fields.text({ 
           label: 'Location Map', 
@@ -1166,7 +1166,7 @@ export default config({
     }),
     photoSettings: singleton({
       label: 'Photo Gallery',
-      path: 'src/content/photoSettings/',
+      path: 'content/photoSettings/',
       schema: {
         galleryMode: fields.select({
           label: 'Gallery Mode',
@@ -1236,7 +1236,7 @@ export default config({
     
     styleapps: singleton({
       label: 'Appearance',
-      path: 'src/content/styleapps/',
+      path: 'content/styleapps/',
       schema: {
         backgroundImage: fields.image({
           label: 'Site Background Image',
@@ -1320,7 +1320,7 @@ export default config({
 
     socialCard: singleton({
       label: ' OG Site Image',
-      path: 'src/content/photoUpload/',
+      path: 'content/photoUpload/',
       schema: {
         socialCard: fields.image({
           label: 'Upload Photo',
@@ -1333,7 +1333,7 @@ export default config({
 
     language: singleton({
       label: 'Language',
-      path: 'src/content/language/',
+      path: 'content/language/',
       schema: {
         homelink: fields.text({ label: 'Home' }),
         copyright: fields.text({ label: 'Copyright' }),
@@ -1369,7 +1369,7 @@ export default config({
 
     resumeSettings: singleton({
       label: 'Resume Settings',
-      path: 'src/content/resumeSettings/',
+      path: 'content/resumeSettings/',
       schema: {
         title: fields.text({ label: 'Resume Title' }),
         showTitle: fields.checkbox({ label: 'Show Title', defaultValue: true }),
