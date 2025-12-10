@@ -180,9 +180,9 @@ export const collections = {
   }),
 
   // Content Blocks - loaded from content/contentBlocks/
-  // Handles both flat YAML files and directory-based entries with .mdoc content
+  // Uses Keystatic format with markdoc content in separate files
   contentBlocks: defineCollection({
-    loader: glob({ pattern: '**/*.yaml', base: './content/contentBlocks' }),
+    loader: glob({ pattern: '**/*.{yaml,mdoc}', base: './content/contentBlocks' }),
     schema: contentBlocksSchema,
   }),
 
