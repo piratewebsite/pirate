@@ -165,25 +165,43 @@ echo ""
 
 log_info "Updating src/ directory..."
 
-if command -v rsync >/dev/null 2>&1; then
-    # Use rsync for efficient copying
-    rsync -av --exclude='content/' tmp_theme/src/ src/ | grep -v "/$" || true
-else
-    # Fallback: manual copy
-    find tmp_theme/src -type f | while read -r file; do
-        rel=${file#tmp_theme/src/}
-        
-        # Skip content directory
-        if [[ "$rel" == content/* ]]; then
+SKIPPED_SRC_FILES=()
+UPDATED_SRC_FILES=()
+
+# Process each file in theme src/
+find tmp_theme/src -type f | while read -r theme_file; do
+    rel=${theme_file#tmp_theme/src/}
+    local_file="src/$rel"
+    
+    # Skip content directory
+    if [[ "$rel" == content/* ]]; then
+        continue
+    fi
+    
+    # Create directory if needed
+    mkdir -p "$(dirname "$local_file")"
+    
+    # Check if local file exists and has modifications
+    if [ -f "$local_file" ] && has_local_changes "$local_file"; then
+        if [ "$FORCE_UPDATE" = true ]; then
+            # Force mode: backup and update
+            cp "$local_file" "${local_file}.backup-$(date +%Y%m%d-%H%M%S)"
+            cp -f "$theme_file" "$local_file"
+            echo "  ⚠️  Force updated: $rel (backup created)"
+        else
+            # Skip modified files by default to preserve local changes
+            echo "  ⏭️  Skipped (modified): $rel"
+            SKIPPED_SRC_FILES+=("$rel")
             continue
         fi
-        
-        mkdir -p "$(dirname "src/$rel")"
-        cp -f "$file" "src/$rel"
-    done
-fi
+    else
+        # No local changes or file doesn't exist, safe to update
+        cp -f "$theme_file" "$local_file"
+        UPDATED_SRC_FILES+=("$rel")
+    fi
+done
 
-log_info "Source files updated"
+log_info "Source files processed (updated: ${#UPDATED_SRC_FILES[@]}, skipped: ${#SKIPPED_SRC_FILES[@]})"
 
 # ============================================================================
 # UPDATE ROOT CONFIGURATION FILES
@@ -340,10 +358,21 @@ if [ ${#UPDATED_FILES[@]} -gt 0 ]; then
 fi
 
 if [ ${#SKIPPED_FILES[@]} -gt 0 ]; then
-    echo "⚠️  Skipped files (${#SKIPPED_FILES[@]}):"
+    echo "⚠️  Skipped customizable files (${#SKIPPED_FILES[@]}):"
     for file in "${SKIPPED_FILES[@]}"; do
         echo "  - $file"
     done
+    echo ""
+fi
+
+if [ ${#SKIPPED_SRC_FILES[@]} -gt 0 ]; then
+    echo "⚠️  Skipped modified src/ files (${#SKIPPED_SRC_FILES[@]}):"
+    for file in "${SKIPPED_SRC_FILES[@]}"; do
+        echo "  - $file"
+    done
+    echo ""
+    echo "💡 These files have local modifications and were preserved."
+    echo "   Use --force flag to overwrite (backups will be created)."
     echo ""
 fi
 
