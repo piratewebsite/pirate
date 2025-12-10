@@ -527,7 +527,7 @@ export default config({
     
     contentBlocks: collection({
       label: 'Content Blocks',
-      path: 'content/contentblocks/*',
+      path: 'content/contentBlocks/*',
       slugField: 'title',
       schema: {
         // Identification  

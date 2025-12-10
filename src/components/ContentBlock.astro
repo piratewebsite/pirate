@@ -35,8 +35,8 @@ try {
     const fs = await import('fs');
     const path = await import('path');
     
-    const contentPath = path.join(process.cwd(), 'content/contentblocks', slug, 'content.mdoc');
-    const secondaryPath = path.join(process.cwd(), 'content/contentblocks', slug, 'secondaryContent.mdoc');
+    const contentPath = path.join(process.cwd(), 'content/contentBlocks', slug, 'content.mdoc');
+    const secondaryPath = path.join(process.cwd(), 'content/contentBlocks', slug, 'secondaryContent.mdoc');
     
     if (fs.existsSync(contentPath)) {
       contentFromFile = fs.readFileSync(contentPath, 'utf-8');
@@ -57,7 +57,7 @@ try {
     const fs = await import('fs');
     const path = await import('path');
     
-    const secondaryContentPath = path.join(process.cwd(), 'content/contentblocks', slug, 'secondaryContent.mdoc');
+    const secondaryContentPath = path.join(process.cwd(), 'content/contentBlocks', slug, 'secondaryContent.mdoc');
     if (fs.existsSync(secondaryContentPath)) {
       secondaryContentText = fs.readFileSync(secondaryContentPath, 'utf-8');
     } else {
