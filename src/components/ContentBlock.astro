@@ -10,8 +10,6 @@ interface Props {
 
 const { slug, sectionWidth = 'normal' } = Astro.props;
 
-console.log('ContentBlock loading:', slug);
-
 // Load the content block using Astro's content collections
 let contentBlock;
 let contentEntry;
@@ -19,7 +17,6 @@ let secondaryContentEntry;
 
 try {
   const allContentBlocks = await getCollection('contentBlocks');
-  console.log('All contentBlocks IDs:', allContentBlocks.map(b => b.id));
   
   // Find the main entry (metadata)
   contentBlock = allContentBlocks.find(block => block.id === slug || block.id === `${slug}.yaml`);
@@ -29,18 +26,6 @@ try {
   
   // Find the secondary content entry
   secondaryContentEntry = allContentBlocks.find(block => block.id === `${slug}/secondarycontent` || block.id === `${slug}/secondaryContent`);
-  
-  console.log('ContentBlock loaded:', slug, 'exists:', !!contentBlock);
-  if (contentBlock) {
-    console.log('ContentBlock structure:', {
-      id: contentBlock.id,
-      hasData: !!contentBlock.data,
-      hasContentEntry: !!contentEntry,
-      hasSecondaryContentEntry: !!secondaryContentEntry,
-      hasBody: !!contentBlock.body,
-      contentBody: contentEntry?.body
-    });
-  }
   
   if (!contentBlock) {
     console.error('❌ ContentBlock not found:', slug);
@@ -80,14 +65,6 @@ const secondaryContent = secondaryContentEntry?.body;
 // Use title from data, or fall back to slug as title
 const title = titleFromData || slug;
 
-console.log('ContentBlock data for', slug, ':', {
-  title,
-  hasContent: !!content,
-  contentType: typeof content,
-  hasSecondaryContent: !!secondaryContent,
-  layout
-});
-
 const hasOverlay = overlayImage || overlaySvg;
 
 
@@ -107,7 +84,6 @@ let actualSecondaryContent = '';
 if (content && typeof content === 'string') {
   // Content is markdown/markdoc as a string, process it
   actualContent = processMarkdown(content);
-  console.log('Main content processed as markdown for:', slug);
 }
 
 // Handle secondary content for two-column layouts
@@ -115,7 +91,6 @@ if (layout === 'two-column' || layout === 'two-column-equal') {
   if (secondaryContent && typeof secondaryContent === 'string') {
     // Secondary content is markdown/markdoc as a string, process it
     actualSecondaryContent = processMarkdown(secondaryContent);
-    console.log('Secondary content processed as markdown for:', slug);
   }
 }
 // Generate CSS classes
