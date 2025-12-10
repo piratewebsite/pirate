@@ -26,48 +26,6 @@ try {
   return null;
 }
 
-// Try to load content from directory-based .mdoc files if they exist
-let contentFromFile: string | null = null;
-let secondaryContentFromFile: string | null = null;
-
-try {
-  if (typeof process !== 'undefined' && process.versions && process.versions.node) {
-    const fs = await import('fs');
-    const path = await import('path');
-    
-    const contentPath = path.join(process.cwd(), 'content/contentBlocks', slug, 'content.mdoc');
-    const secondaryPath = path.join(process.cwd(), 'content/contentBlocks', slug, 'secondaryContent.mdoc');
-    
-    if (fs.existsSync(contentPath)) {
-      contentFromFile = fs.readFileSync(contentPath, 'utf-8');
-    }
-    if (fs.existsSync(secondaryPath)) {
-      secondaryContentFromFile = fs.readFileSync(secondaryPath, 'utf-8');
-    }
-  }
-} catch (error) {
-  console.error('Error loading content files:', error);
-}
-
-// Try to load secondary content from separate file if it exists
-let secondaryContentText = '';
-try {
-  // Only run filesystem operations in Node.js environment (server-side)
-  if (typeof process !== 'undefined' && process.versions && process.versions.node) {
-    const fs = await import('fs');
-    const path = await import('path');
-    
-    const secondaryContentPath = path.join(process.cwd(), 'content/contentBlocks', slug, 'secondaryContent.mdoc');
-    if (fs.existsSync(secondaryContentPath)) {
-      secondaryContentText = fs.readFileSync(secondaryContentPath, 'utf-8');
-    } else {
-      // No secondary content file found
-    }
-  }
-} catch (error) {
-  console.error('Error loading secondary content:', error);
-}
-
 const { 
   title,
   content,
@@ -104,30 +62,16 @@ function processMarkdown(text: string): string {
   return renderMarkdown(text);
 }
 
-// Content rendering - handle both markdoc and fallback content
+// Content rendering - handle both markdoc and markdown content
 let actualContent = '';
 let actualSecondaryContent = '';
-let renderedContent: any = null;
-
-if (slug === 'video-header') {
-  actualContent = ``;
-} else {
-  if (content && typeof content === 'string') {
-
-  } else {
-
-  }
-}
+let renderedMainContent: any = null;
+let renderedSecondaryContent: any = null;
 
 // Handle main content rendering
-let renderedMainContent: any = null;
-
-// Priority: 1) Check for content from separate .mdoc file, 2) Check content field from YAML
-const mainContentToRender = contentFromFile || content;
-
-if (mainContentToRender && typeof mainContentToRender === 'object' && mainContentToRender !== null) {
+if (content && typeof content === 'object' && content !== null) {
   try {
-    const renderedMain = await render(mainContentToRender);
+    const renderedMain = await render(content);
     if (renderedMain && renderedMain.Content) {
       renderedMainContent = renderedMain.Content;
       console.log('Main content rendered successfully for:', slug);
@@ -135,38 +79,26 @@ if (mainContentToRender && typeof mainContentToRender === 'object' && mainConten
   } catch (renderError) {
     console.error('Error rendering main content for', slug, ':', renderError);
   }
-} else if (mainContentToRender && typeof mainContentToRender === 'string') {
-  // If it's a string (from .mdoc file), process as markdown
-  actualContent = processMarkdown(mainContentToRender);
+} else if (content && typeof content === 'string') {
+  // If it's a string, process as markdown
+  actualContent = processMarkdown(content);
   console.log('Main content processed as markdown for:', slug);
-} else if (mainContentToRender) {
-  console.log('Content exists but is unexpected type for:', slug, 'Type:', typeof mainContentToRender);
-} else {
-  console.log('No content field for:', slug);
 }
 
 // Handle secondary content for two-column layouts
-let renderedSecondaryContent: any = null;
-
 if (layout === 'two-column' || layout === 'two-column-equal') {
-  // Priority: 1) Check for secondaryContent from separate .mdoc file, 2) Check secondaryContent field from YAML
-  const secondaryToRender = secondaryContentFromFile || secondaryContent;
-  
-  if (secondaryToRender && typeof secondaryToRender === 'object' && secondaryToRender !== null) {
+  if (secondaryContent && typeof secondaryContent === 'object' && secondaryContent !== null) {
     try {
-      const renderedSec = await render(secondaryToRender);
+      const renderedSec = await render(secondaryContent);
       if (renderedSec && renderedSec.Content) {
         renderedSecondaryContent = renderedSec.Content;
       }
     } catch (renderError) {
       console.error('Error rendering secondary content:', renderError);
     }
-  } else if (secondaryToRender && typeof secondaryToRender === 'string') {
-    // If it's a string (from .mdoc file), process as markdown
-    actualSecondaryContent = processMarkdown(secondaryToRender);
-  } else if (secondaryContentText && secondaryContentText.trim()) {
-    // Fallback to old file loading method
-    actualSecondaryContent = processMarkdown(secondaryContentText);
+  } else if (secondaryContent && typeof secondaryContent === 'string') {
+    // If it's a string, process as markdown
+    actualSecondaryContent = processMarkdown(secondaryContent);
   }
 }
 

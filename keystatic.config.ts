@@ -529,6 +529,7 @@ export default config({
       label: 'Content Blocks',
       path: 'content/contentBlocks/*',
       slugField: 'title',
+      format: { data: true },
       schema: {
         // Identification  
         title: fields.text({ 
