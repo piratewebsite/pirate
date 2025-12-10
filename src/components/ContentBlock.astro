@@ -1,8 +1,8 @@
 ---
+import { getCollection } from 'astro:content';
 import Markdoc from '@markdoc/markdoc';
 import YouTubeEmbed from './YouTubeEmbed.astro';
 import { renderMarkdown } from '../utils/utils.ts';
-import { reader } from '../../astro.config';
 
 interface Props {
   slug: string;
@@ -13,12 +13,36 @@ const { slug, sectionWidth = 'normal' } = Astro.props;
 
 console.log('ContentBlock loading:', slug);
 
-// Load the content block using Keystatic reader
+// Load the content block using Astro's content collections
 let contentBlock;
+let contentEntry;
+let secondaryContentEntry;
+
 try {
-  contentBlock = await reader.collections.contentBlocks.read(slug);
+  const allContentBlocks = await getCollection('contentBlocks');
+  console.log('All contentBlocks IDs:', allContentBlocks.map(b => b.id));
+  
+  // Find the main entry (metadata)
+  contentBlock = allContentBlocks.find(block => block.id === slug || block.id === `${slug}.yaml`);
+  
+  // Find the content entry
+  contentEntry = allContentBlocks.find(block => block.id === `${slug}/content`);
+  
+  // Find the secondary content entry
+  secondaryContentEntry = allContentBlocks.find(block => block.id === `${slug}/secondarycontent` || block.id === `${slug}/secondaryContent`);
+  
   console.log('ContentBlock loaded:', slug, 'exists:', !!contentBlock);
-  console.log('Full contentBlock object:', JSON.stringify(contentBlock, null, 2));
+  if (contentBlock) {
+    console.log('ContentBlock structure:', {
+      id: contentBlock.id,
+      hasData: !!contentBlock.data,
+      hasContentEntry: !!contentEntry,
+      hasSecondaryContentEntry: !!secondaryContentEntry,
+      hasBody: !!contentBlock.body,
+      contentBody: contentEntry?.body
+    });
+  }
+  
   if (!contentBlock) {
     console.error('❌ ContentBlock not found:', slug);
     return null;
@@ -30,8 +54,6 @@ try {
 
 const { 
   title: titleFromData,
-  content,
-  secondaryContent,
   layout = 'single',
   contentAlignment = 'left',
   spacing = 'normal',
@@ -50,7 +72,11 @@ const {
   showTitle = true,
   youtube,
   videoPosition = 'top'
-} = contentBlock;
+} = contentBlock.data;
+
+// Get content from the separate content entries
+const content = contentEntry?.body;
+const secondaryContent = secondaryContentEntry?.body;
 
 // Use title from data, or fall back to slug as title
 const title = titleFromData || slug;
@@ -79,58 +105,18 @@ let actualContent = '';
 let actualSecondaryContent = '';
 
 // Handle main content rendering
-if (content && typeof content === 'function') {
-  // Keystatic reader returns markdoc as an async function
-  try {
-    const contentData = await content();
-    if (contentData && contentData.node) {
-      // It's a Markdoc node, transform and render it to HTML
-      try {
-        const transformed = Markdoc.transform(contentData.node);
-        const html = Markdoc.renderers.html(transformed);
-        actualContent = html;
-      } catch (markdocError) {
-        console.error('Markdoc transform/render error:', markdocError);
-        // Fallback: try to render as plain text
-        actualContent = '<p>Content rendering error. Please check Keystatic configuration.</p>';
-      }
-    } else if (typeof contentData === 'string') {
-      actualContent = processMarkdown(contentData);
-    }
-  } catch (renderError) {
-    console.error('Error rendering main content function for', slug, ':', renderError);
-    actualContent = '<p>Error loading content.</p>';
-  }
-} else if (content && typeof content === 'string') {
-  // If it's a string, process as markdown
+if (content && typeof content === 'string') {
+  // Content is markdown/markdoc as a string, process it
   actualContent = processMarkdown(content);
+  console.log('Main content processed as markdown for:', slug);
 }
 
 // Handle secondary content for two-column layouts
 if (layout === 'two-column' || layout === 'two-column-equal') {
-  if (secondaryContent && typeof secondaryContent === 'function') {
-    // Keystatic reader returns markdoc as an async function
-    try {
-      const secData = await secondaryContent();
-      if (secData && secData.node) {
-        // It's a Markdoc node, transform and render it to HTML
-        try {
-          const transformed = Markdoc.transform(secData.node);
-          const html = Markdoc.renderers.html(transformed);
-          actualSecondaryContent = html;
-        } catch (markdocError) {
-          console.error('Markdoc transform/render error for secondary:', markdocError);
-          actualSecondaryContent = '<p>Secondary content rendering error.</p>';
-        }
-      } else if (typeof secData === 'string') {
-        actualSecondaryContent = processMarkdown(secData);
-      }
-    } catch (renderError) {
-      console.error('Error rendering secondary content function for', slug, ':', renderError);
-    }
-  } else if (secondaryContent && typeof secondaryContent === 'string') {
-    // If it's a string, process as markdown
+  if (secondaryContent && typeof secondaryContent === 'string') {
+    // Secondary content is markdown/markdoc as a string, process it
     actualSecondaryContent = processMarkdown(secondaryContent);
+    console.log('Secondary content processed as markdown for:', slug);
   }
 }
 // Generate CSS classes
