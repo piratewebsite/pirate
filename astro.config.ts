@@ -172,6 +172,9 @@ export default defineConfig({
     '/admin': '/keystatic'
   },
   vite: {
+    optimizeDeps: {
+      include: ['@keystatic/core', '@keystatic/astro', 'lodash/throttle', 'lodash/debounce', 'is-hotkey', 'direction', 'use-sync-external-store/shim']
+    },
     server: {
       fs: {
         strict: false,

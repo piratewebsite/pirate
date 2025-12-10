@@ -179,10 +179,10 @@ export const collections = {
     schema: faqsSchema,
   }),
 
-  // Content Blocks - loaded from content/contentBlocks/
+  // Content Blocks - loaded from content/contentblocks/
   // Handles both flat YAML files and directory-based entries with .mdoc content
   contentBlocks: defineCollection({
-    loader: glob({ pattern: '**/*.yaml', base: './content/contentBlocks' }),
+    loader: glob({ pattern: '**/*.yaml', base: './content/contentblocks' }),
     schema: contentBlocksSchema,
   }),
 
