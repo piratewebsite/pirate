@@ -126,22 +126,6 @@ const playerVars: { [key: string]: number | string } = {
     <div class="video-click-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 68; display: none; cursor: pointer; pointer-events: auto;">
     </div>
     
-    <!-- Mute/Pause button - always on top -->
-    {showMuteButton && (
-      <button 
-        class="overlay-mute-toggle"
-        data-video-id={videoId}
-        style="position: absolute; bottom: 20px; right: 20px; z-index: 75; width: 50px; height: 50px; border-radius: 50%; background: rgba(0, 0, 0, 0.7); border: 2px solid white; cursor: pointer; display: none; align-items: center; justify-content: center; transition: all 0.3s ease;"
-        aria-label="Pause video"
-      >
-        <svg class="mute-icon" width="24" height="24" viewBox="0 0 24 24" fill="white" style="display: block;">
-          <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
-        </svg>
-        <svg class="unmute-icon" width="24" height="24" viewBox="0 0 24 24" fill="white" style="display: none;">
-          <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
-        </svg>
-      </button>
-    )}
     <!-- Black overlay with title and play button - shows when paused, always above SVG -->
     <div class="video-overlay-screen" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 70; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; pointer-events: auto;">
       {title && (
@@ -156,20 +140,6 @@ const playerVars: { [key: string]: number | string } = {
         </svg>
       </div>
     </div>
-    
-    <!-- Always-visible play/pause button at bottom - above everything -->
-    <button 
-      class="video-control-button"
-      style="position: absolute; bottom: 20px; right: 20px; z-index: 75; width: 50px; height: 50px; border-radius: 50%; background: rgba(0, 0, 0, 0.8); border: 2px solid white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; pointer-events: none; opacity: 0;"
-      aria-label="Play/Pause video"
-    >
-      <svg class="play-icon" width="24" height="24" viewBox="0 0 24 24" fill="white" style="margin-left: 2px; display: block;">
-        <path d="M8 5v14l11-7z"/>
-      </svg>
-      <svg class="pause-icon" width="24" height="24" viewBox="0 0 24 24" fill="white" style="display: none;">
-        <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
-      </svg>
-    </button>
     
   </div>
 ) : (
@@ -2533,18 +2503,6 @@ setTimeout(() => {
             }, 300); // Small delay to ensure video is playing
           }
           
-          // Update control button to show pause icon and enable it
-          const controlButton = /** @type {HTMLElement | null} */ (c.querySelector('.video-control-button'));
-          if (controlButton) {
-            const controlPlayIcon = /** @type {HTMLElement | null} */ (controlButton.querySelector('.play-icon'));
-            const controlPauseIcon = /** @type {HTMLElement | null} */ (controlButton.querySelector('.pause-icon'));
-            if (controlPlayIcon) controlPlayIcon.style.display = 'none';
-            if (controlPauseIcon) controlPauseIcon.style.display = 'block';
-            // Enable button now that video is loaded and playing
-            controlButton.style.pointerEvents = 'auto';
-            controlButton.style.opacity = '1';
-          }
-          
           // Set up loop if needed (only for primary video, not secondary audio-only videos)
           if (shouldLoop && endTime > 0 && c.id === 'primary-player') {
             console.log('🔄 Setting up video loop handler for PRIMARY video', startTime, '->', endTime);
@@ -2754,17 +2712,6 @@ setTimeout(() => {
             }
           }
           
-          // Update control button to show pause icon and re-enable it
-          const controlButton = /** @type {HTMLElement | null} */ (c.querySelector('.video-control-button'));
-          if (controlButton) {
-            const controlPlayIcon = /** @type {HTMLElement | null} */ (controlButton.querySelector('.play-icon'));
-            const controlPauseIcon = /** @type {HTMLElement | null} */ (controlButton.querySelector('.pause-icon'));
-            if (controlPlayIcon) controlPlayIcon.style.display = 'none';
-            if (controlPauseIcon) controlPauseIcon.style.display = 'block';
-            controlButton.style.pointerEvents = 'auto';
-            controlButton.style.opacity = '1';
-          }
-          
           // Restart SVGator animation from beginning if present
           if (svgElement && svgId) {
             const controller = window.SVGatorController;
@@ -2829,121 +2776,6 @@ setTimeout(() => {
       if (clickOverlay) {
         clickOverlay.addEventListener('click', handlePauseClick);
         clickOverlay.addEventListener('touchend', handlePauseClick);
-      }
-      
-      // Set up persistent play/pause control button (always visible at bottom)
-      const controlButton = c.querySelector('.video-control-button');
-      if (controlButton) {
-        const controlPlayIcon = /** @type {HTMLElement | null} */ (controlButton.querySelector('.play-icon'));
-        const controlPauseIcon = /** @type {HTMLElement | null} */ (controlButton.querySelector('.pause-icon'));
-        
-        const handleControlClick = (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          console.log(`🎛️ Control button clicked - isLoaded: ${isLoaded}, isLoading: ${isLoading}, isPlaying: ${isPlaying}`);
-          
-          if (!isLoaded && !isLoading) {
-            // Video not loaded yet - trigger load via overlay click
-            overlay.click();
-          } else if (isPlaying) {
-            // Video playing - pause it
-            if (currentIframe) {
-              currentIframe.contentWindow?.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
-            }
-            
-            // Pause secondary if primary
-            if (c.id === 'primary-player') {
-              const secondaryIframe = /** @type {HTMLIFrameElement | null} */ (document.getElementById('secondary-player-iframe'));
-              if (secondaryIframe) {
-                secondaryIframe.contentWindow?.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
-              }
-            }
-            
-            // Show the black overlay
-            overlay.style.display = 'flex';
-            
-            // Pause SVGator animation if present
-            if (svgElement && svgId) {
-              const controller = window.SVGatorController;
-              if (controller) {
-                controller.pause(svgId);
-                console.log('⏸ SVGator paused from control button');
-              }
-            }
-            
-            // Update button state to play icon and disable it (overlay takes over)
-            if (controlPlayIcon) controlPlayIcon.style.display = 'block';
-            if (controlPauseIcon) controlPauseIcon.style.display = 'none';
-            controlButton.style.pointerEvents = 'none';
-            controlButton.style.opacity = '0.5';
-            
-            // Update overlay icons
-            const overlayPlayIcon = /** @type {HTMLElement | null} */ (overlay.querySelector('.play-icon'));
-            const overlayPauseIcon = /** @type {HTMLElement | null} */ (overlay.querySelector('.pause-icon'));
-            if (overlayPlayIcon) overlayPlayIcon.style.display = 'block';
-            if (overlayPauseIcon) overlayPauseIcon.style.display = 'none';
-            
-            isPlaying = false;
-          } else {
-            // Video paused - resume playing
-            overlay.style.display = 'none';
-            
-            if (currentIframe) {
-              currentIframe.contentWindow?.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-            }
-            
-            // Resume secondary if primary
-            if (c.id === 'primary-player') {
-              const secondaryIframe = /** @type {HTMLIFrameElement | null} */ (document.getElementById('secondary-player-iframe'));
-              if (secondaryIframe) {
-                secondaryIframe.contentWindow?.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-              }
-            }
-            
-            // Update button state to pause icon and re-enable it
-            if (controlPlayIcon) controlPlayIcon.style.display = 'none';
-            if (controlPauseIcon) controlPauseIcon.style.display = 'block';
-            controlButton.style.pointerEvents = 'auto';
-            controlButton.style.opacity = '1';
-            
-            // Restart SVGator animation from beginning if present
-            if (svgElement && svgId) {
-              const controller = window.SVGatorController;
-              if (controller) {
-                controller.restart(svgId);
-                console.log('▶️ SVGator restarted from beginning (control button)');
-              }
-            }
-            
-            isPlaying = true;
-          }
-        };
-        
-        controlButton.addEventListener('click', handleControlClick);
-        controlButton.addEventListener('touchend', handleControlClick);
-      }
-      
-      // Set up "mute" button as a disguised play/pause button
-      const muteButton = c.querySelector('.overlay-mute-toggle');
-      if (muteButton) {
-        const handleMuteButtonClick = (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          
-          if (!isLoaded) {
-            // Video not loaded yet - trigger load and play
-            handleOverlayClick(e);
-          } else if (isPlaying) {
-            // Video is playing - pause it
-            handlePauseClick(e);
-          } else {
-            // Video is paused - resume it
-            handleOverlayClick(e);
-          }
-        };
-        
-        muteButton.addEventListener('click', handleMuteButtonClick);
-        muteButton.addEventListener('touchend', handleMuteButtonClick);
       }
     }
   });
