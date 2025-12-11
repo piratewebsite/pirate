@@ -284,12 +284,22 @@ style="flex-direction: column;"
     allowfullscreen
     class="vidbox"
     style="height:100vh !important;"
-    loading="lazy"
+    id="background-video-iframe"
+    data-preserve-settings
 ></iframe>
 )}
 
 
 <script lang="ts">
+  // Ensure background video loads before other components initialize
+  (function() {
+    const videoIframe = document.querySelector('#background-video-iframe');
+    if (videoIframe) {
+      // Set a flag that the video is ready
+      window.backgroundVideoReady = true;
+    }
+  })();
+
   function initializeBackToTopButton() {
     const scrollBtn = document.getElementById("to-top-btn");
     const targetHeader = document.getElementById("top");

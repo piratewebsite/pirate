@@ -215,7 +215,7 @@ const pageOgImage = ogImage || meta?.ogImage;
       }
       
       static updateAllVideoMuteStates(muted) {
-        document.querySelectorAll('iframe[src*="youtube-nocookie.com/embed/"]:not([data-preserve-settings]), iframe[src*="youtube.com/embed/"]:not([data-preserve-settings])').forEach((element) => {
+        document.querySelectorAll('iframe[src*="youtube-nocookie.com/embed/"]:not([data-preserve-settings]):not(#background-video-iframe), iframe[src*="youtube.com/embed/"]:not([data-preserve-settings]):not(#background-video-iframe)').forEach((element) => {
           const iframe = element;
           const currentSrc = iframe.src;
           const url = new URL(currentSrc);
