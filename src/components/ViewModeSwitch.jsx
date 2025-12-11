@@ -325,14 +325,14 @@ function ViewModeSwitch({ sectionId, defaultView = 'grid', onViewChange = null }
       <button
         aria-label={`Currently in ${viewMode} view - click to switch to ${viewMode === 'grid' ? 'swipe' : 'grid'} view`}
         onClick={toggleView}
-        className="flex items-center justify-center h-10 w-10 p-2 rounded-md bg-opacity-30 bg-gray-500 hover:bg-opacity-50 transition-all duration-200 border border-transparent hover:border-gray-400"
+        className="--theme-header flex items-center justify-center h-10 w-10 p-2 rounded-md bg-opacity-30 hover:bg-opacity-50 transition-all duration-200 border border-transparent hover:border-gray-400"
         title={`Currently in ${viewMode} view - click to switch to ${viewMode === 'grid' ? 'swipe' : 'grid'} view`}
         style={{
           position: 'relative',
           minWidth: '40px',
           minHeight: '40px',
           color: '#ffffff',
-          background:'#333',
+          background: 'var(--theme-header)',
         }}
       >
         {viewMode === 'grid' ? <GridIcon /> : <SwipeIcon />}
