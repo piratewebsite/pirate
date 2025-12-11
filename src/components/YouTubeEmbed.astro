@@ -131,11 +131,11 @@ const playerVars: { [key: string]: number | string } = {
       {title && (
         <h2 class="video-overlay-title" style="color: white; font-size: clamp(1.5rem, 4vw, 3rem); text-align: center; margin: 0 1rem 2rem; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.5); pointer-events: none;">{title}</h2>
       )}
-      <div class="play-button-overlay" style="background: rgba(255,255,255,0.2); border: 3px solid white; border-radius: 50%; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; pointer-events: none;">
-        <svg class="play-icon" width="32" height="32" viewBox="0 0 24 24" fill="white" style="margin-left: 4px; pointer-events: none; display: block;">
+      <div class="play-button-overlay" style="background: rgba(254, 250, 250, 0.784); border: 0px solid white; border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; pointer-events: none;">
+        <svg class="play-icon" width="32" height="32" viewBox="0 0 24 24" fill="#333" style="margin-left: 4px; pointer-events: none; display: block;">
           <path d="M8 5v14l11-7z"/>
         </svg>
-        <svg class="pause-icon" width="32" height="32" viewBox="0 0 24 24" fill="white" style="pointer-events: none; display: none;">
+        <svg class="pause-icon" width="32" height="32" viewBox="0 0 24 24" fill="#333" style="pointer-events: none; display: none;">
           <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
         </svg>
       </div>
@@ -173,24 +173,7 @@ const playerVars: { [key: string]: number | string } = {
 )}
 
 
-<style>
-.iframe-youtube-player:hover .mute-toggle-btn {
-  opacity: 1 !important;
-}
 
-.mute-toggle-btn:hover {
-  background: rgba(0,0,0,0.9) !important;
-}
-
-.overlay-mute-toggle:hover {
-  background: rgba(0, 0, 0, 0.9) !important;
-  transform: scale(1.1);
-}
-
-.overlay-mute-toggle:active {
-  transform: scale(0.95);
-}
-</style>
 
 <script>
 // Initialize SVGator controller globally
