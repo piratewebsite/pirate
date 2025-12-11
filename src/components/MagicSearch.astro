@@ -85,6 +85,9 @@ const lang = {
     </div>
   )}
   
+  <!-- Collapsible wrapper -->
+  <div class="magic-search-collapsible">
+  
   <!-- Search Controls -->
   {(showSearch || showTags) && (
     <div class="search-controls" style="padding: 0 1rem; max-width: 1400px; margin: 0 auto;">
@@ -213,6 +216,9 @@ const lang = {
     <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">{lang.noResults}</h3>
     <p>{lang.noResultsDesc}</p>
   </div>
+  
+  </div>
+  <!-- End collapsible wrapper -->
 </div>
 
 {(searchMethod === 'pagefind' || searchMethod === 'hybrid') && import.meta.env.PROD && (

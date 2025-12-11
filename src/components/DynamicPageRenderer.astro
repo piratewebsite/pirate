@@ -116,7 +116,7 @@ function getSectionWidthClass(width?: string) {
     const showTags = section.showTags ?? true;
     
     return (
-      <div class={getSectionWidthClass(section.sectionWidth)} style="margin-bottom: 0rem;">
+      <div class={getSectionWidthClass(section.sectionWidth)} style="margin-bottom: 5vh;">
         {(() => {
 
           switch (section.type) {
@@ -246,7 +246,7 @@ function getSectionWidthClass(width?: string) {
               const postsShowTitle = showTitle;
               
               return (
-                <div style="margin-bottom:10vh;" data-section-id={`posts-section-${index}`}>
+                <div style="margin-bottom:;" data-section-id={`posts-section-${index}`}>
                   {((postsShowTitle && (postsTitle || postsDescription)) || !hideCollapseButton) && (
                     <div class="section-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; padding: 0 3%;">
                       <div style="flex: 1;">
@@ -730,6 +730,9 @@ function getSectionWidthClass(width?: string) {
             youtubeLoading.style.display = 'none';
           }
         }
+      } else if (sectionId.includes('magic-search')) {
+        // Magic search has a single collapsible wrapper
+        sectionContent = document.querySelector(`[data-section-id="${sectionId}"] .magic-search-collapsible`);
       } else {
         sectionContent = document.querySelector(`[data-section-id="${sectionId}"] .section-content`);
       }
