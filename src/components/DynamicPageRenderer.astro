@@ -742,7 +742,8 @@ function getSectionWidthClass(width?: string) {
       const hasDisplayOverride = sectionId.includes('posts-section') || 
                                  sectionId.includes('testimonials-section') || 
                                  sectionId.includes('gallery-section') ||
-                                 sectionId.includes('youtube-feed-section');
+                                 sectionId.includes('youtube-feed-section') ||
+                                 sectionId.includes('magic-search');
       
 
       const storageKey = `section-${sectionId}-collapsed`;
