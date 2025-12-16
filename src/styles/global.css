@@ -471,7 +471,7 @@ body:has(.videopage) .youtube-video-actions{position: relative; left: 90% !impor
 		
 		.slider h2.ext {margin-top:-10px !important;}
 
-		.grid-container .video-container, .grid-container .video-container .youtube-embed iframe,  .slider .video-container .youtube-embed iframe {min-height: 30vh !important; max-height: 200px !important;}
+		.grid-container .video-container, .grid-container .video-container .youtube-embed iframe,  .slider .video-container .youtube-embed iframe {min-height: 30vh !important;}
 
 		.grid-container iframe.exturl {
 	
