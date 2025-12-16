@@ -143,8 +143,17 @@ const tagsWithCount: [string, number][] = uniqueTags.map(tag => [
           display: block;
         }
         
+        /* Mobile: reduce search min-width to fit button */
+        .search-bar-container {
+          min-width: 200px !important;
+        }
+        
         /* Desktop layout adjustments */
         @media (min-width: 768px) {
+          .search-bar-container {
+            min-width: 250px !important;
+          }
+          
           .search-filter-box > div:first-of-type {
             align-items: center !important;
           }
