@@ -53,7 +53,7 @@ const tagsWithCount: [string, number][] = uniqueTags.map(tag => [
   allPosts.filter(post => post.data.tags?.includes(tag)).length
 ]);
 
-console.log('PostsPageSearch: uniqueTags.length =', uniqueTags.length, 'tagsWithCount.length =', tagsWithCount.length, 'should show toggle?', tagsWithCount.length > 7);
+// console.log('PostsPageSearch: uniqueTags.length =', uniqueTags.length, 'tagsWithCount.length =', tagsWithCount.length, 'should show toggle?', tagsWithCount.length > 7);
 ---
 
 <div class="posts-page-search">
@@ -376,7 +376,7 @@ console.log('PostsPageSearch: uniqueTags.length =', uniqueTags.length, 'tagsWith
 
     // Run initial filter if there are pre-selected values
     if (activeYear || activeMonth) {
-      console.log('Running initial filter with pre-selected values');
+      // console.log('Running initial filter with pre-selected values');
       updateView();
     }
 
