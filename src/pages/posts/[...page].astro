@@ -36,6 +36,7 @@ export const getStaticPaths = (async ({ paginate }) => {
   return paginate(allPostsByDate, { 
     pageSize: settings.MAX_POSTS_PER_PAGE,
     props: { 
+      allPosts: allPostsByDate,
       uniqueTags, 
       defaultView: settings.defaultView,
       showTags: settings.showTags,
@@ -50,6 +51,7 @@ const language = await getEntry('language', 'index');
 
 interface Props {
   page: Page<CollectionEntry<"post">>;
+  allPosts: CollectionEntry<"post">[];
   uniqueTags: string[];
   defaultView: string;
   showTags: boolean;
@@ -57,7 +59,7 @@ interface Props {
   showDates: boolean;
 }
 
-const { page, uniqueTags, defaultView, showTags, showTagFilters, showDates } = Astro.props;
+const { page, allPosts, uniqueTags, defaultView, showTags, showTagFilters, showDates } = Astro.props;
 
 const meta = {
 	description: "Collection of posts",
@@ -96,7 +98,7 @@ const monthOrder = ['January', 'February', 'March', 'April', 'May', 'June', 'Jul
 			defaultView={defaultView as 'grid' | 'swipe'}
 			showTags={showTagFilters}
 			searchMethod="hybrid"
-			allPosts={page.data}
+			allPosts={allPosts}
 			groupedByYearMonth={groupedByYearMonth}
 			uniqueTags={uniqueTags}
 		/>
