@@ -67,65 +67,82 @@ const tagsWithCount: [string, number][] = uniqueTags.map(tag => [
       </div> -->
 
       <!-- Search Bar -->
-      <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem; align-items: center; flex-wrap: wrap;">
-        <div class="search-bar-container" style="position: relative; flex: 1; min-width: 250px;">
-          <input
-            type="text"
-            id={`${sectionId}-search-input`}
-            placeholder={lang.placeholder}
-            style="width: 100%; padding: 1rem 3rem 1rem 1rem; border-radius: 0.5rem; border: 2px solid var(--accent); background: rgba(0, 0, 0, 0.4); color: var(--textColor); font-size: 1rem;"
-          />
+      <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem; align-items: flex-start; flex-wrap: wrap;">
+        <!-- First row: Search + Clear Filters -->
+        <div style="display: flex; gap: 0.75rem; flex: 1 1 100%; align-items: center;">
+          <div class="search-bar-container" style="position: relative; flex: 1; min-width: 250px;">
+            <input
+              type="text"
+              id={`${sectionId}-search-input`}
+              placeholder={lang.placeholder}
+              style="width: 100%; padding: 1rem 3rem 1rem 1rem; border-radius: 0.5rem; border: 2px solid var(--accent); background: rgba(0, 0, 0, 0.4); color: var(--textColor); font-size: 1rem;"
+            />
+            <button
+              id={`${sectionId}-clear-search`}
+              style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); padding: 0.5rem; background: transparent; border: none; cursor: pointer; display: none; color: var(--textColor);"
+              aria-label="Clear search"
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 6L6 18M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Clear All Filters Button -->
           <button
-            id={`${sectionId}-clear-search`}
-            style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); padding: 0.5rem; background: transparent; border: none; cursor: pointer; display: none; color: var(--textColor);"
-            aria-label="Clear search"
+            id={`${sectionId}-clear-all`}
+            style="padding: 1rem 1.5rem; border-radius: 0.5rem; border: 2px solid var(--accent); background: rgba(255, 0, 0, 0.2); color: white; cursor: pointer; font-weight: 600; white-space: nowrap; transition: all 0.2s; visibility: hidden;"
+            onmouseover="this.style.background='rgba(255, 0, 0, 0.4)'"
+            onmouseout="this.style.background='rgba(255, 0, 0, 0.2)'"
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M18 6L6 18M6 6l12 12"/>
-            </svg>
+            Clear Filters
           </button>
         </div>
 
-        <!-- Clear All Filters Button -->
-        <button
-          id={`${sectionId}-clear-all`}
-          style="padding: 1rem 1.5rem; border-radius: 0.5rem; border: 2px solid var(--accent); background: rgba(255, 0, 0, 0.2); color: white; cursor: pointer; font-weight: 600; white-space: nowrap; transition: all 0.2s; display: none;"
-          onmouseover="this.style.background='rgba(255, 0, 0, 0.4)'"
-          onmouseout="this.style.background='rgba(255, 0, 0, 0.2)'"
-        >
-          Clear Filters
-        </button>
+        <!-- Second row: Filters + View Toggle -->
+        <div style="display: flex; gap: 0.75rem; flex: 1 1 100%; align-items: center; flex-wrap: wrap;">
+          <!-- Year Filter -->
+          <select 
+            id={`${sectionId}-year-filter`}
+            style="padding: 1rem; border-radius: 0.5rem; border: 2px solid var(--accent); background: rgba(0, 0, 0, 0.4); color: var(--textColor); cursor: pointer; font-size: 1rem; flex: 1; min-width: 120px;"
+          >
+            <option value="">All Years</option>
+            {years.map(year => (
+              <option value={year}>{year}</option>
+            ))}
+          </select>
 
-        <!-- Year Filter -->
-        <select 
-          id={`${sectionId}-year-filter`}
-          style="padding: 1rem; border-radius: 0.5rem; border: 2px solid var(--accent); background: rgba(0, 0, 0, 0.4); color: var(--textColor); cursor: pointer; font-size: 1rem;"
-        >
-          <option value="">All Years</option>
-          {years.map(year => (
-            <option value={year}>{year}</option>
-          ))}
-        </select>
+          <!-- Month Filter -->
+          <select 
+            id={`${sectionId}-month-filter`}
+            style="padding: 1rem; border-radius: 0.5rem; border: 2px solid var(--accent); background: rgba(0, 0, 0, 0.4); color: var(--textColor); cursor: pointer; font-size: 1rem; flex: 1; min-width: 120px;"
+          >
+            <option value="">All Months</option>
+            {allMonths.map(month => (
+              <option value={month}>{month}</option>
+            ))}
+          </select>
 
-        <!-- Month Filter -->
-        <select 
-          id={`${sectionId}-month-filter`}
-          style="padding: 1rem; border-radius: 0.5rem; border: 2px solid var(--accent); background: rgba(0, 0, 0, 0.4); color: var(--textColor); cursor: pointer; font-size: 1rem;"
-        >
-          <option value="">All Months</option>
-          {allMonths.map(month => (
-            <option value={month}>{month}</option>
-          ))}
-        </select>
-
-        <!-- View Mode Toggle -->
-        {/* @ts-ignore */}
-        <ViewModeSwitch 
-          sectionId={sectionId}
-          defaultView={defaultView}
-          client:load
-        />
+          <!-- View Mode Toggle -->
+          {/* @ts-ignore */}
+          <ViewModeSwitch 
+            sectionId={sectionId}
+            defaultView={defaultView}
+            client:load
+          />
+        </div>
       </div>
+
+      <style>
+        @media (min-width: 768px) {
+          .search-filter-box > div:first-of-type {
+            align-items: center !important;
+          }
+          .search-filter-box > div:first-of-type > div {
+            flex: 0 1 auto !important;
+          }
+        }
+      </style>
 
       <!-- Tag Filter Pills -->
       {showTags && uniqueTags.length > 0 && (
@@ -394,7 +411,7 @@ const tagsWithCount: [string, number][] = uniqueTags.map(tag => [
       
       // Show/hide clear all button
       if (clearAllButton) {
-        clearAllButton.style.display = hasFilters ? 'block' : 'none';
+        clearAllButton.style.visibility = hasFilters ? 'visible' : 'hidden';
       }
       
       // Show/hide timeline vs flat view - only use flat view for search/tag filters
