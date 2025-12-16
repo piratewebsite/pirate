@@ -91,7 +91,8 @@ const tagsWithCount: [string, number][] = uniqueTags.map(tag => [
           <!-- Clear All Filters Button -->
           <button
             id={`${sectionId}-clear-all`}
-            style="padding: 1rem 1.5rem; border-radius: 0.5rem; border: 2px solid var(--accent); background: rgba(255, 0, 0, 0.2); color: white; cursor: pointer; font-weight: 600; white-space: nowrap; transition: all 0.2s; visibility: hidden;"
+            class="clear-all-btn"
+            style="padding: 1rem 1.5rem; border-radius: 0.5rem; border: 2px solid var(--accent); background: rgba(255, 0, 0, 0.2); color: white; cursor: pointer; font-weight: 600; white-space: nowrap; transition: all 0.2s;"
             onmouseover="this.style.background='rgba(255, 0, 0, 0.4)'"
             onmouseout="this.style.background='rgba(255, 0, 0, 0.2)'"
           >
@@ -134,12 +135,35 @@ const tagsWithCount: [string, number][] = uniqueTags.map(tag => [
       </div>
 
       <style>
+        /* Mobile: use visibility to prevent layout shift */
+        .clear-all-btn {
+          visibility: hidden;
+        }
+        .clear-all-btn.visible {
+          visibility: visible;
+        }
+        
+        /* Desktop: use display to allow search field to expand */
         @media (min-width: 768px) {
+          .clear-all-btn {
+            display: none;
+            visibility: visible !important;
+          }
+          .clear-all-btn.visible {
+            display: block;
+            visibility: visible !important;
+          }
+          
           .search-filter-box > div:first-of-type {
             align-items: center !important;
           }
-          .search-filter-box > div:first-of-type > div {
+          .search-filter-box > div:first-of-type > div:first-child {
+            flex: 1 1 auto !important;
+            min-width: 300px !important;
+          }
+          .search-filter-box > div:first-of-type > div:last-child {
             flex: 0 1 auto !important;
+            width: auto !important;
           }
         }
       </style>
@@ -411,7 +435,11 @@ const tagsWithCount: [string, number][] = uniqueTags.map(tag => [
       
       // Show/hide clear all button
       if (clearAllButton) {
-        clearAllButton.style.visibility = hasFilters ? 'visible' : 'hidden';
+        if (hasFilters) {
+          clearAllButton.classList.add('visible');
+        } else {
+          clearAllButton.classList.remove('visible');
+        }
       }
       
       // Show/hide timeline vs flat view - only use flat view for search/tag filters
