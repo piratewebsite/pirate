@@ -128,6 +128,7 @@ const displayDescription = customDescription;
       method="POST"
       data-netlify="true"
       data-netlify-honeypot="bot-field"
+      action="/thanks/"
       style="justify-content: center; width: 100%; padding: 5vh 0 0 0; max-width: 500px; margin: 0 auto;"
     >
       <input type="hidden" name="form-name" value={formName} />
@@ -206,69 +207,3 @@ const displayDescription = customDescription;
     )}
   </div>
 </div>
-
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const form = document.querySelector('.contact-form') as HTMLFormElement;
-    if (!form) return;
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const formData = new FormData(form);
-      const button = form.querySelector('button[type="submit"]') as HTMLButtonElement;
-      const originalText = button?.textContent || '';
-      
-      if (button) {
-        button.disabled = true;
-        button.textContent = 'Sending...';
-      }
-
-      try {
-        // Debug: Log what we're sending
-        console.log('Form submission started');
-        console.log('Form name:', formData.get('form-name'));
-        console.log('All form fields:', Array.from(formData.keys()));
-        
-        // For forms with file uploads, we need to use FormData directly
-        // But we need to encode it properly for Netlify
-        const hasFile = Array.from(formData.values()).some(value => value instanceof File && value.size > 0);
-        
-        let response;
-        if (hasFile) {
-          // Use multipart/form-data for file uploads
-          response = await fetch('/', {
-            method: 'POST',
-            body: formData,
-          });
-        } else {
-          // Use application/x-www-form-urlencoded for regular forms
-          const params = new URLSearchParams();
-          for (const [key, value] of formData.entries()) {
-            if (typeof value === 'string') {
-              params.append(key, value);
-            }
-          }
-          response = await fetch('/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: params.toString(),
-          });
-        }
-
-        if (response.ok) {
-          window.location.href = '/thanks/';
-        } else {
-          throw new Error('Form submission failed');
-        }
-      } catch (error) {
-        console.error('Form submission error:', error);
-        alert('There was an error submitting the form. Please try again.');
-        if (button) {
-          button.disabled = false;
-          button.textContent = originalText;
-        }
-      }
-    });
-  });
-</script>
