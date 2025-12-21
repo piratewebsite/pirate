@@ -12,8 +12,8 @@ export const prerender = true;
 </head>
 <body style="display: none;">
   <!-- Hidden form for Netlify to parse during build -->
-  <form name="contact" method="POST" data-netlify="true" data-netlify-honeypot="bot-field" action="/thanks/" enctype="multipart/form-data">
-    <input type="hidden" name="form-name" value="contact" />
+  <form name="form" method="POST" data-netlify="true" data-netlify-honeypot="bot-field" action="/thanks/" enctype="multipart/form-data">
+    <input type="hidden" name="form-name" value="form" />
     <p class="hidden">
       <label>
         Don't fill this out if you're human: <input name="bot-field" />

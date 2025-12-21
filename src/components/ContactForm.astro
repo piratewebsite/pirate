@@ -9,7 +9,7 @@ interface Props {
   formName?: string;
 }
 
-const { showTitle = true, customTitle, customDescription, formName = 'contact' } = Astro.props;
+const { showTitle = true, customTitle, customDescription, formName = 'form' } = Astro.props;
 
 const formSettings = await getEntry('formSettings', 'index');
 
@@ -225,12 +225,36 @@ const displayDescription = customDescription;
       }
 
       try {
-        // Submit directly to Netlify using fetch
-        const response = await fetch('/', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: new URLSearchParams(formData as any).toString(),
-        });
+        // Debug: Log what we're sending
+        console.log('Form submission started');
+        console.log('Form name:', formData.get('form-name'));
+        console.log('All form fields:', Array.from(formData.keys()));
+        
+        // For forms with file uploads, we need to use FormData directly
+        // But we need to encode it properly for Netlify
+        const hasFile = Array.from(formData.values()).some(value => value instanceof File && value.size > 0);
+        
+        let response;
+        if (hasFile) {
+          // Use multipart/form-data for file uploads
+          response = await fetch('/', {
+            method: 'POST',
+            body: formData,
+          });
+        } else {
+          // Use application/x-www-form-urlencoded for regular forms
+          const params = new URLSearchParams();
+          for (const [key, value] of formData.entries()) {
+            if (typeof value === 'string') {
+              params.append(key, value);
+            }
+          }
+          response = await fetch('/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString(),
+          });
+        }
 
         if (response.ok) {
           window.location.href = '/thanks/';
