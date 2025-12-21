@@ -9,7 +9,7 @@ interface Props {
   formName?: string;
 }
 
-const { showTitle = true, customTitle, customDescription, formName = 'form' } = Astro.props;
+const { showTitle = true, customTitle, customDescription, formName = 'contact' } = Astro.props;
 
 const formSettings = await getEntry('formSettings', 'index');
 
