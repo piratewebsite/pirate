@@ -8,10 +8,6 @@
   # Force specific Node.js runtime only
   NODE_ENV = "production"
 
-# Enable form processing
-[forms]
-  # Process forms on this site
-  enabled = true
 
 [functions]
   node_bundler = "esbuild"
