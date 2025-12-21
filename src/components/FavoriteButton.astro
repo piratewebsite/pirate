@@ -551,9 +551,9 @@ class PremiumFavoriteButton {
   
   isVideoFavorited(videoId) {
     try {
-      const favorites = localStorage.getItem('videoFavorites');
+      const favorites = localStorage.getItem('memberFavorites');
       const favoritesArray = favorites ? JSON.parse(favorites) : [];
-      return favoritesArray.some(fav => fav.id === videoId);
+      return favoritesArray.some(fav => fav.videoId === videoId);
     } catch (error) {
       console.error('Error checking favorite status:', error);
       return false;
@@ -571,24 +571,45 @@ class PremiumFavoriteButton {
     
     try {
       const favorites = this.getFavorites();
-      const existingIndex = favorites.findIndex(fav => fav.id === this.videoData.id);
+      const existingIndex = favorites.findIndex(fav => fav.videoId === this.videoData.id);
       
       if (existingIndex > -1) {
         // Remove from favorites
         favorites.splice(existingIndex, 1);
         this.showToast('Removed from favorites', 'success');
       } else {
-        // Add to favorites
+        // Fetch video metadata from YouTube to ensure we have the title
+        let videoTitle = this.videoData.title;
+        let channelTitle = this.videoData.author;
+        
+        // If we don't have a title, fetch it from YouTube
+        if (!videoTitle || videoTitle === '') {
+          try {
+            const response = await fetch(`/.netlify/functions/youtube-feed?action=video&videoId=${this.videoData.id}`);
+            if (response.ok) {
+              const data = await response.json();
+              if (data.title) {
+                videoTitle = data.title;
+                channelTitle = data.channelTitle || channelTitle;
+              }
+            }
+          } catch (error) {
+            console.error('Error fetching video metadata:', error);
+            // Fallback to video ID if we can't fetch
+            videoTitle = this.videoData.id;
+          }
+        }
+        
+        // Use MemberFavorites format
         const favoriteData = {
-          id: this.videoData.id,
-          title: this.videoData.title,
-          thumbnail: this.videoData.thumbnail,
-          author: this.videoData.author,
-          published: this.videoData.published,
-          url: this.videoData.url,
-          duration: this.videoData.duration,
-          views: this.videoData.views,
-          addedAt: new Date().toISOString()
+          uniqueId: `youtube:${this.videoData.id}`,
+          videoId: this.videoData.id,
+          platform: 'youtube',
+          title: videoTitle || this.videoData.id,
+          thumbnail: this.videoData.thumbnail || `https://img.youtube.com/vi/${this.videoData.id}/hqdefault.jpg`,
+          channelTitle: channelTitle || '',
+          url: this.videoData.url || `https://www.youtube.com/watch?v=${this.videoData.id}`,
+          dateAdded: new Date().toISOString()
         };
         
         favorites.unshift(favoriteData); // Add to beginning
@@ -605,8 +626,8 @@ class PremiumFavoriteButton {
         }
       }
       
-      // Save to localStorage
-      localStorage.setItem('videoFavorites', JSON.stringify(favorites));
+      // Save to localStorage in the format MemberFavorites expects
+      localStorage.setItem('memberFavorites', JSON.stringify(favorites));
       
       // Dispatch update event
       window.dispatchEvent(new CustomEvent('favoritesUpdated'));
@@ -625,7 +646,7 @@ class PremiumFavoriteButton {
   
   getFavorites() {
     try {
-      const favorites = localStorage.getItem('videoFavorites');
+      const favorites = localStorage.getItem('memberFavorites');
       return favorites ? JSON.parse(favorites) : [];
     } catch (error) {
       console.error('Error loading favorites:', error);
