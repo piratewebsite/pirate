@@ -127,11 +127,17 @@ const displayDescription = customDescription;
       name={formName}
       method="POST"
       data-netlify="true"
+      data-netlify-honeypot="bot-field"
       action="/thanks/"
       enctype="multipart/form-data"
       style="justify-content: center; width: 100%; padding: 5vh 0 0 0; max-width: 500px; margin: 0 auto;"
     >
       <input type="hidden" name="form-name" value={formName} />
+      <p class="hidden">
+        <label>
+          Don't fill this out if you're human: <input name="bot-field" />
+        </label>
+      </p>
 
       {showName && (
         <p>
