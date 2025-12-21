@@ -12,14 +12,6 @@
 [functions]
   node_bundler = "esbuild"
 
-# Netlify Forms processing - must come before other redirects
-[[redirects]]
-  from = "/"
-  to = "/.netlify/functions/astro"
-  status = 200
-  force = false
-  conditions = {Role = ["form-submission"]}
-
 [[headers]]
   for = "/*"
   [headers.values]
