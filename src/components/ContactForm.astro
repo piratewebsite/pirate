@@ -126,8 +126,8 @@ const displayDescription = customDescription;
       class="flexcheek contact-form"
       name={formName}
       method="POST"
-      action="/api/submit-form"
-      enctype="multipart/form-data"
+      action="/.netlify/functions/submit-form"
+      enctype="application/x-www-form-urlencoded"
       style="justify-content: center; width: 100%; padding: 5vh 0 0 0; max-width: 500px; margin: 0 auto;"
     >
       <input type="hidden" name="form-name" value={formName} />
