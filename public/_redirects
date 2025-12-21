@@ -1,4 +1,3 @@
-# Form submissions should be handled by Netlify Forms, not the Astro function
-# This ensures POST requests to paths with forms are processed by Netlify first
-/  200  Role=form-submission
-/*  200  
+# This file intentionally left empty to not interfere with Netlify's default form handling
+# Netlify Forms should work automatically with prerendered pages
+
