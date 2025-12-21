@@ -2578,18 +2578,8 @@ async function handleChannelBookmark() {
 
 async function fetchVideoData(videoId: string) {
   try {
-    
-    // Use the same API endpoint that MemberFavorites uses for channel resolution
-    const response = await fetch('/api/youtube-feed', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        action: 'resolve',
-        input: `https://www.youtube.com/watch?v=${videoId}`
-      })
-    });
+    // Use the Netlify Function endpoint to get video details
+    const response = await fetch(`/.netlify/functions/youtube-feed?action=video&videoId=${videoId}`);
     
     if (!response.ok) {
       throw new Error(`Failed to fetch video data: ${response.status}`);
@@ -2603,13 +2593,13 @@ async function fetchVideoData(videoId: string) {
     
     // Return data in the format expected by the bookmark system
     return {
-      title: data.videoTitle || `Video ${videoId}`,
-      thumbnail: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
-      author: data.name || 'Unknown Channel',
+      title: data.title || `Video ${videoId}`,
+      thumbnail: data.thumbnail || `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+      author: data.channelTitle || 'Unknown Channel',
       channelId: data.channelId || null,
-      published: new Date().toLocaleDateString(),
-      duration: '',
-      views: ''
+      published: data.publishedAt || new Date().toLocaleDateString(),
+      duration: data.duration || '',
+      views: data.viewCount || ''
     };
   } catch (error) {
     console.error('Error fetching video data:', error);
