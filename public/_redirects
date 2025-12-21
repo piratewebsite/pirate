@@ -1,0 +1,4 @@
+# Form submissions should be handled by Netlify Forms, not the Astro function
+# This ensures POST requests to paths with forms are processed by Netlify first
+/  200  Role=form-submission
+/*  200  
