@@ -947,6 +947,11 @@ export default config({
         showTags: fields.checkbox({ label: 'Show Post Tags', description: 'Show/hide tags displayed on individual posts', defaultValue: false }),
         showTagFilters: fields.checkbox({ label: 'Show Tag Filter Pills', description: 'Show/hide tag filter pills in search components on posts and tags pages', defaultValue: true }),
         showShare: fields.checkbox({ label: 'Show Share section on posts', description: 'Hide/Show the share this copy button on posts', defaultValue: false }),
+        showPostNavigator: fields.checkbox({ 
+          label: 'Show Post Navigator', 
+          description: 'Show/hide the previous/next post navigation buttons on blog posts', 
+          defaultValue: true 
+        }),
         showSearch: fields.checkbox({
           label: 'Show Search Bar',
           description: 'Show/hide the search bar in Magic Search sections',

@@ -6,11 +6,12 @@ import YouTubeEmbed from '@/components/YouTubeEmbed.astro';
 import Share from "@/components/Share.astro";
 import SocialList from "@/components/SocialList.astro";
 import TOC from "@/components/blog/TOC.astro";
+import PostNavigator from "@/components/PostNavigator.astro";
 import BaseLayout from "./Base.astro";
 import { getEntry } from 'astro:content';
 
 const siteSettings = await getEntry('siteSettings', 'main');
-const { showTags, showDates, showShare, showSocial } = siteSettings?.data || {};
+const { showTags, showDates, showShare, showSocial, showPostNavigator } = siteSettings?.data || {};
 
 
 interface Props {
@@ -276,6 +277,8 @@ const { headings = [] } = (post.rendered as { headings?: any[] } | undefined) ??
     
 </article>
   </div>
-</BaseLayout>
 
-
+  <!-- Post Navigator -->
+  {typeof showPostNavigator !== 'undefined' && showPostNavigator && (
+    <PostNavigator currentPost={post} />
+  )}

@@ -257,6 +257,7 @@ export const collections = {
       MAX_POSTS: z.number().optional(),
       MAX_POSTS_PER_PAGE: z.number().optional(),
       showShare: z.boolean().optional(),
+      showPostNavigator: z.boolean().optional(),
       showSearch: z.boolean().optional(),
       searchMethod: z.enum(['client', 'pagefind', 'hybrid']).optional(),
       videoTimeLimitMinutes: z.number().min(-1).max(30).optional(),

@@ -15,5 +15,6 @@ showSocial: true
 showTags: true
 showTagFilters: true
 showShare: true
+showPostNavigator: true
 showSearch: true
 searchMethod: hybrid
