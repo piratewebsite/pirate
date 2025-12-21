@@ -2366,9 +2366,23 @@ async function handleVideoFavorite() {
   try {
     let videoData: any = {};
     
-    // For YouTube, use the existing API
+    // First, try to get the title from the page (SSR metadata)
+    const pageTitle = document.title;
+    const isGenericTitle = pageTitle === "Privacy First Video Player";
+    
+    // For YouTube, fetch metadata if we don't have a good title
     if (detected.platform === 'youtube') {
-      videoData = await fetchVideoData(detected.id);
+      if (!isGenericTitle && pageTitle) {
+        // Use the page title from SSR
+        videoData = {
+          title: pageTitle,
+          thumbnail: `https://img.youtube.com/vi/${detected.id}/hqdefault.jpg`,
+          author: 'YouTube'
+        };
+      } else {
+        // Fetch from API if no title available
+        videoData = await fetchVideoData(detected.id);
+      }
     } else {
       // For other platforms, try to get metadata from oEmbed or construct basic data
       const metadata = await extractVideoMetadata(videoInput, detected.platform, detected.id);
