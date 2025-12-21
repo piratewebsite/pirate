@@ -50,9 +50,10 @@ function getThumbnail(post: CollectionEntry<"post">) {
     justify-content: center;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
-    font-size: 24px;
+    font-size: 32px;
     font-weight: bold;
-    line-height: 1;
+    line-height: 0;
+    padding-bottom: 8px;
   }
 
   .nav-toggle:hover {
@@ -205,7 +206,7 @@ function getThumbnail(post: CollectionEntry<"post">) {
     aria-label="Toggle post navigation"
     title="Navigate to previous/next post"
   >
-    ◄►
+    ⇄
   </button>
 </div>
 
