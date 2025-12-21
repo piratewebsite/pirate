@@ -24,6 +24,7 @@ const showMap = formSettings?.data?.showMap ?? true;
 const showExtraField2 = formSettings?.data?.showExtraField2 ?? false;
 const extraFieldLabel2 = formSettings?.data?.extraFieldLabel2 ?? 'Extra Field 2';
 const content = (formSettings?.data?.formContent ?? '').replace(/\n/g, '<br>');
+const enableRecaptcha = formSettings?.data?.enableRecaptcha ?? false;
 
 // Use custom title/description if provided, otherwise use defaults
 const displayTitle = customTitle || 'Contact';
@@ -128,6 +129,7 @@ const displayDescription = customDescription;
       method="POST"
       data-netlify="true"
       data-netlify-honeypot="bot-field"
+      data-netlify-recaptcha={enableRecaptcha ? "true" : undefined}
       action="/thanks/"
       style="justify-content: center; width: 100%; padding: 5vh 0 0 0; max-width: 500px; margin: 0 auto;"
     >
@@ -192,6 +194,8 @@ const displayDescription = customDescription;
           </label>
         </p>
       )}
+
+      {enableRecaptcha && <div data-netlify-recaptcha="true"></div>}
 
       <div class="" style="display: grid; place-items: center; margin: 1vh auto; color: #fff; width: 100%; border: 0px solid var(--theme-accent2);">
         <button class="button stripe-button" style="margin: 0" type="submit">

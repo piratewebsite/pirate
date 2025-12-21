@@ -297,6 +297,7 @@ export const collections = {
       showExtraField2: z.boolean().optional(),
       extraFieldLabel2: z.string().optional(),
       formContent: z.string().optional(),
+      enableRecaptcha: z.boolean().optional(),
       // Map contact information
       mapTitle: z.string().optional(),
       mapDescription: z.string().optional(),

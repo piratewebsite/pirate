@@ -1108,6 +1108,11 @@ export default config({
           multiline: true,
           defaultValue: 'For all inquiries, please complete the form below:'
         }),
+        enableRecaptcha: fields.checkbox({
+          label: 'Enable reCAPTCHA',
+          description: 'Add reCAPTCHA spam prevention to contact forms (recommended)',
+          defaultValue: false
+        }),
 
         divider_map: fields.empty(),
 

@@ -10,6 +10,7 @@ extraFieldLabel: Extra Field
 showExtraField2: true
 extraFieldLabel2: Extra Field 2
 formContent: 'For all inquiries, please complete the form below:'
+enableRecaptcha: true
 mapTitle: Section Title Here
 mapDescription: A section description goes here.
 businessName: Business Name
