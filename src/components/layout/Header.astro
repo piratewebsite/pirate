@@ -160,6 +160,18 @@ const url = new URL(Astro.request.url);
 #menu-popup a:hover {
   background: rgba(255, 255, 255, 0.1);
 }
+
+#menu-popup a[aria-current="page"],
+.topmenu a[aria-current="page"] {
+  background: rgba(255, 255, 255, 0.2);
+  pointer-events: none;
+  opacity: 0.7;
+  cursor: default;
+}
+
+.topmenu a[aria-current="page"]:hover {
+  text-decoration: none;
+}
 </style>
 
 
@@ -246,7 +258,12 @@ const url = new URL(Astro.request.url);
     <ul>
       {sortedMenuLinks.map((link: { path: string; title: string }) => (
         <li>
-          <a href={link.path} rel="prefetch" data-astro-reload>
+          <a 
+            href={link.path} 
+            rel="prefetch" 
+            data-astro-reload
+            aria-current={url.pathname === link.path ? "page" : false}
+          >
             {link.title}
           </a>
         </li>
