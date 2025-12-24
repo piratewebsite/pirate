@@ -728,7 +728,7 @@ body:has(.video) #footer{display: none !important;}
 			width: 100% !important;
 			height: auto !important;
 			max-width: 100% !important;
-			max-height: 70vh !important;
+			max-height: 45vh !important;
 			min-width: 0 !important;
 			object-fit: contain !important;
 			--fit: contain !important;
