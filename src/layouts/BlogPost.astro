@@ -202,8 +202,35 @@ const { headings = [] } = (post.rendered as { headings?: any[] } | undefined) ??
     
     <!-- Rotation notice for mobile portrait mode -->
     <div id="rotation-notice">
-      📱 Rotate your device and <a href={Astro.url.href} target="_blank" rel="noopener">open in new window</a> for best experience
+      📱 Rotate your device<span class="webview-only"> and open in your browser</span> for best experience
     </div>
+    
+    <script>
+      // Detect if we're in an embedded webview (in-app browser from social media)
+      function isInWebView() {
+        const ua = navigator.userAgent || navigator.vendor || (window as any).opera;
+        
+        // Check for common in-app browser user agents
+        const isInAppBrowser = /FBAN|FBAV|Instagram|Twitter|LinkedIn|Snapchat|Line\//i.test(ua);
+        
+        // Check if on mobile device
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+        
+        // Check if NOT in standalone mode (regular browser or PWA)
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                           (window.navigator as any).standalone;
+        
+        // Only consider it a webview if it's an in-app browser OR (mobile AND not standalone AND not desktop browser)
+        return isInAppBrowser || (isMobile && !isStandalone && window.innerWidth < 1024);
+      }
+      
+      // Show "and open in your browser" text only in webviews
+      if (!isInWebView()) {
+        document.querySelectorAll('.webview-only').forEach(el => {
+          (el as HTMLElement).style.display = 'none';
+        });
+      }
+    </script>
     
     <!-- Share options below video -->
     {showShare && (
