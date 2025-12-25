@@ -29,7 +29,6 @@ export default config({
       format: { contentField: 'content' },
       columns: ['title', 'sticky', 'draft', 'publishDate'],
       previewUrl: '/posts/{slug}',
-      template: 'content/post/configuring-pirate',
       schema: {
         publishDate: fields.date({ 
           label: 'Publish Date', 

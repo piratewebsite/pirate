@@ -48,6 +48,35 @@ div[data-section-id*="youtube-feed-section"] .section-content.slider {
 html {
   scroll-behavior: smooth;
   overflow-x: hidden;
+  /* Fix for iOS and embedded browsers */
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+/* Fix viewport height for iOS and embedded browsers */
+html,
+body {
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+}
+
+/* Ensure proper rotation and responsiveness in embedded browsers */
+@supports (-webkit-touch-callout: none) {
+  html {
+    height: -webkit-fill-available;
+  }
+}
+
+/* Fix for iOS Safari and social media in-app browsers */
+@media screen and (max-width: 768px) {
+  html,
+  body {
+    overflow-x: hidden;
+    width: 100%;
+    position: relative;
+  }
+}
   min-height: 100dvh;
 }
 
