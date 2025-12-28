@@ -549,7 +549,12 @@ style="flex-direction: column;"
   // Reload custom links after navigation
   document.addEventListener('astro:after-swap', loadCustomPwaLinks);
   
-  // Listen for storage changes to update links in real-time
+  // Listen for custom event when links are updated in backup page
+  window.addEventListener('customLinksUpdated', () => {
+    loadCustomPwaLinks();
+  });
+  
+  // Listen for storage changes to update links in real-time (for other tabs)
   window.addEventListener('storage', (e) => {
     if (e.key === 'customSocialLinks') {
       loadCustomPwaLinks();

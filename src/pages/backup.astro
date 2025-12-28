@@ -517,6 +517,9 @@ const description = 'Backup and restore your settings, favorites, and preference
       localStorage.setItem('customSocialLinks', JSON.stringify(links));
       this.renderSocialLinks();
       this.updateDataOverview();
+      
+      // Dispatch custom event to update PWA menu in real-time
+      window.dispatchEvent(new CustomEvent('customLinksUpdated'));
     }
 
     addSocialLink(name, url, icon) {
