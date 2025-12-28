@@ -120,7 +120,7 @@ const currentPath = normalizePath(url.pathname);
     
 @media all and (display-mode: standalone) {
         .pwaonly {
-          display:flex; flex-direction: column;
+          /* Display controlled by individual elements */
         }
     }
 
@@ -131,11 +131,16 @@ const currentPath = normalizePath(url.pathname);
   position: fixed;
   bottom: 80px;
   left: 10px;
-  display: flex;
   flex-direction: column;
   gap: 8px;
   z-index: 99;
   pointer-events: auto;
+}
+
+@media all and (display-mode: browser) {
+  #pwa-menu-items {
+    display: none !important;
+  }
 }
 
 #pwa-menu-items a {
@@ -288,9 +293,9 @@ const currentPath = normalizePath(url.pathname);
 
 
 
-<!-- PWA Menu Items - Bottom left corner -->
+<!-- PWA Menu Items - Bottom left corner, toggles with menu -->
 {sortedPwaMenuItems.length > 0 && (
-  <div id="pwa-menu-items" class="pwaonly">
+  <div id="pwa-menu-items">
     {sortedPwaMenuItems.map((item) => (
       <a
         href={item.link}
@@ -434,31 +439,72 @@ style="flex-direction: column;"
   document.addEventListener('astro:after-swap', initializeBackToTopButton);
 
   // Bottom menu toggle functionality
+  let menuClickHandler = null;
+  let outsideClickHandler = null;
+
   function initializeBottomMenu() {
     const menuBtn = document.getElementById('bottom-menu-btn');
     const menuPopup = document.getElementById('menu-popup');
+    const pwaMenu = document.getElementById('pwa-menu-items');
     
     if (!menuBtn || !menuPopup) {
       return;
     }
     
-    menuBtn.addEventListener('click', (e) => {
+    // Set initial state - hide PWA menu
+    if (pwaMenu) {
+      pwaMenu.style.display = 'none';
+    }
+    
+    // Remove old handlers if they exist
+    if (menuClickHandler) {
+      menuBtn.removeEventListener('click', menuClickHandler);
+    }
+    if (outsideClickHandler) {
+      document.removeEventListener('click', outsideClickHandler);
+    }
+    
+    // Define and attach new click handler
+    menuClickHandler = (e) => {
       e.stopPropagation();
-      menuPopup.classList.toggle('show');
-    });
-    
-    // Close menu when clicking outside
-    document.addEventListener('click', (e) => {
-      const target = e.target;
-      if (!menuPopup.contains(target) && !menuBtn.contains(target)) {
-        menuPopup.classList.remove('show');
+      const isShowing = menuPopup.classList.toggle('show');
+      
+      if (pwaMenu) {
+        if (isShowing) {
+          pwaMenu.style.display = 'flex';
+        } else {
+          pwaMenu.style.display = 'none';
+        }
       }
-    });
+    };
     
-    // Close menu when clicking a link
-    menuPopup.querySelectorAll('a').forEach(link => {
+    menuBtn.addEventListener('click', menuClickHandler);
+    
+    // Define and attach outside click handler
+    outsideClickHandler = (e) => {
+      const target = e.target;
+      const isClickInsidePopup = menuPopup.contains(target);
+      const isClickOnButton = menuBtn.contains(target);
+      const isClickInsidePwaMenu = pwaMenu && pwaMenu.contains(target);
+      
+      if (!isClickInsidePopup && !isClickOnButton && !isClickInsidePwaMenu) {
+        menuPopup.classList.remove('show');
+        if (pwaMenu) {
+          pwaMenu.style.display = 'none';
+        }
+      }
+    };
+    
+    document.addEventListener('click', outsideClickHandler);
+    
+    // Close menu when clicking a regular menu link
+    const menuLinks = menuPopup.querySelectorAll('a');
+    menuLinks.forEach(link => {
       link.addEventListener('click', () => {
         menuPopup.classList.remove('show');
+        if (pwaMenu) {
+          pwaMenu.style.display = 'none';
+        }
       });
     });
   }
