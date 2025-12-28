@@ -167,6 +167,39 @@ const currentPath = normalizePath(url.pathname);
   color: #fff;
 }
 
+/* Custom links styling to match site links */
+#pwa-custom-links {
+  display: contents;
+}
+
+.pwa-custom-link,
+.pwa-site-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: var(--theme-header);
+  border-radius: 8px;
+  color: #fff;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.pwa-custom-link:hover,
+.pwa-site-link:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.pwa-custom-link iconify-icon {
+  width: 28px;
+  height: 28px;
+  color: #fff;
+  display: block;
+  font-size: 28px;
+}
+
 #bottom-menu-container {
   position: fixed;
   bottom: 0;
@@ -294,21 +327,25 @@ const currentPath = normalizePath(url.pathname);
 
 
 <!-- PWA Menu Items - Bottom left corner, toggles with menu -->
-{sortedPwaMenuItems.length > 0 && (
-  <div id="pwa-menu-items">
-    {sortedPwaMenuItems.map((item) => (
-      <a
-        href={item.link}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label={item.friendlyName}
-        title={item.friendlyName}
-      >
-        <Icon name={item.icon} />
-      </a>
-    ))}
-  </div>
-)}
+<!-- Combines user's custom links (top) with site's PWA links (bottom) -->
+<div id="pwa-menu-items">
+  <!-- Custom links loaded via JavaScript will be inserted here -->
+  <div id="pwa-custom-links"></div>
+  <!-- Site PWA menu items -->
+  {sortedPwaMenuItems.map((item) => (
+    <a
+      href={item.link}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={item.friendlyName}
+      title={item.friendlyName}
+      class="pwa-site-link"
+    >
+      <Icon name={item.icon} />
+    </a>
+  ))}
+</div>
+
 
 
 
@@ -437,6 +474,87 @@ style="flex-direction: column;"
 
   // Re-initialize after each page navigation
   document.addEventListener('astro:after-swap', initializeBackToTopButton);
+
+  // Load and render custom PWA links from localStorage
+  async function loadCustomPwaLinks() {
+    try {
+      const customLinks = JSON.parse(localStorage.getItem('customSocialLinks') || '[]');
+      const container = document.getElementById('pwa-custom-links');
+      
+      if (!container) return;
+      
+      if (customLinks.length === 0) {
+        container.innerHTML = '';
+        return;
+      }
+      
+      // Create elements for each custom link
+      container.innerHTML = '';
+      
+      customLinks.forEach(link => {
+        const a = document.createElement('a');
+        a.href = link.url;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.setAttribute('aria-label', link.name);
+        a.title = link.name;
+        a.className = 'pwa-custom-link';
+        
+        // Set exact same styles as site links inline
+        a.style.display = 'flex';
+        a.style.alignItems = 'center';
+        a.style.justifyContent = 'center';
+        a.style.width = '48px';
+        a.style.height = '48px';
+        a.style.borderRadius = '8px';
+        a.style.transition = 'all 0.2s';
+        a.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.3)';
+        
+        // Get computed background color from CSS variable
+        const themeHeader = getComputedStyle(document.documentElement).getPropertyValue('--theme-header').trim() || '#1f2937';
+        a.style.background = themeHeader;
+        
+        // Create iconify icon element
+        const iconEl = document.createElement('iconify-icon');
+        iconEl.setAttribute('icon', link.icon);
+        iconEl.style.width = '28px';
+        iconEl.style.height = '28px';
+        iconEl.style.color = '#fff';
+        iconEl.style.display = 'block';
+        iconEl.style.fontSize = '28px';
+        
+        a.appendChild(iconEl);
+        container.appendChild(a);
+      });
+      
+    } catch (error) {
+      console.error('Error loading custom PWA links:', error);
+    }
+  }
+
+  // Load iconify script for dynamic icons
+  if (!document.querySelector('script[src*="iconify"]')) {
+    const script = document.createElement('script');
+    script.src = 'https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js';
+    document.head.appendChild(script);
+  }
+
+  // Load custom links on page load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadCustomPwaLinks);
+  } else {
+    loadCustomPwaLinks();
+  }
+  
+  // Reload custom links after navigation
+  document.addEventListener('astro:after-swap', loadCustomPwaLinks);
+  
+  // Listen for storage changes to update links in real-time
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'customSocialLinks') {
+      loadCustomPwaLinks();
+    }
+  });
 
   // Bottom menu toggle functionality
   let menuClickHandler = null;
