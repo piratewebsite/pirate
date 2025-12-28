@@ -539,9 +539,12 @@ const description = 'Backup and restore your settings, favorites, and preference
       this.showMessage('Link added successfully!', 'success');
 
       // Clear form
-      document.getElementById('link-name').value = '';
-      document.getElementById('link-url').value = '';
-      document.getElementById('link-icon').selectedIndex = 0;
+      const nameInput = document.getElementById('link-name') as HTMLInputElement;
+      const urlInput = document.getElementById('link-url') as HTMLInputElement;
+      const iconSelect = document.getElementById('link-icon') as HTMLSelectElement;
+      if (nameInput) nameInput.value = '';
+      if (urlInput) urlInput.value = '';
+      if (iconSelect) iconSelect.selectedIndex = 0;
     }
 
     deleteSocialLink(id) {
@@ -727,8 +730,15 @@ const description = 'Backup and restore your settings, favorites, and preference
     }
   }
 
+  // Declare global type
+  declare global {
+    interface Window {
+      backupManager: BackupManager;
+    }
+  }
+
   // Initialize when page loads and make it globally accessible
-  let backupManager;
+  let backupManager: BackupManager;
   document.addEventListener('DOMContentLoaded', () => {
     backupManager = new BackupManager();
     window.backupManager = backupManager;
