@@ -10,7 +10,11 @@ export const prerender = false;
 
 // Get site settings for video time limit
 const siteSettings = await getEntry('siteSettings', 'main');
+const pwaSettings = await getEntry('pwaSettings', 'index');
 const videoTimeLimitMinutes = siteSettings?.data?.videoTimeLimitMinutes ?? 1;
+
+// Get the site URL from PWA settings
+const siteUrl = pwaSettings?.data?.siteUrl || 'https://adblock.video';
 
 // Timer is disabled if videoTimeLimitMinutes is -1
 const isTimerDisabled = videoTimeLimitMinutes === -1;
@@ -131,7 +135,7 @@ if (videoParam || videoIdParam) {
     if (detected.platform === 'youtube') {
       try {
         // Try both metadata endpoints for compatibility with Bluesky bot
-        const metadataUrl = new URL('/api/metadata', Astro.url.origin);
+        const metadataUrl = new URL('/api/metadata', siteUrl);
         metadataUrl.searchParams.set('videoId', detected.id);
         
         const response = await fetch(metadataUrl.toString());
@@ -171,7 +175,7 @@ if (videoParam || videoIdParam) {
     if (videoId) {
       // Try to fetch metadata for YouTube
       try {
-        const metadataUrl = new URL('/api/metadata', Astro.url.origin);
+        const metadataUrl = new URL('/api/metadata', siteUrl);
         metadataUrl.searchParams.set('videoId', videoId);
         
         const response = await fetch(metadataUrl.toString());
@@ -193,7 +197,7 @@ if (videoParam || videoIdParam) {
 
 // Use our API endpoint to generate a composite image with play button overlay
 const ogImageWithPlayButton = videoId && videoThumbnail !== defaultImage
-  ? `${Astro.url.origin}/api/og-video-image?thumbnail=${encodeURIComponent(videoThumbnail)}`
+  ? `${siteUrl}/api/og-video-image?thumbnail=${encodeURIComponent(videoThumbnail)}`
   : videoThumbnail;
 
 ---
@@ -2366,23 +2370,9 @@ async function handleVideoFavorite() {
   try {
     let videoData: any = {};
     
-    // First, try to get the title from the page (SSR metadata)
-    const pageTitle = document.title;
-    const isGenericTitle = pageTitle === "Privacy First Video Player";
-    
-    // For YouTube, fetch metadata if we don't have a good title
+    // For YouTube, use the existing API
     if (detected.platform === 'youtube') {
-      if (!isGenericTitle && pageTitle) {
-        // Use the page title from SSR
-        videoData = {
-          title: pageTitle,
-          thumbnail: `https://img.youtube.com/vi/${detected.id}/hqdefault.jpg`,
-          author: 'YouTube'
-        };
-      } else {
-        // Fetch from API if no title available
-        videoData = await fetchVideoData(detected.id);
-      }
+      videoData = await fetchVideoData(detected.id);
     } else {
       // For other platforms, try to get metadata from oEmbed or construct basic data
       const metadata = await extractVideoMetadata(videoInput, detected.platform, detected.id);
@@ -2592,8 +2582,18 @@ async function handleChannelBookmark() {
 
 async function fetchVideoData(videoId: string) {
   try {
-    // Use the Netlify Function endpoint to get video details
-    const response = await fetch(`/.netlify/functions/youtube-feed?action=video&videoId=${videoId}`);
+    
+    // Use the same API endpoint that MemberFavorites uses for channel resolution
+    const response = await fetch('/api/youtube-feed', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        action: 'resolve',
+        input: `https://www.youtube.com/watch?v=${videoId}`
+      })
+    });
     
     if (!response.ok) {
       throw new Error(`Failed to fetch video data: ${response.status}`);
@@ -2607,13 +2607,13 @@ async function fetchVideoData(videoId: string) {
     
     // Return data in the format expected by the bookmark system
     return {
-      title: data.title || `Video ${videoId}`,
-      thumbnail: data.thumbnail || `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
-      author: data.channelTitle || 'Unknown Channel',
+      title: data.videoTitle || `Video ${videoId}`,
+      thumbnail: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+      author: data.name || 'Unknown Channel',
       channelId: data.channelId || null,
-      published: data.publishedAt || new Date().toLocaleDateString(),
-      duration: data.duration || '',
-      views: data.viewCount || ''
+      published: new Date().toLocaleDateString(),
+      duration: '',
+      views: ''
     };
   } catch (error) {
     console.error('Error fetching video data:', error);
@@ -3059,7 +3059,7 @@ console.info('🛡️ Privacy-focused YouTube embed: API disabled, tracking mini
   </div>
 </div>
 <iframe 
-  title="Video Privacy Player" 
+  title="Ad Block" 
   id="video-frame" 
   allow="autoplay; fullscreen; camera; microphone; encrypted-media" 
   allowfullscreen
