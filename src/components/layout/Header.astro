@@ -506,6 +506,9 @@ style="flex-direction: column;"
       // Create elements for each custom link
       container.innerHTML = '';
       
+      // Wait a tiny bit for iconify to be ready
+      await new Promise(resolve => setTimeout(resolve, 50));
+      
       customLinks.forEach(link => {
         const a = document.createElement('a');
         a.href = link.url;
