@@ -488,6 +488,21 @@ style="flex-direction: column;"
         return;
       }
       
+      // Helper function to generate initials
+      function generateInitials(name) {
+        if (!name) return '??';
+        
+        const words = name.trim().split(/\s+/);
+        
+        if (words.length >= 2) {
+          // Two or more words: first letter of first two words
+          return (words[0].charAt(0) + words[1].charAt(0)).toUpperCase();
+        } else {
+          // One word: first two letters
+          return name.trim().substring(0, 2).toUpperCase();
+        }
+      }
+      
       // Create elements for each custom link
       container.innerHTML = '';
       
@@ -514,16 +529,30 @@ style="flex-direction: column;"
         const themeHeader = getComputedStyle(document.documentElement).getPropertyValue('--theme-header').trim() || '#1f2937';
         a.style.background = themeHeader;
         
-        // Create iconify icon element
-        const iconEl = document.createElement('iconify-icon');
-        iconEl.setAttribute('icon', link.icon);
-        iconEl.style.width = '28px';
-        iconEl.style.height = '28px';
-        iconEl.style.color = '#fff';
-        iconEl.style.display = 'block';
-        iconEl.style.fontSize = '28px';
+        // Check if icon is provided
+        if (link.icon && link.icon.trim() !== '') {
+          // Create iconify icon element
+          const iconEl = document.createElement('iconify-icon');
+          iconEl.setAttribute('icon', link.icon);
+          iconEl.style.width = '28px';
+          iconEl.style.height = '28px';
+          iconEl.style.color = '#fff';
+          iconEl.style.display = 'block';
+          iconEl.style.fontSize = '28px';
+          
+          a.appendChild(iconEl);
+        } else {
+          // Create initials element
+          const initialsEl = document.createElement('span');
+          initialsEl.textContent = generateInitials(link.name);
+          initialsEl.style.color = '#fff';
+          initialsEl.style.fontSize = '16px';
+          initialsEl.style.fontWeight = 'bold';
+          initialsEl.style.letterSpacing = '1px';
+          
+          a.appendChild(initialsEl);
+        }
         
-        a.appendChild(iconEl);
         container.appendChild(a);
       });
       
