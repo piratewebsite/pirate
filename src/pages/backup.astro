@@ -65,7 +65,7 @@ const description = 'Backup and restore your settings, favorites, and preference
           </p>
 
           <!-- Add New Link Form -->
-          <div class="bg-gray-700/50 p-4 rounded-lg mb-4" id="add-link-form">
+          <div class="p-4 rounded-lg mb-4" id="add-link-form">
             <h3 class="font-bold mb-3">Add New Link</h3>
             <div class="space-y-3">
               <div>
@@ -593,20 +593,17 @@ const description = 'Backup and restore your settings, favorites, and preference
       }
 
       container.innerHTML = links.map((link, index) => `
-        <div class="flex items-center gap-2 bg-gray-700/30 p-3 rounded-lg">
-          <div class="flex-1 flex items-center gap-3">
-            <div class="text-2xl">📱</div>
-            <div class="flex-1">
-              <div class="font-bold">${this.escapeHtml(link.name)}</div>
-              <div class="text-sm text-gray-400">${this.escapeHtml(link.url)}</div>
-              <div class="text-xs text-gray-500">Icon: ${link.icon}</div>
-            </div>
+        <div class="flex items-start gap-2 p-3 rounded-lg border border-gray-700">
+          <div class="flex-1 min-w-0">
+            <div class="font-bold truncate">${this.escapeHtml(link.name)}</div>
+            <div class="text-sm text-gray-400 truncate">${this.escapeHtml(link.url)}</div>
+            ${link.icon ? `<div class="text-xs text-gray-500">Icon: ${link.icon}</div>` : ''}
           </div>
-          <div class="flex gap-1">
-            ${index > 0 ? `<button onclick="backupManager.moveSocialLink(${link.id}, 'up')" class="p-2 bg-gray-600 hover:bg-gray-500 rounded" title="Move up">↑</button>` : ''}
-            ${index < links.length - 1 ? `<button onclick="backupManager.moveSocialLink(${link.id}, 'down')" class="p-2 bg-gray-600 hover:bg-gray-500 rounded" title="Move down">↓</button>` : ''}
-            <a href="${this.escapeHtml(link.url)}" target="_blank" class="p-2 bg-blue-600 hover:bg-blue-500 rounded" title="Visit">🔗</a>
-            <button onclick="backupManager.deleteSocialLink(${link.id})" class="p-2 bg-red-600 hover:bg-red-500 rounded" title="Delete">🗑️</button>
+          <div class="flex gap-1 flex-shrink-0">
+            ${index > 0 ? `<button onclick="backupManager.moveSocialLink(${link.id}, 'up')" class="p-2 bg-gray-600 hover:bg-gray-500 rounded text-sm" title="Move up">↑</button>` : ''}
+            ${index < links.length - 1 ? `<button onclick="backupManager.moveSocialLink(${link.id}, 'down')" class="p-2 bg-gray-600 hover:bg-gray-500 rounded text-sm" title="Move down">↓</button>` : ''}
+            <a href="${this.escapeHtml(link.url)}" target="_blank" class="p-2 bg-blue-600 hover:bg-blue-500 rounded text-sm" title="Visit">🔗</a>
+            <button onclick="backupManager.deleteSocialLink(${link.id})" class="p-2 bg-red-600 hover:bg-red-500 rounded text-sm" title="Delete">🗑️</button>
           </div>
         </div>
       `).join('');
