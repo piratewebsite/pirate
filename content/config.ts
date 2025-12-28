@@ -235,6 +235,18 @@ export const collections = {
     }),
   }),
 
+  pwaMenuItems: defineCollection({
+    type: 'data',
+    schema: z.object({
+      friendlyName: z.string().optional(),
+      link: z.string().optional(),
+      icon: z.string().optional(),
+      order: z.any().transform(val => 
+        (val === '.nan' || val === 'nan' || Number.isNaN(val)) ? undefined : Number(val)
+      ).optional()
+    }),
+  }),
+
   siteSettings: defineCollection({
     type: 'data',
     schema: z.object({

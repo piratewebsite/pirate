@@ -4,6 +4,7 @@ import ThemeToggle from "../ThemeToggle.astro";
 import { getEntry, getCollection } from 'astro:content';
 // import { siteConfig } from "@/site-config";
 import GoBack from "@/components/GoBack.astro";
+import { Icon } from "astro-icon/components";
 
 // Add default values
 let showHeader = true;
@@ -32,6 +33,31 @@ try {
   }
 } catch (error) {
   console.error('Error loading menu items:', error);
+}
+
+// Get PWA menu items and sort them
+let sortedPwaMenuItems: Array<{friendlyName: string, link: string, icon: string, order: number}> = [];
+try {
+  const pwaMenuItems = await getCollection('pwaMenuItems');
+  if (pwaMenuItems) {
+    sortedPwaMenuItems = pwaMenuItems
+      .sort((a, b) => {
+        if (typeof a.data.order === 'number' && typeof b.data.order === 'number') {
+          return a.data.order - b.data.order;
+        }
+        if (typeof a.data.order === 'number') return -1;
+        if (typeof b.data.order === 'number') return 1;
+        return a.id.localeCompare(b.id);
+      })
+      .map(item => ({
+        friendlyName: item.data.friendlyName || '',
+        link: item.data.link || '',
+        icon: item.data.icon || '',
+        order: item.data.order || 0,
+      }));
+  }
+} catch (error) {
+  console.error('Error loading PWA menu items:', error);
 }
 
 const siteSettings = await getEntry('siteSettings', 'main');
@@ -94,11 +120,47 @@ const currentPath = normalizePath(url.pathname);
     
 @media all and (display-mode: standalone) {
         .pwaonly {
-          display:flex; flex-direction: row;
+          display:flex; flex-direction: column;
         }
     }
 
 .pwa-button{display:flex; justify-content: center;}
+
+/* PWA Menu Items - Fixed bottom left corner */
+#pwa-menu-items {
+  position: fixed;
+  bottom: 80px;
+  left: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 99;
+  pointer-events: auto;
+}
+
+#pwa-menu-items a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: var(--theme-header);
+  border-radius: 8px;
+  color: #fff;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+#pwa-menu-items a:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+#pwa-menu-items svg {
+  width: 28px;
+  height: 28px;
+  color: #fff;
+}
 
 #bottom-menu-container {
   position: fixed;
@@ -222,6 +284,25 @@ const currentPath = normalizePath(url.pathname);
     
   </div>
   
+)}
+
+
+
+<!-- PWA Menu Items - Bottom left corner -->
+{sortedPwaMenuItems.length > 0 && (
+  <div id="pwa-menu-items" class="pwaonly">
+    {sortedPwaMenuItems.map((item) => (
+      <a
+        href={item.link}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={item.friendlyName}
+        title={item.friendlyName}
+      >
+        <Icon name={item.icon} />
+      </a>
+    ))}
+  </div>
 )}
 
 

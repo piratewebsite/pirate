@@ -394,6 +394,45 @@ export default config({
       slugField: 'friendlyName'
       
     }),
+
+    pwaMenuItems: collection({
+      label: 'PWA Menu Items',
+      path: 'content/pwaMenuItems/*',
+      schema: {
+        friendlyName: fields.text({ label: 'Friendly Name' }),
+        link: fields.text({ label: 'Link URL' }),
+        
+        icon: fields.select({
+          label: 'Icon',
+          options: [
+            { label: 'YouTube', value: 'bi:youtube' },
+            { label: 'TikTok', value: 'bi:tiktok' },
+            { label: 'Twitch', value: 'bi:twitch' },
+            { label: 'Bluesky', value: 'simple-icons:bluesky' },
+            { label: 'X/Twitter', value: 'bi:twitter-x' },
+            { label: 'Threads', value: 'bi:threads' },
+            { label: 'Facebook', value: 'bi:facebook' },
+            { label: 'Instagram', value: 'bi:instagram' },
+            { label: 'Reddit', value: 'bi:reddit' },
+            { label: 'Discord', value: 'bi:discord' },
+            { label: 'Spotify', value: 'bi:spotify' },
+            { label: 'SoundCloud', value: 'mdi:soundcloud' },
+            { label: 'Patreon', value: 'mdi:patreon' },
+            { label: 'LinkedIn', value: 'bi:linkedin' },
+            { label: 'GitHub', value: 'bi:github' },
+            { label: 'Pirate', value: 'game-icons:pirate-flag' },
+          ],
+          defaultValue: 'bi:youtube'
+        }),
+
+        order: fields.number({ 
+          label: 'Order',
+          description: 'Optional: Leave blank for alphabetical sorting',
+          validation: { isRequired: false }
+        }),
+      },
+      slugField: 'friendlyName'
+    }),
     
     // youtubeFeedCollections: collection({
     //   label: 'YouTube Channel Collections',
@@ -1441,6 +1480,7 @@ ui: {
       'formSettings',
       'menuItems',
       'footerMenuItems',
+      'pwaMenuItems',
       'socialCard',
       'styleapps',
       'language',

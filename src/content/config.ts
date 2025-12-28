@@ -161,6 +161,19 @@ export const collections = {
     schema: socialLinksSchema,
   }),
 
+  // PWA Menu Items - loaded from content/pwaMenuItems/
+  pwaMenuItems: defineCollection({
+    loader: glob({ pattern: '**/*.{json,yaml}', base: './content/pwaMenuItems' }),
+    schema: z.object({
+      friendlyName: z.string().optional(),
+      link: z.string().optional(),
+      icon: z.string().optional(),
+      order: z.any().transform(val => 
+        (val === '.nan' || val === 'nan' || Number.isNaN(val) || val === null || val === undefined) ? undefined : Number(val)
+      ).optional(),
+    }),
+  }),
+
   // Resume - loaded from content/resume/
   resume: defineCollection({
     loader: glob({ pattern: '**/*.mdoc', base: './content/resume' }),
