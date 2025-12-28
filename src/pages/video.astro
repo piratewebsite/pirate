@@ -134,24 +134,27 @@ if (videoParam || videoIdParam) {
     // For YouTube videos, fetch real metadata from API during SSR
     if (detected.platform === 'youtube') {
       try {
-        // Try both metadata endpoints for compatibility with Bluesky bot
-        const metadataUrl = new URL('/api/metadata', siteUrl);
-        metadataUrl.searchParams.set('videoId', detected.id);
+        // Fetch directly from YouTube oEmbed to avoid SSL issues during SSR
+        const oembedUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${encodeURIComponent(detected.id)}&format=json`;
+        console.log('🔍 Fetching metadata from YouTube oEmbed:', oembedUrl);
         
-        const response = await fetch(metadataUrl.toString());
+        const response = await fetch(oembedUrl);
+        console.log('📡 YouTube oEmbed response status:', response.status);
+        
         if (response.ok) {
-          const metadata = await response.json();
-          videoTitle = metadata.title || videoTitle;
-          videoDescription = metadata.description || videoDescription;
-          videoThumbnail = metadata.thumbnail || videoThumbnail;
-          console.log('✅ Fetched metadata:', { videoTitle, videoDescription, videoThumbnail });
+          const data = await response.json();
+          videoTitle = data.title || videoTitle;
+          videoDescription = `Watch ${data.title} by ${data.author_name}`;
+          videoThumbnail = data.thumbnail_url || `https://img.youtube.com/vi/${detected.id}/hqdefault.jpg`;
+          console.log('✅ Fetched metadata from YouTube:', { videoTitle, videoDescription, videoThumbnail });
         } else {
-          console.warn('⚠️ Metadata API returned status:', response.status);
+          const errorText = await response.text();
+          console.warn('⚠️ YouTube oEmbed returned status:', response.status, errorText);
           // Fallback to default thumbnail if API fails
           videoThumbnail = `https://img.youtube.com/vi/${detected.id}/hqdefault.jpg`;
         }
       } catch (error) {
-        console.error('Failed to fetch video metadata:', error);
+        console.error('❌ Failed to fetch YouTube metadata:', error);
         // Fallback to default thumbnail
         videoThumbnail = `https://img.youtube.com/vi/${detected.id}/hqdefault.jpg`;
       }
@@ -173,22 +176,25 @@ if (videoParam || videoIdParam) {
     videoId = extractVideoId(sourceParam) || sourceParam;
     
     if (videoId) {
-      // Try to fetch metadata for YouTube
+      // Try to fetch metadata for YouTube (fallback path)
       try {
-        const metadataUrl = new URL('/api/metadata', siteUrl);
-        metadataUrl.searchParams.set('videoId', videoId);
+        const oembedUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}&format=json`;
+        console.log('🔍 Fetching metadata (fallback) from YouTube oEmbed');
         
-        const response = await fetch(metadataUrl.toString());
+        const response = await fetch(oembedUrl);
+        console.log('📡 YouTube oEmbed response status (fallback):', response.status);
+        
         if (response.ok) {
-          const metadata = await response.json();
-          videoTitle = metadata.title || videoTitle;
-          videoDescription = metadata.description || videoDescription;
-          videoThumbnail = metadata.thumbnail || `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+          const data = await response.json();
+          videoTitle = data.title || videoTitle;
+          videoDescription = `Watch ${data.title} by ${data.author_name}`;
+          videoThumbnail = data.thumbnail_url || `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+          console.log('✅ Fetched metadata (fallback) from YouTube:', { videoTitle, videoDescription });
         } else {
           videoThumbnail = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
         }
       } catch (error) {
-        console.error('Failed to fetch video metadata:', error);
+        console.error('❌ Failed to fetch YouTube metadata (fallback):', error);
         videoThumbnail = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
       }
     }
