@@ -36,7 +36,6 @@ function colorPicker({
     kind: "form",
     formKind: undefined,
     label,
-    description,
     Input(props) {
       const [color, setColor] = useState(rgbaToHex(props.value || defaultValue || 'rgba(0,0,0,1)'));
 
