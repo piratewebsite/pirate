@@ -256,7 +256,8 @@ export default config({
                 { label: 'Resume Section', value: 'resume' },
                 { label: 'CTAs', value: 'ctas' },
                 { label: 'Map/Video Section', value: 'app' },
-                { label: 'Photos Section', value: 'photos' }
+                { label: 'Photos Section', value: 'photos' },
+                { label: 'Install Guide', value: 'installguide' }
               ],
               defaultValue: 'contentblock'
             }),
@@ -326,6 +327,7 @@ export default config({
               if (sectionType === 'youtubefeeds' && feedConfig) return `YouTube Feed - ${feedConfig}`;
               if (sectionType === 'ctas' && cta) return `CTA - ${cta}`;
               if (sectionType === 'magicsearch') return 'Magic Search';
+              if (sectionType === 'installguide') return 'Install Guide';
               return sectionType || 'Untitled Section';
             }
           }
