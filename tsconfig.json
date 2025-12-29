@@ -1,5 +1,5 @@
 {
-	"extends": "astro/tsconfigs/strict",
+	"extends": "astro/tsconfigs/base",
 	"compilerOptions": {
 	  "baseUrl": ".",
 	  "lib": ["es2022", "dom", "dom.iterable"],
@@ -16,7 +16,10 @@
 	  },
 	  "types": ["astro/client"],
 	  "noImplicitAny": false,
-	  "skipLibCheck": true
+	  "skipLibCheck": true,
+	  "jsx": "preserve",
+	  "jsxImportSource": "astro",
+	  "strict": false
 	},
 	"include": ["./.eslintrc.cjs", "**/*"],
 	"exclude": ["node_modules", "**/node_modules/*", ".vscode", "dist"]

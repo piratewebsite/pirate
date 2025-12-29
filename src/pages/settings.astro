@@ -10,7 +10,7 @@ const description = 'Manage your appearance, social links, and backup your data.
     <div class="membership-container">
       <!-- Header -->
       <div class="membership-header">
-        <h1>OneApp Settings</h1>
+        <h1>Settings</h1>
         <p>Customize your experience and manage your data.</p>
       </div>
 
@@ -25,32 +25,7 @@ const description = 'Manage your appearance, social links, and backup your data.
       <!-- Backup/Restore Interface (hidden until premium status confirmed) -->
       <div id="backup-interface" class="hidden">
         
-        <!-- Data Overview -->
-        <div class="pricing-grid mb-8">
-          <div class="plan-card">
-            <h2 class="text-xl font-bold mb-4 flex items-center justify-center">
-              <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-              Current Data
-            </h2>
-            <div id="data-overview" class="space-y-3 text-sm">
-              <!-- Will be populated by JavaScript -->
-            </div>
-          </div>
 
-          <div class="plan-card">
-            <h2 class="text-xl font-bold mb-4 flex items-center justify-center">
-              <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M13 6a3 3 0 11-6 0 3 3 0 616 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/>
-              </svg>
-              Last Backup
-            </h2>
-            <div id="backup-info" class="text-sm">
-              <p>No backup found</p>
-            </div>
-          </div>
-        </div>
 
         <!-- Appearance Settings -->
         <div class="plan-card mb-6">
@@ -194,7 +169,7 @@ const description = 'Manage your appearance, social links, and backup your data.
             <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24">
               <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/>
             </svg>
-            My Social Links
+            My Menu Links
           </h2>
           <p class="mb-4 opacity-80">
             Create and manage your personal list of social media links. These will be saved to your browser and included in backups.
@@ -239,6 +214,34 @@ const description = 'Manage your appearance, social links, and backup your data.
           <!-- Current Links List -->
           <div id="social-links-list" class="space-y-2">
             <!-- Will be populated by JavaScript -->
+          </div>
+        </div>
+
+
+                <!-- Data Overview -->
+        <div class="pricing-grid mb-8">
+          <div class="plan-card">
+            <h2 class="text-xl font-bold mb-4 flex items-center justify-center">
+              <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              Current Data
+            </h2>
+            <div id="data-overview" class="space-y-3 text-sm">
+              <!-- Will be populated by JavaScript -->
+            </div>
+          </div>
+
+          <div class="plan-card">
+            <h2 class="text-xl font-bold mb-4 flex items-center justify-center">
+              <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M13 6a3 3 0 11-6 0 3 3 0 616 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/>
+              </svg>
+              Last Backup
+            </h2>
+            <div id="backup-info" class="text-sm">
+              <p>No backup found</p>
+            </div>
           </div>
         </div>
 
