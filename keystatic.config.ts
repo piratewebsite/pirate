@@ -26,14 +26,17 @@ function rgbaToHex(rgba: string): { hex: string, alpha: number } {
 function colorPicker({
   label,
   defaultValue,
+  description,
 }: {
   label: string;
   defaultValue?: string;
+  description?: string;
 }): BasicFormField<string> {
   return {
     kind: "form",
     formKind: undefined,
     label,
+    description,
     Input(props) {
       const [color, setColor] = useState(rgbaToHex(props.value || defaultValue || 'rgba(0,0,0,1)'));
 
@@ -42,6 +45,8 @@ function colorPicker({
       }, [color]);
 
       return React.createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: '12px' } },
+        React.createElement('div', { style: { fontWeight: '500', fontSize: '14px', marginBottom: '4px' } }, label),
+        description && React.createElement('div', { style: { fontSize: '13px', color: '#666', marginBottom: '8px' } }, description),
         React.createElement('div', { style: { display: 'flex', gap: '12px', alignItems: 'center' } },
           React.createElement('input', {
             type: 'color',
@@ -1153,14 +1158,14 @@ export default config({
           publicPath: '/images/pwa',
         }),
 
-        themeColor: fields.text({ 
+        themeColor: colorPicker({ 
           label: 'Theme Color',
-          description: 'Enter color in rgba format, e.g., rgba(0, 0, 0, 1)',
+          description: 'PWA theme color - affects the browser UI color',
           defaultValue: 'rgba(0, 0, 0, 1)'
         }),
-        backgroundColor: fields.text({ 
+        backgroundColor: colorPicker({ 
           label: 'Background Color',
-          description: 'Enter color in rgba format, e.g., rgba(0, 0, 0, 1)',
+          description: 'PWA background color - shown during app launch',
           defaultValue: 'rgba(0, 0, 0, 1)'
         }),
         startUrl: fields.text({
@@ -1308,7 +1313,7 @@ export default config({
           description: 'Fax number to display',
           validation: { isRequired: false }
         }),
-        mapAdditionalInfo: fields.text({
+        mapAdditionalText: fields.text({
           label: 'Additional Information',
           description: 'Any additional contact information',
           validation: { isRequired: false },
@@ -1321,6 +1326,25 @@ export default config({
       label: 'Photo Gallery Settings',
       path: 'content/photoSettings/',
       schema: {
+        galleryMode: fields.select({
+          label: 'Gallery Mode',
+          description: 'Choose between directory-based or CMS-managed gallery',
+          options: [
+            { label: 'Directory-based', value: 'directory' },
+            { label: 'CMS-managed', value: 'cms' }
+          ],
+          defaultValue: 'directory'
+        }),
+        showCaptions: fields.checkbox({
+          label: 'Show Image Captions',
+          description: 'Display captions below images in the gallery',
+          defaultValue: true
+        }),
+        autoOpenLightbox: fields.checkbox({
+          label: 'Auto Open Lightbox',
+          description: 'Automatically open lightbox when clicking images',
+          defaultValue: false
+        }),
         defaultDirectory: fields.text({
           label: '(Directory-based Mode) Default Directory',
           description: "Enter the EXACT name of the Default Directory to be displayed (case-sensitive). Leave blank to show all directories.",
