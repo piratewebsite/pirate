@@ -64,18 +64,72 @@ const description = 'Manage your appearance, social links, and backup your data.
             Customize the look of your PWA interface. These settings will override the site defaults.
           </p>
 
+          <!-- Theme Toggle -->
+          <div class="mb-6 p-4 rounded border border-gray-600">
+            <h3 class="font-bold mb-3">Color Theme</h3>
+            <div class="flex items-center justify-between">
+              <span class="text-sm">Current theme: <span id="current-theme-display" class="font-semibold">Dark</span></span>
+              <button
+                id="settings-theme-toggle"
+                class="relative h-10 w-10 rounded-md p-2 ring-zinc-400 transition-all hover:ring-2"
+                style="background: var(--theme-header); color: white;"
+                type="button"
+                aria-label="Toggle theme"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="absolute start-1/2 top-1/2 h-7 w-7 -translate-x-1/2 -translate-y-1/2 transition-all moon-icon"
+                  style="scale: 0; opacity: 0;"
+                  fill="none"
+                  stroke-width="1.5"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M12 18C15.3137 18 18 15.3137 18 12C18 8.68629 15.3137 6 12 6C8.68629 6 6 8.68629 6 12C6 15.3137 8.68629 18 12 18Z"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"></path>
+                  <path d="M22 12L23 12" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M12 2V1" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M12 23V22" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M20 20L19 19" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M20 4L19 5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M4 20L5 19" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M4 4L5 5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M1 12L2 12" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+                <svg
+                  aria-hidden="true"
+                  class="absolute start-1/2 top-1/2 h-7 w-7 -translate-x-1/2 -translate-y-1/2 transition-all sun-icon"
+                  style="scale: 1; opacity: 1;"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M0 0h24v24H0z" fill="none" stroke="none"></path>
+                  <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"></path>
+                  <path d="M17 4a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2"></path>
+                  <path d="M19 11h2m-1 -1v2"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+
           <!-- Mission Control Background -->
           <div class="mb-6">
             <h3 class="font-bold mb-3 flex items-center gap-2">
               Mission Control Bar
-              <button id="reset-bar-color" class="text-xs px-2 py-1 bg-gray-600 hover:bg-gray-500 rounded" title="Reset to default">Reset</button>
+              <button id="reset-bar-color" class="text-xs px-2 py-1 bg-gray-600 hover:bg-gray-500 rounded text-white" title="Reset to default">Reset</button>
             </h3>
             <div class="space-y-3">
               <div class="flex gap-3 items-center">
                 <input type="color" id="bar-color" class="w-16 h-12 rounded cursor-pointer">
                 <div class="flex-1">
                   <label class="block text-sm mb-1">Color</label>
-                  <input type="text" id="bar-color-value" class="w-full p-2 rounded bg-gray-800 border border-gray-600 text-sm" readonly>
+                  <input type="text" id="bar-color-value" class="w-full p-2 rounded bg-gray-800 border border-gray-600 text-sm text-white" readonly>
                 </div>
               </div>
               <div class="flex gap-3 items-center">
@@ -94,14 +148,14 @@ const description = 'Manage your appearance, social links, and backup your data.
           <div class="mb-4">
             <h3 class="font-bold mb-3 flex items-center gap-2">
               Menu Popup
-              <button id="reset-menu-color" class="text-xs px-2 py-1 bg-gray-600 hover:bg-gray-500 rounded" title="Reset to default">Reset</button>
+              <button id="reset-menu-color" class="text-xs px-2 py-1 bg-gray-600 hover:bg-gray-500 rounded text-white" title="Reset to default">Reset</button>
             </h3>
             <div class="space-y-3">
               <div class="flex gap-3 items-center">
                 <input type="color" id="menu-color" class="w-16 h-12 rounded cursor-pointer">
                 <div class="flex-1">
                   <label class="block text-sm mb-1">Color</label>
-                  <input type="text" id="menu-color-value" class="w-full p-2 rounded bg-gray-800 border border-gray-600 text-sm" readonly>
+                  <input type="text" id="menu-color-value" class="w-full p-2 rounded bg-gray-800 border border-gray-600 text-sm text-white" readonly>
                 </div>
               </div>
               <div class="flex gap-3 items-center">
@@ -120,10 +174,10 @@ const description = 'Manage your appearance, social links, and backup your data.
           <div class="mb-4">
             <h3 class="font-bold mb-3 flex items-center gap-2">
               Menu Button Position
-              <button id="reset-menu-position" class="text-xs px-2 py-1 bg-gray-600 hover:bg-gray-500 rounded" title="Reset to default">Reset</button>
+              <button id="reset-menu-position" class="text-xs px-2 py-1 bg-gray-600 hover:bg-gray-500 rounded text-white" title="Reset to default">Reset</button>
             </h3>
             <p class="text-sm opacity-80 mb-3">Choose where the menu button appears on your screen</p>
-            <select id="menu-position" class="w-full p-2 rounded bg-gray-800 border border-gray-600">
+            <select id="menu-position" class="w-full p-2 rounded bg-gray-800 border border-gray-600 text-white">
               <option value="bottom-center">Bottom Center (Default)</option>
               <option value="bottom-left">Bottom Left</option>
               <option value="bottom-right">Bottom Right</option>
@@ -152,15 +206,15 @@ const description = 'Manage your appearance, social links, and backup your data.
             <div class="space-y-3">
               <div>
                 <label class="block text-sm mb-1">Friendly Name</label>
-                <input type="text" id="link-name" placeholder="e.g., My YouTube" class="w-full p-2 rounded bg-gray-800 border border-gray-600">
+                <input type="text" id="link-name" placeholder="e.g., My YouTube" class="w-full p-2 rounded bg-gray-800 border border-gray-600 text-white">
               </div>
               <div>
                 <label class="block text-sm mb-1">URL</label>
-                <input type="url" id="link-url" placeholder="https://youtube.com/@username" class="w-full p-2 rounded bg-gray-800 border border-gray-600">
+                <input type="url" id="link-url" placeholder="https://youtube.com/@username" class="w-full p-2 rounded bg-gray-800 border border-gray-600 text-white">
               </div>
               <div>
                 <label class="block text-sm mb-1">Icon (optional)</label>
-                <select id="link-icon" class="w-full p-2 rounded bg-gray-800 border border-gray-600">
+                <select id="link-icon" class="w-full p-2 rounded bg-gray-800 border border-gray-600 text-white">
                   <option value="">Select Icon (use initials)</option>
                   <option value="simple-icons:youtube">YouTube</option>
                   <option value="simple-icons:tiktok">TikTok</option>
@@ -924,6 +978,92 @@ const description = 'Manage your appearance, social links, and backup your data.
 
       // Render social links on initialization
       this.renderSocialLinks();
+
+      // Theme Toggle
+      this.initializeThemeToggle();
+    }
+
+    initializeThemeToggle() {
+      const themeToggle = document.getElementById('settings-theme-toggle');
+      const themeDisplay = document.getElementById('current-theme-display');
+      const moonIcon = themeToggle?.querySelector('.moon-icon') as HTMLElement;
+      const sunIcon = themeToggle?.querySelector('.sun-icon') as HTMLElement;
+      
+      // Function to check if root is in dark mode
+      const rootInDarkMode = (): boolean => {
+        return document.documentElement.dataset.theme === 'dark';
+      };
+
+      // Function to update icons
+      const updateIcons = () => {
+        const isDark = rootInDarkMode();
+        if (moonIcon && sunIcon && themeDisplay) {
+          if (isDark) {
+            // Dark mode - show moon icon
+            moonIcon.style.scale = '1';
+            moonIcon.style.opacity = '1';
+            sunIcon.style.scale = '0';
+            sunIcon.style.opacity = '0';
+            themeDisplay.textContent = 'Dark';
+          } else {
+            // Light mode - show sun icon
+            sunIcon.style.scale = '1';
+            sunIcon.style.opacity = '1';
+            moonIcon.style.scale = '0';
+            moonIcon.style.opacity = '0';
+            themeDisplay.textContent = 'Light';
+          }
+        }
+      };
+
+      // Initialize icons on load
+      updateIcons();
+      
+      // Apply theme styles on load
+      const currentTheme = document.documentElement.dataset.theme || 'dark';
+      this.applyThemeStyles(currentTheme);
+
+      // Click handler
+      themeToggle?.addEventListener('click', () => {
+        const currentTheme = document.documentElement.dataset.theme;
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        document.documentElement.dataset.theme = newTheme;
+        localStorage.setItem('theme', newTheme);
+        
+        // Force immediate visual update
+        this.applyThemeStyles(newTheme);
+        
+        updateIcons();
+        
+        // Dispatch event for other components
+        window.dispatchEvent(new CustomEvent('theme-change', { 
+          detail: { theme: newTheme } 
+        }));
+      });
+
+      // Listen for theme changes from other toggles
+      window.addEventListener('theme-change', (e: Event) => {
+        const customEvent = e as CustomEvent;
+        if (customEvent.detail?.theme) {
+          document.documentElement.dataset.theme = customEvent.detail.theme;
+          this.applyThemeStyles(customEvent.detail.theme);
+        }
+        updateIcons();
+      });
+    }
+
+    applyThemeStyles(theme: string) {
+      const body = document.body;
+      const html = document.documentElement;
+      
+      if (theme === 'light') {
+        body.style.background = '#f9fafb';
+        html.style.background = '#f9fafb';
+      } else {
+        body.style.background = '';
+        html.style.background = '';
+      }
     }
 
     async previewBackup(file) {
@@ -1121,5 +1261,78 @@ const description = 'Manage your appearance, social links, and backup your data.
   [data-theme="light"] .current-status {
     background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(0, 0, 0, 0.02));
     border: 1px solid rgba(255, 215, 0, 0.2);
+  }
+
+  /* Settings page theme support */
+  [data-theme="light"] .main-content {
+    background: #f9fafb !important;
+  }
+
+  [data-theme="light"] .plan-card {
+    background: white !important;
+    border: 1px solid #e5e7eb !important;
+    color: #1f2937 !important;
+  }
+
+  [data-theme="light"] .plan-card::before {
+    background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.05), transparent) !important;
+  }
+
+  [data-theme="light"] .plan-card:hover {
+    border-color: #ffd700 !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  /* Input fields in light mode - only for light bg inputs */
+  [data-theme="light"] input[type="text"]:not(.text-white),
+  [data-theme="light"] input[type="url"]:not(.text-white),
+  [data-theme="light"] select:not(.text-white) {
+    background: #f3f4f6 !important;
+    border-color: #d1d5db !important;
+    color: #1f2937 !important;
+  }
+
+  [data-theme="light"] input[readonly]:not(.text-white) {
+    background: #e5e7eb !important;
+    color: #1f2937 !important;
+  }
+
+  /* Buttons in light mode - except those with hardcoded white text */
+  [data-theme="light"] button:not(.btn-primary):not(#settings-theme-toggle):not(.text-white) {
+    background: #e5e7eb !important;
+    color: #1f2937 !important;
+  }
+
+  [data-theme="light"] button:not(.btn-primary):not(#settings-theme-toggle):not(.text-white):hover {
+    background: #d1d5db !important;
+  }
+
+  /* Borders in light mode */
+  [data-theme="light"] .border-gray-600 {
+    border-color: #d1d5db !important;
+  }
+
+  /* Social link items in light mode */
+  [data-theme="light"] #social-links-list > div {
+    background: #f3f4f6 !important;
+    border-color: #d1d5db !important;
+  }
+
+  /* Color preview boxes */
+  [data-theme="light"] #bar-preview,
+  [data-theme="light"] #menu-preview {
+    border-color: #d1d5db !important;
+  }
+
+  /* Membership container in light mode */
+  [data-theme="light"] .membership-container {
+    color: #1f2937 !important;
+  }
+
+  /* Current status in light mode */
+  [data-theme="light"] .current-status {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 215, 0, 0.05)) !important;
+    border: 1px solid rgba(255, 215, 0, 0.3) !important;
+    color: #1f2937 !important;
   }
 </style>
