@@ -540,12 +540,12 @@ class PremiumFavoriteButton {
       this.favoriteBtn.classList.add('favorited');
       if (starIcon) starIcon.textContent = '⭐';
       if (btnText) btnText.textContent = 'Saved';
-      this.favoriteBtn.title = 'Remove from favorites';
+      this.favoriteBtn.title = 'Remove from Watchlist';
     } else {
       this.favoriteBtn.classList.remove('favorited');
       if (starIcon) starIcon.textContent = '☆';
       if (btnText) btnText.textContent = 'Save';
-      this.favoriteBtn.title = 'Add to favorites';
+      this.favoriteBtn.title = 'Add to Watchlist';
     }
   }
   
@@ -576,7 +576,7 @@ class PremiumFavoriteButton {
       if (existingIndex > -1) {
         // Remove from favorites
         favorites.splice(existingIndex, 1);
-        this.showToast('Removed from favorites', 'success');
+        this.showToast('Removed from Watchlist', 'success');
       } else {
         // Fetch video metadata from YouTube to ensure we have the title
         let videoTitle = this.videoData.title;

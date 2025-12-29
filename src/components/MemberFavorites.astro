@@ -2016,7 +2016,7 @@ const sectionId = `member-favorites-youtube-feed-section`;
             <div class="youtube-video-actions" style="bottom: 48px; right: 8px; display: flex; gap: 8px; align-items: center; z-index: 10;">
               <button class="member-favorite-btn ${isFavorited ? 'favorited' : ''}" 
                       data-video-id="${video.videoId || 'missing'}" 
-                      title="${isFavorited ? 'Remove from favorites' : 'Add to favorites'}"
+                      title="${isFavorited ? 'Remove from Watchlist' : 'Add to favorites'}"
                       style="background: ${isFavorited ? 'linear-gradient(45deg, #ffd700, #ffed4e)' : 'rgba(0, 0, 0, 0.8)'}; border: none; border-radius: 4px; color: #fff; cursor: pointer; padding: 6px; transition: all 0.2s ease; display: flex; align-items: center; backdrop-filter: blur(4px); z-index: 10;">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" style="filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.8));">
                   <polygon points="12,2 15,8 22,9 17,14 18,21 12,18 6,21 7,14 2,9 9,8"></polygon>
@@ -2063,7 +2063,7 @@ const sectionId = `member-favorites-youtube-feed-section`;
             };
             FavoritesManager.addFavorite(favoriteVideo);
             favoriteBtn.classList.add('favorited');
-            favoriteBtn.title = 'Remove from favorites';
+            favoriteBtn.title = 'Remove from Watchlist';
             favoriteBtn.style.background = 'linear-gradient(45deg, #ffd700, #ffed4e)';
           }
           
@@ -2089,11 +2089,11 @@ const sectionId = `member-favorites-youtube-feed-section`;
         
         if (isFavorited) {
           btn.classList.add('favorited');
-          btn.title = 'Remove from favorites';
+          btn.title = 'Remove from Watchlist';
           btn.style.background = 'linear-gradient(45deg, #ffd700, #ffed4e)';
         } else {
           btn.classList.remove('favorited');
-          btn.title = 'Add to favorites';
+          btn.title = 'Add to Watchlist';
           btn.style.background = 'rgba(0, 0, 0, 0.8)';
         }
       });
@@ -2202,7 +2202,7 @@ const sectionId = `member-favorites-youtube-feed-section`;
               <button class="member-favorite-btn favorited" 
                       data-video-id="${video.videoId}" 
                       data-platform="${platform}" 
-                      title="Remove from favorites"
+                      title="Remove from Watchlist"
                       style="background: linear-gradient(45deg, #ffd700, #ffed4e); border: none; border-radius: 4px; color: #fff; cursor: pointer; padding: 6px; transition: all 0.2s ease; display: flex; align-items: center; backdrop-filter: blur(4px); z-index: 10;">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" style="filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.8));">
                   <polygon points="12,2 15,8 22,9 17,14 18,21 12,18 6,21 7,14 2,9 9,8"></polygon>
