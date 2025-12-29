@@ -18,3 +18,7 @@ showShare: true
 showPostNavigator: true
 showSearch: true
 searchMethod: hybrid
+showAppearanceSection: true
+showCustomizeSection: true
+showPwaSettingsSection: true
+showBackupSection: true

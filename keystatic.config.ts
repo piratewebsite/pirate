@@ -1006,6 +1006,28 @@ export default config({
           defaultValue: 'hybrid'
         }),
         divider3: fields.empty(),
+        // Settings Page Sections
+        showAppearanceSection: fields.checkbox({
+          label: 'Show Appearance Section',
+          description: 'Show/hide the Appearance section on the Settings page (theme switcher)',
+          defaultValue: true
+        }),
+        showCustomizeSection: fields.checkbox({
+          label: 'Show Customize Section',
+          description: 'Show/hide the Customize section on the Settings page (colors, menu position)',
+          defaultValue: true
+        }),
+        showPwaSettingsSection: fields.checkbox({
+          label: 'Show PWA Settings Section',
+          description: 'Show/hide the PWA Settings section on the Settings page (custom links, start page)',
+          defaultValue: true
+        }),
+        showBackupSection: fields.checkbox({
+          label: 'Show Backup Section',
+          description: 'Show/hide the Backup section on the Settings page (backup/restore/clear data)',
+          defaultValue: true
+        }),
+        divider4: fields.empty(),
         // videoTimeLimitMinutes: fields.number({ 
         //   label: 'Video Time Limit (Minutes)', 
         //   description: 'Set to -1 to disable timer, 0 for immediate paywall, or 1-30 minutes for timed limit',

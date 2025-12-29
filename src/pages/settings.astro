@@ -1,8 +1,27 @@
 ---
 import Base from '../layouts/Base.astro';
+import { getEntry } from 'astro:content';
 
 const title = 'Settings';
 const description = 'Manage your appearance, social links, and backup your data.';
+
+// Load section visibility settings from Keystatic
+let showAppearanceSection = true;
+let showCustomizeSection = true;
+let showPwaSettingsSection = true;
+let showBackupSection = true;
+
+try {
+  const siteSettings = await getEntry('siteSettings', 'main');
+  if (siteSettings?.data) {
+    showAppearanceSection = siteSettings.data.showAppearanceSection ?? true;
+    showCustomizeSection = siteSettings.data.showCustomizeSection ?? true;
+    showPwaSettingsSection = siteSettings.data.showPwaSettingsSection ?? true;
+    showBackupSection = siteSettings.data.showBackupSection ?? true;
+  }
+} catch (error) {
+  console.error('Failed to load site settings:', error);
+}
 ---
 
 <Base title={title} description={description}>
@@ -26,21 +45,21 @@ const description = 'Manage your appearance, social links, and backup your data.
       <div id="backup-interface" class="hidden">
         
 
-
-        <!-- Appearance Settings -->
+        {showAppearanceSection && (
         <div class="plan-card mb-6">
+          <!-- Appearance Settings -->
           <h2 class="text-2xl font-bold mb-4 flex items-center justify-center">
             <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
             </svg>
             Appearance
           </h2>
           <p class="mb-4 opacity-80">
-            Customize the look of your PWA interface. These settings will override the site defaults.
+            Switch between light and dark themes.
           </p>
 
           <!-- Theme Toggle -->
-          <div class="mb-6 p-4 rounded border border-gray-600">
+          <div class="p-4 rounded border border-gray-600">
             <h3 class="font-bold mb-3">Color Theme</h3>
             <div class="flex items-center justify-between">
               <span class="text-sm">Current theme: <span id="current-theme-display" class="font-semibold">Dark</span></span>
@@ -92,6 +111,21 @@ const description = 'Manage your appearance, social links, and backup your data.
               </button>
             </div>
           </div>
+        </div>
+        )}
+
+        {showCustomizeSection && (
+        <div class="plan-card mb-6">
+          <!-- Customize Settings -->
+          <h2 class="text-2xl font-bold mb-4 flex items-center justify-center">
+            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+            </svg>
+            Customize
+          </h2>
+          <p class="mb-4 opacity-80">
+            Customize colors and menu position.
+          </p>
 
           <!-- Mission Control Background -->
           <div class="mb-6">
@@ -162,18 +196,36 @@ const description = 'Manage your appearance, social links, and backup your data.
             </select>
           </div>
         </div>
+        )}
 
-        <!-- Custom Social Links Manager -->
+        {showPwaSettingsSection && (
         <div class="plan-card mb-6">
+          <!-- PWA Settings -->
           <h2 class="text-2xl font-bold mb-4 flex items-center justify-center">
             <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/>
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
             </svg>
-            My Menu Links
+            PWA Settings
           </h2>
           <p class="mb-4 opacity-80">
-            Create and manage your personal list of social media links. These will be saved to your browser and included in backups.
+            Configure your Progressive Web App settings, including custom links and start page.
           </p>
+
+          <!-- Start Page Selector -->
+          <div class="p-4 rounded-lg mb-4 border border-gray-600">
+            <h3 class="font-bold mb-3">PWA Start Page</h3>
+            <p class="text-sm opacity-80 mb-3">Choose which page opens when you launch the PWA</p>
+            <select id="start-page-select" class="w-full p-2 rounded bg-gray-800 border border-gray-600 text-white">
+              {/* <option value="/">Home (Default)</option> */}
+              {/* <option value="/posts">Posts</option> */}
+              {/* <option value="/photos">Photos</option> */}
+              {/* <option value="/resume">Resume</option> */}
+              {/* <option value="/contact">Contact</option> */}
+              <option value="/settings">Settings</option>
+              <option value="/video">Videos</option>
+              {/* <option value="/install">install</option> */}
+            </select>
+          </div>
 
           <!-- Add New Link Form -->
           <div class="p-4 rounded-lg mb-4" id="add-link-form">
@@ -216,9 +268,11 @@ const description = 'Manage your appearance, social links, and backup your data.
             <!-- Will be populated by JavaScript -->
           </div>
         </div>
+        )}
 
-
-                <!-- Data Overview -->
+        {showBackupSection && (
+        <>
+        <!-- Data Overview -->
         <div class="pricing-grid mb-8">
           <div class="plan-card">
             <h2 class="text-xl font-bold mb-4 flex items-center justify-center">
@@ -315,6 +369,8 @@ const description = 'Manage your appearance, social links, and backup your data.
             Clear All Data
           </button>
         </div>
+        </>
+        )}
       </div>
 
       <!-- Non-Premium Notice -->
@@ -367,7 +423,8 @@ const description = 'Manage your appearance, social links, and backup your data.
           'customSocialLinks',
           'customBarColor',
           'customMenuColor',
-          'customMenuPosition'
+          'customMenuPosition',
+          'customStartPage'
         ],
         uiState: [] // Will be populated dynamically for channel-collapsed-* keys
       };
@@ -820,6 +877,17 @@ const description = 'Manage your appearance, social links, and backup your data.
         }
         window.dispatchEvent(new CustomEvent('menuPositionUpdated'));
       });
+
+      // PWA Start Page
+      const savedStartPage = localStorage.getItem('customStartPage') || '/';
+      const startPageSelect = document.getElementById('start-page-select') as HTMLSelectElement;
+      if (startPageSelect) {
+        startPageSelect.value = savedStartPage;
+        startPageSelect.addEventListener('change', (e) => {
+          const target = e.target as HTMLSelectElement;
+          localStorage.setItem('customStartPage', target.value);
+        });
+      }
     }
 
     setupColorPicker(type: 'bar' | 'menu', initialColor: string) {
