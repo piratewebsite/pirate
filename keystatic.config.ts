@@ -1052,8 +1052,6 @@ export default config({
         name: fields.text({ label: 'App Name' }),
         shortName: fields.text({ label: 'Short Name' }),
 
-        divider: fields.empty(),
-
         screenshot: fields.image({
           label: 'Screenshot',
           description: 'This image is used on Android in the PWA install dialogue window (Image should be in JPG or PNG format and sized at 320x640)',
@@ -1061,17 +1059,15 @@ export default config({
           publicPath: '/images/pwa',
         }),
 
-  
-
-        divider2: fields.empty(),
-
-        themeColor: colorPicker({ 
-          label: 'Theme Color', 
-          showOpacity: false
+        themeColor: fields.text({ 
+          label: 'Theme Color',
+          description: 'Enter color in rgba format, e.g., rgba(0, 0, 0, 1)',
+          defaultValue: 'rgba(0, 0, 0, 1)'
         }),
-        backgroundColor: colorPicker({ 
-          label: 'Background Color', 
-          showOpacity: false
+        backgroundColor: fields.text({ 
+          label: 'Background Color',
+          description: 'Enter color in rgba format, e.g., rgba(0, 0, 0, 1)',
+          defaultValue: 'rgba(0, 0, 0, 1)'
         }),
         startUrl: fields.text({
           label: 'PWA Start URL',
