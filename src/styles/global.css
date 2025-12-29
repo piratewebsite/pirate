@@ -609,7 +609,7 @@ body:has(.video) #footer{display: none !important;}
 		width: 100vw;
 		top:0;
 		left:0;
-		z-index: 10;
+		z-index: 9;
 		max-height: 60px;
 		box-shadow: 0 0 2px rgba(0,0,0,.7);
 		padding:0 1% 0 0;
