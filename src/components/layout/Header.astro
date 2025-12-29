@@ -131,6 +131,7 @@ const currentPath = normalizePath(url.pathname);
   position: fixed;
   bottom: 80px;
   left: 10px;
+  display: flex;
   flex-direction: column;
   gap: 8px;
   z-index: 99;
@@ -207,6 +208,45 @@ const currentPath = normalizePath(url.pathname);
   place-items: center;
   pointer-events: none;
   z-index: 100;
+  transition: all 0.3s ease;
+}
+
+#bottom-menu-container.top-left {
+  top: 10px;
+  bottom: auto;
+  left: 10px;
+  right: auto;
+  place-items: start;
+}
+
+#bottom-menu-container.top-center {
+  top: 10px;
+  bottom: auto;
+  place-items: center;
+}
+
+#bottom-menu-container.top-right {
+  top: 10px;
+  bottom: auto;
+  left: auto;
+  right: 10px;
+  place-items: end;
+}
+
+#bottom-menu-container.bottom-left {
+  left: 10px;
+  right: auto;
+  place-items: start;
+}
+
+#bottom-menu-container.bottom-center {
+  /* Default - already set */
+}
+
+#bottom-menu-container.bottom-right {
+  left: auto;
+  right: 10px;
+  place-items: end;
 }
 
   #bottom-menu-btn {
@@ -367,7 +407,7 @@ const currentPath = normalizePath(url.pathname);
   
 
   <!-- Bottom centered menu button -->
-{sortedMenuLinks.length > 0 && (
+  <!-- Always render, JavaScript will control visibility based on menu items + PWA links -->
   <div id="bottom-menu-container">
     <button
       id="bottom-menu-btn"
@@ -383,22 +423,23 @@ const currentPath = normalizePath(url.pathname);
 
   <!-- Menu popup -->
   <div id="menu-popup">
-    <ul>
-      {sortedMenuLinks.map((link: { path: string; title: string }) => (
-        <li>
-          <a 
-            href={link.path} 
-            rel="prefetch" 
-            data-astro-reload
-            aria-current={currentPath === normalizePath(link.path) ? "page" : undefined}
-          >
-            {link.title}
-          </a>
-        </li>
-      ))}
-    </ul>
+    {sortedMenuLinks.length > 0 && (
+      <ul>
+        {sortedMenuLinks.map((link: { path: string; title: string }) => (
+          <li>
+            <a 
+              href={link.path} 
+              rel="prefetch" 
+              data-astro-reload
+              aria-current={currentPath === normalizePath(link.path) ? "page" : undefined}
+            >
+              {link.title}
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
   </div>
-)}
 
 
 
@@ -479,10 +520,21 @@ style="flex-direction: column;"
       const customLinks = JSON.parse(localStorage.getItem('customSocialLinks') || '[]');
       const container = document.getElementById('pwa-custom-links');
       
-      if (!container) return;
+      console.log('Loading custom PWA links:', customLinks.length, 'links found');
+      
+      if (!container) {
+        console.error('pwa-custom-links container not found');
+        return;
+      }
       
       if (customLinks.length === 0) {
         container.innerHTML = '';
+        // Still call initializeBottomMenu to check for site PWA links
+        setTimeout(() => {
+          if (typeof initializeBottomMenu === 'function') {
+            initializeBottomMenu();
+          }
+        }, 50);
         return;
       }
       
@@ -596,32 +648,20 @@ style="flex-direction: column;"
         container.appendChild(a);
       });
       
+      console.log('Custom links rendered:', container.children.length, 'elements');
+      
     } catch (error) {
       console.error('Error loading custom PWA links:', error);
     }
-  }
 
-  // Load custom links on page load
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', loadCustomPwaLinks);
-  } else {
-    loadCustomPwaLinks();
+    // After loading links, re-initialize bottom menu to check visibility
+    setTimeout(() => {
+      console.log('Calling initializeBottomMenu after custom links loaded');
+      if (typeof initializeBottomMenu === 'function') {
+        initializeBottomMenu();
+      }
+    }, 50);
   }
-  
-  // Reload custom links after navigation
-  document.addEventListener('astro:after-swap', loadCustomPwaLinks);
-  
-  // Listen for custom event when links are updated in backup page
-  window.addEventListener('customLinksUpdated', () => {
-    loadCustomPwaLinks();
-  });
-  
-  // Listen for storage changes to update links in real-time (for other tabs)
-  window.addEventListener('storage', (e) => {
-    if (e.key === 'customSocialLinks') {
-      loadCustomPwaLinks();
-    }
-  });
 
   // Bottom menu toggle functionality
   let menuClickHandler = null;
@@ -631,10 +671,39 @@ style="flex-direction: column;"
     const menuBtn = document.getElementById('bottom-menu-btn');
     const menuPopup = document.getElementById('menu-popup');
     const pwaMenu = document.getElementById('pwa-menu-items');
+    const menuContainer = document.getElementById('bottom-menu-container');
     
-    if (!menuBtn || !menuPopup) {
+    console.log('initializeBottomMenu called');
+    
+    if (!menuBtn || !menuPopup || !menuContainer) {
+      console.error('Missing elements:', { menuBtn: !!menuBtn, menuPopup: !!menuPopup, menuContainer: !!menuContainer });
       return;
     }
+
+    // Check if there are any menu items in the popup
+    const menuLinks = menuPopup.querySelectorAll('a');
+    const hasMenuItems = menuLinks.length > 0;
+
+    // Check if there are any PWA links (site or custom)
+    const pwaLinks = pwaMenu ? pwaMenu.querySelectorAll('.pwa-site-link, .pwa-custom-link') : [];
+    const hasPwaLinks = pwaLinks.length > 0;
+
+    console.log('Menu check:', { hasMenuItems, hasPwaLinks, menuLinksCount: menuLinks.length, pwaLinksCount: pwaLinks.length });
+
+    // Hide menu button if there are no menu items AND no PWA links
+    if (!hasMenuItems && !hasPwaLinks) {
+      console.log('Hiding menu button - no items');
+      menuContainer.style.display = 'none';
+      return;
+    } else {
+      console.log('Showing menu button');
+      menuContainer.style.display = 'grid';
+    }
+
+    // Apply custom menu position
+    const savedPosition = localStorage.getItem('customMenuPosition') || 'bottom-center';
+    menuContainer.className = '';
+    menuContainer.classList.add(savedPosition);
     
     // Set initial state - hide PWA menu
     if (pwaMenu) {
@@ -652,10 +721,16 @@ style="flex-direction: column;"
     // Define and attach new click handler
     menuClickHandler = (e) => {
       e.stopPropagation();
-      const isShowing = menuPopup.classList.toggle('show');
       
+      // Only show popup if there are actual menu items
+      if (hasMenuItems) {
+        menuPopup.classList.toggle('show');
+      }
+      
+      // Always toggle PWA menu if it exists
       if (pwaMenu) {
-        if (isShowing) {
+        const currentDisplay = pwaMenu.style.display;
+        if (currentDisplay === 'none' || currentDisplay === '') {
           pwaMenu.style.display = 'flex';
         } else {
           pwaMenu.style.display = 'none';
@@ -683,7 +758,6 @@ style="flex-direction: column;"
     document.addEventListener('click', outsideClickHandler);
     
     // Close menu when clicking a regular menu link
-    const menuLinks = menuPopup.querySelectorAll('a');
     menuLinks.forEach(link => {
       link.addEventListener('click', () => {
         menuPopup.classList.remove('show');
@@ -694,12 +768,73 @@ style="flex-direction: column;"
     });
   }
 
-  // Initialize bottom menu
+  // Load custom links on page load
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeBottomMenu);
+    document.addEventListener('DOMContentLoaded', loadCustomPwaLinks);
   } else {
-    initializeBottomMenu();
+    loadCustomPwaLinks();
   }
   
-  document.addEventListener('astro:after-swap', initializeBottomMenu);
+  // Reload custom links after navigation
+  document.addEventListener('astro:after-swap', loadCustomPwaLinks);
+  
+  // Listen for custom event when links are updated in backup page
+  window.addEventListener('customLinksUpdated', () => {
+    loadCustomPwaLinks();
+  });
+  
+  // Listen for storage changes to update links in real-time (for other tabs)
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'customSocialLinks') {
+      loadCustomPwaLinks();
+    }
+  });
+
+  // Note: initializeBottomMenu is called by loadCustomPwaLinks after links are loaded
+  // Also call it on navigation to apply position changes
+  document.addEventListener('astro:after-swap', () => {
+    setTimeout(() => {
+      initializeBottomMenu();
+    }, 100);
+  });
+
+  // Apply custom appearance colors
+  function applyCustomAppearance() {
+    const barColor = localStorage.getItem('customBarColor');
+    const menuColor = localStorage.getItem('customMenuColor');
+    
+    // Get default color from CSS variable
+    const defaultColor = getComputedStyle(document.documentElement).getPropertyValue('--theme-header').trim() || 'rgba(31, 41, 55, 1)';
+
+    // Apply or reset bottom menu button background
+    const bottomMenu = document.getElementById('bottom-menu-btn');
+    if (bottomMenu) {
+      bottomMenu.style.background = barColor || defaultColor;
+    }
+
+    // Apply or reset menu popup background
+    const menuPopup = document.getElementById('menu-popup');
+    if (menuPopup) {
+      menuPopup.style.background = menuColor || defaultColor;
+    }
+
+    // Apply or reset PWA menu items background
+    const pwaLinks = document.querySelectorAll('.pwa-site-link, .pwa-custom-link');
+    pwaLinks.forEach((link) => {
+      // @ts-ignore - querySelectorAll returns Element, but we know these are HTMLElements
+      link.style.background = menuColor || defaultColor;
+    });
+  }
+
+  // Apply appearance on load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', applyCustomAppearance);
+  } else {
+    applyCustomAppearance();
+  }
+
+  // Listen for appearance updates
+  window.addEventListener('appearanceUpdated', applyCustomAppearance);
+  window.addEventListener('menuPositionUpdated', initializeBottomMenu);
+  document.addEventListener('astro:after-swap', applyCustomAppearance);
 </script>

@@ -1,8 +1,8 @@
 ---
 import Base from '../layouts/Base.astro';
 
-const title = 'Data Backup';
-const description = 'Backup and restore your settings, favorites, and preferences.';
+const title = 'Settings';
+const description = 'Manage your appearance, social links, and backup your data.';
 ---
 
 <Base title={title} description={description}>
@@ -10,8 +10,8 @@ const description = 'Backup and restore your settings, favorites, and preference
     <div class="membership-container">
       <!-- Header -->
       <div class="membership-header">
-        <h1>User Data Management</h1>
-        <p>Backup and restore your settings, favorites, and preferences.</p>
+        <h1>OneApp Settings</h1>
+        <p>Customize your experience and manage your data.</p>
       </div>
 
       <!-- Premium Status Check -->
@@ -49,6 +49,88 @@ const description = 'Backup and restore your settings, favorites, and preference
             <div id="backup-info" class="text-sm">
               <p>No backup found</p>
             </div>
+          </div>
+        </div>
+
+        <!-- Appearance Settings -->
+        <div class="plan-card mb-6">
+          <h2 class="text-2xl font-bold mb-4 flex items-center justify-center">
+            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+            </svg>
+            Appearance
+          </h2>
+          <p class="mb-4 opacity-80">
+            Customize the look of your PWA interface. These settings will override the site defaults.
+          </p>
+
+          <!-- Mission Control Background -->
+          <div class="mb-6">
+            <h3 class="font-bold mb-3 flex items-center gap-2">
+              Mission Control Bar
+              <button id="reset-bar-color" class="text-xs px-2 py-1 bg-gray-600 hover:bg-gray-500 rounded" title="Reset to default">Reset</button>
+            </h3>
+            <div class="space-y-3">
+              <div class="flex gap-3 items-center">
+                <input type="color" id="bar-color" class="w-16 h-12 rounded cursor-pointer">
+                <div class="flex-1">
+                  <label class="block text-sm mb-1">Color</label>
+                  <input type="text" id="bar-color-value" class="w-full p-2 rounded bg-gray-800 border border-gray-600 text-sm" readonly>
+                </div>
+              </div>
+              <div class="flex gap-3 items-center">
+                <label class="text-sm" style="width: 80px;">Opacity:</label>
+                <input type="range" id="bar-opacity" min="0" max="1" step="0.01" value="1" class="flex-1">
+                <span id="bar-opacity-value" class="text-sm" style="width: 50px; text-align: right;">100%</span>
+              </div>
+              <div class="p-3 rounded border border-gray-600 flex items-center gap-2">
+                <span class="text-sm">Preview:</span>
+                <div id="bar-preview" class="flex-1 h-8 rounded"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Menu Popup Background -->
+          <div class="mb-4">
+            <h3 class="font-bold mb-3 flex items-center gap-2">
+              Menu Popup
+              <button id="reset-menu-color" class="text-xs px-2 py-1 bg-gray-600 hover:bg-gray-500 rounded" title="Reset to default">Reset</button>
+            </h3>
+            <div class="space-y-3">
+              <div class="flex gap-3 items-center">
+                <input type="color" id="menu-color" class="w-16 h-12 rounded cursor-pointer">
+                <div class="flex-1">
+                  <label class="block text-sm mb-1">Color</label>
+                  <input type="text" id="menu-color-value" class="w-full p-2 rounded bg-gray-800 border border-gray-600 text-sm" readonly>
+                </div>
+              </div>
+              <div class="flex gap-3 items-center">
+                <label class="text-sm" style="width: 80px;">Opacity:</label>
+                <input type="range" id="menu-opacity" min="0" max="1" step="0.01" value="1" class="flex-1">
+                <span id="menu-opacity-value" class="text-sm" style="width: 50px; text-align: right;">100%</span>
+              </div>
+              <div class="p-3 rounded border border-gray-600 flex items-center gap-2">
+                <span class="text-sm">Preview:</span>
+                <div id="menu-preview" class="flex-1 h-8 rounded"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Menu Button Position -->
+          <div class="mb-4">
+            <h3 class="font-bold mb-3 flex items-center gap-2">
+              Menu Button Position
+              <button id="reset-menu-position" class="text-xs px-2 py-1 bg-gray-600 hover:bg-gray-500 rounded" title="Reset to default">Reset</button>
+            </h3>
+            <p class="text-sm opacity-80 mb-3">Choose where the menu button appears on your screen</p>
+            <select id="menu-position" class="w-full p-2 rounded bg-gray-800 border border-gray-600">
+              <option value="bottom-center">Bottom Center (Default)</option>
+              <option value="bottom-left">Bottom Left</option>
+              <option value="bottom-right">Bottom Right</option>
+              <option value="top-center">Top Center</option>
+              <option value="top-left">Top Left</option>
+              <option value="top-right">Top Right</option>
+            </select>
           </div>
         </div>
 
@@ -170,7 +252,7 @@ const description = 'Backup and restore your settings, favorites, and preference
             Clear All Data
           </h2>
           <p class=" mb-4">
-            <strong>Warning:</strong> This will permanently delete all your favorites, subscriptions, and settings.
+            <strong>Warning:</strong> This will permanently delete all your Watchlist, channel subscriptions, and settings.
           </p>
           <button id="clear-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">
             Clear All Data
@@ -203,6 +285,7 @@ const description = 'Backup and restore your settings, favorites, and preference
     constructor() {
       this.initializeEventListeners();
       this.checkPremiumStatus();
+      this.initializeAppearance();
     }
 
     // Define all localStorage keys that should be backed up
@@ -224,7 +307,10 @@ const description = 'Backup and restore your settings, favorites, and preference
           'memberFavorites-collapsed'
         ],
         customData: [
-          'customSocialLinks'
+          'customSocialLinks',
+          'customBarColor',
+          'customMenuColor',
+          'customMenuPosition'
         ],
         uiState: [] // Will be populated dynamically for channel-collapsed-* keys
       };
@@ -605,6 +691,160 @@ const description = 'Backup and restore your settings, favorites, and preference
       const div = document.createElement('div');
       div.textContent = text;
       return div.innerHTML;
+    }
+
+    // Appearance methods
+    hexToRgba(hex: string, alpha: number = 1): string {
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    rgbaToHex(rgba: string): { hex: string, alpha: number } {
+      const match = rgba.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)/);
+      if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const a = match[4] ? parseFloat(match[4]) : 1;
+        const hex = '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+        return { hex, alpha: a };
+      }
+      return { hex: '#000000', alpha: 1 };
+    }
+
+    initializeAppearance() {
+      // Get default color from CSS variable
+      const defaultColor = getComputedStyle(document.documentElement).getPropertyValue('--theme-header').trim() || 'rgba(31, 41, 55, 1)';
+      
+      // Load saved colors or use defaults
+      const savedBarColor = localStorage.getItem('customBarColor') || defaultColor;
+      const savedMenuColor = localStorage.getItem('customMenuColor') || defaultColor;
+
+      // Initialize Bar Color
+      this.setupColorPicker('bar', savedBarColor);
+      
+      // Initialize Menu Color  
+      this.setupColorPicker('menu', savedMenuColor);
+      
+      // Apply colors to the page
+      this.applyColors();
+
+      // Reset buttons
+      document.getElementById('reset-bar-color')?.addEventListener('click', () => {
+        localStorage.removeItem('customBarColor');
+        this.setupColorPicker('bar', defaultColor);
+        this.applyColors();
+      });
+
+      document.getElementById('reset-menu-color')?.addEventListener('click', () => {
+        localStorage.removeItem('customMenuColor');
+        this.setupColorPicker('menu', defaultColor);
+        this.applyColors();
+      });
+
+      // Menu Position
+      const savedPosition = localStorage.getItem('customMenuPosition') || 'bottom-center';
+      const positionSelect = document.getElementById('menu-position') as HTMLSelectElement;
+      if (positionSelect) {
+        positionSelect.value = savedPosition;
+        positionSelect.addEventListener('change', (e) => {
+          const target = e.target as HTMLSelectElement;
+          localStorage.setItem('customMenuPosition', target.value);
+          window.dispatchEvent(new CustomEvent('menuPositionUpdated'));
+        });
+      }
+
+      document.getElementById('reset-menu-position')?.addEventListener('click', () => {
+        localStorage.removeItem('customMenuPosition');
+        if (positionSelect) {
+          positionSelect.value = 'bottom-center';
+        }
+        window.dispatchEvent(new CustomEvent('menuPositionUpdated'));
+      });
+    }
+
+    setupColorPicker(type: 'bar' | 'menu', initialColor: string) {
+      const colorInput = document.getElementById(`${type}-color`) as HTMLInputElement;
+      const opacityInput = document.getElementById(`${type}-opacity`) as HTMLInputElement;
+      const valueDisplay = document.getElementById(`${type}-color-value`) as HTMLInputElement;
+      const opacityDisplay = document.getElementById(`${type}-opacity-value`);
+      const preview = document.getElementById(`${type}-preview`);
+
+      if (!colorInput || !opacityInput || !valueDisplay || !opacityDisplay || !preview) return;
+
+      // Parse initial color
+      const { hex, alpha } = this.rgbaToHex(initialColor);
+      
+      // Set initial values
+      colorInput.value = hex;
+      opacityInput.value = alpha.toString();
+      opacityDisplay.textContent = `${Math.round(alpha * 100)}%`;
+      
+      const rgba = this.hexToRgba(hex, alpha);
+      valueDisplay.value = rgba;
+      preview.style.background = rgba;
+
+      // Update on color change
+      colorInput.addEventListener('input', (e) => {
+        const target = e.target as HTMLInputElement;
+        const newHex = target.value;
+        const currentAlpha = parseFloat(opacityInput.value);
+        const newRgba = this.hexToRgba(newHex, currentAlpha);
+        
+        valueDisplay.value = newRgba;
+        preview.style.background = newRgba;
+        
+        localStorage.setItem(`custom${type.charAt(0).toUpperCase() + type.slice(1)}Color`, newRgba);
+        this.applyColors();
+      });
+
+      // Update on opacity change
+      opacityInput.addEventListener('input', (e) => {
+        const target = e.target as HTMLInputElement;
+        const newAlpha = parseFloat(target.value);
+        opacityDisplay.textContent = `${Math.round(newAlpha * 100)}%`;
+        
+        const currentHex = colorInput.value;
+        const newRgba = this.hexToRgba(currentHex, newAlpha);
+        
+        valueDisplay.value = newRgba;
+        preview.style.background = newRgba;
+        
+        localStorage.setItem(`custom${type.charAt(0).toUpperCase() + type.slice(1)}Color`, newRgba);
+        this.applyColors();
+      });
+    }
+
+    applyColors() {
+      const barColor = localStorage.getItem('customBarColor');
+      const menuColor = localStorage.getItem('customMenuColor');
+      
+      // Get default color from CSS variable
+      const defaultColor = getComputedStyle(document.documentElement).getPropertyValue('--theme-header').trim() || 'rgba(31, 41, 55, 1)';
+
+      // Apply or reset bottom menu button background
+      const bottomMenu = document.getElementById('bottom-menu-btn');
+      if (bottomMenu) {
+        bottomMenu.style.background = barColor || defaultColor;
+      }
+
+      // Apply or reset menu popup background
+      const menuPopup = document.getElementById('menu-popup');
+      if (menuPopup) {
+        menuPopup.style.background = menuColor || defaultColor;
+      }
+
+      // Apply or reset PWA menu items background
+      const pwaLinks = document.querySelectorAll('.pwa-site-link, .pwa-custom-link');
+      pwaLinks.forEach((link) => {
+        // @ts-ignore - querySelectorAll returns Element, but we know these are HTMLElements
+        link.style.background = menuColor || defaultColor;
+      });
+
+      // Dispatch event so Header can pick up changes
+      window.dispatchEvent(new CustomEvent('appearanceUpdated'));
     }
 
     initializeEventListeners() {

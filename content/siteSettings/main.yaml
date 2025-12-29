@@ -3,11 +3,11 @@ defaultView: grid
 themeMode: user
 MAX_POSTS: 3
 MAX_POSTS_PER_PAGE: 20
-showHeader: true
+showHeader: false
 showLogo: true
-showHome: true
-showTheme: true
-showFooter: true
+showHome: false
+showTheme: false
+showFooter: false
 showTitles: true
 showDates: true
 enableImageBlur: true
