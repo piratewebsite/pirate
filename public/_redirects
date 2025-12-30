@@ -1,2 +1,2 @@
-# Ensure video page works with query parameters
-/video  /video/index.html  200
+# Serve video page for all /video requests (with or without query params)
+/video /video/ 200!
