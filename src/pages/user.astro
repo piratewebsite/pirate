@@ -95,29 +95,68 @@ const meta = {
     private dbName = 'StickyNotesDB';
     private storeName = 'notes';
     private db: IDBDatabase | null = null;
+    private useIndexedDB = true;
+
+    constructor() {
+      // Check if IndexedDB is available
+      if (!window.indexedDB) {
+        console.warn('IndexedDB not available, will use localStorage fallback');
+        this.useIndexedDB = false;
+      }
+    }
 
     async init(): Promise<void> {
+      if (!this.useIndexedDB) {
+        console.log('Using localStorage fallback');
+        return Promise.resolve();
+      }
+
       return new Promise((resolve, reject) => {
-        const request = indexedDB.open(this.dbName, 1);
+        try {
+          const request = indexedDB.open(this.dbName, 1);
 
-        request.onerror = () => reject(request.error);
-        request.onsuccess = () => {
-          this.db = request.result;
+          request.onerror = () => {
+            console.error('IndexedDB open error:', request.error);
+            this.useIndexedDB = false;
+            console.log('Falling back to localStorage');
+            resolve();
+          };
+          
+          request.onsuccess = () => {
+            this.db = request.result;
+            console.log('IndexedDB opened successfully');
+            resolve();
+          };
+
+          request.onupgradeneeded = (event) => {
+            const db = (event.target as IDBOpenDBRequest).result;
+            if (!db.objectStoreNames.contains(this.storeName)) {
+              db.createObjectStore(this.storeName, { keyPath: 'id' });
+            }
+          };
+        } catch (error) {
+          console.error('IndexedDB exception:', error);
+          this.useIndexedDB = false;
+          console.log('Falling back to localStorage');
           resolve();
-        };
-
-        request.onupgradeneeded = (event) => {
-          const db = (event.target as IDBOpenDBRequest).result;
-          if (!db.objectStoreNames.contains(this.storeName)) {
-            db.createObjectStore(this.storeName, { keyPath: 'id' });
-          }
-        };
+        }
       });
     }
 
     async getAllNotes(): Promise<StickyNote[]> {
+      if (!this.useIndexedDB) {
+        // Use localStorage fallback
+        const stored = localStorage.getItem('stickyNotes');
+        return stored ? JSON.parse(stored) : [];
+      }
+
       if (!this.db) await this.init();
       
+      if (!this.useIndexedDB) {
+        const stored = localStorage.getItem('stickyNotes');
+        return stored ? JSON.parse(stored) : [];
+      }
+
       return new Promise((resolve, reject) => {
         const transaction = this.db!.transaction([this.storeName], 'readonly');
         const store = transaction.objectStore(this.storeName);
@@ -129,9 +168,39 @@ const meta = {
     }
 
     async saveNote(note: StickyNote): Promise<void> {
+      if (!this.useIndexedDB) {
+        // Use localStorage fallback
+        const stored = localStorage.getItem('stickyNotes');
+        const notes: StickyNote[] = stored ? JSON.parse(stored) : [];
+        const index = notes.findIndex(n => n.id === note.id);
+        if (index >= 0) {
+          notes[index] = note;
+        } else {
+          notes.push(note);
+        }
+        localStorage.setItem('stickyNotes', JSON.stringify(notes));
+        console.log('Note saved to localStorage:', note.id);
+        return Promise.resolve();
+      }
+
       if (!this.db) {
         console.log('DB not initialized, initializing now...');
         await this.init();
+      }
+
+      if (!this.useIndexedDB) {
+        // Fallback after init attempt failed
+        const stored = localStorage.getItem('stickyNotes');
+        const notes: StickyNote[] = stored ? JSON.parse(stored) : [];
+        const index = notes.findIndex(n => n.id === note.id);
+        if (index >= 0) {
+          notes[index] = note;
+        } else {
+          notes.push(note);
+        }
+        localStorage.setItem('stickyNotes', JSON.stringify(notes));
+        console.log('Note saved to localStorage (after failed IndexedDB):', note.id);
+        return Promise.resolve();
       }
 
       return new Promise((resolve, reject) => {
@@ -141,7 +210,7 @@ const meta = {
           const request = store.put(note);
 
           request.onsuccess = () => {
-            console.log('Note saved successfully:', note.id);
+            console.log('Note saved to IndexedDB successfully:', note.id);
             resolve();
           };
           request.onerror = () => {
@@ -160,7 +229,23 @@ const meta = {
     }
 
     async deleteNote(id: string): Promise<void> {
+      if (!this.useIndexedDB) {
+        const stored = localStorage.getItem('stickyNotes');
+        const notes: StickyNote[] = stored ? JSON.parse(stored) : [];
+        const filtered = notes.filter(n => n.id !== id);
+        localStorage.setItem('stickyNotes', JSON.stringify(filtered));
+        return Promise.resolve();
+      }
+
       if (!this.db) await this.init();
+
+      if (!this.useIndexedDB) {
+        const stored = localStorage.getItem('stickyNotes');
+        const notes: StickyNote[] = stored ? JSON.parse(stored) : [];
+        const filtered = notes.filter(n => n.id !== id);
+        localStorage.setItem('stickyNotes', JSON.stringify(filtered));
+        return Promise.resolve();
+      }
 
       return new Promise((resolve, reject) => {
         const transaction = this.db!.transaction([this.storeName], 'readwrite');
@@ -173,7 +258,17 @@ const meta = {
     }
 
     async clearAllNotes(): Promise<void> {
+      if (!this.useIndexedDB) {
+        localStorage.removeItem('stickyNotes');
+        return Promise.resolve();
+      }
+
       if (!this.db) await this.init();
+
+      if (!this.useIndexedDB) {
+        localStorage.removeItem('stickyNotes');
+        return Promise.resolve();
+      }
 
       return new Promise((resolve, reject) => {
         const transaction = this.db!.transaction([this.storeName], 'readwrite');
