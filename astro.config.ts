@@ -143,6 +143,37 @@ export default defineConfig({
         '**/keystatic-page.*', // Exclude large Keystatic bundle from cache
       ],
       maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3MB limit
+      runtimeCaching: [
+        {
+          urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'google-fonts-cache',
+            expiration: {
+              maxEntries: 10,
+              maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+            },
+            cacheableResponse: {
+              statuses: [0, 200]
+            }
+          }
+        },
+        {
+          urlPattern: /\/user$/,
+          handler: 'NetworkFirst',
+          options: {
+            cacheName: 'user-page-cache',
+            networkTimeoutSeconds: 3,
+          }
+        },
+        {
+          urlPattern: /\.(js|css|woff2?)$/,
+          handler: 'StaleWhileRevalidate',
+          options: {
+            cacheName: 'static-resources',
+          }
+        }
+      ]
     }
   }),  
   markdoc()],
