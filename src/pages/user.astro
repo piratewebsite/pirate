@@ -53,11 +53,90 @@ const meta = {
     collapsed: boolean;
   }
 
+  // IndexedDB Helper
+  class NotesDB {
+    private dbName = 'StickyNotesDB';
+    private storeName = 'notes';
+    private db: IDBDatabase | null = null;
+
+    async init(): Promise<void> {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open(this.dbName, 1);
+
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => {
+          this.db = request.result;
+          resolve();
+        };
+
+        request.onupgradeneeded = (event) => {
+          const db = (event.target as IDBOpenDBRequest).result;
+          if (!db.objectStoreNames.contains(this.storeName)) {
+            db.createObjectStore(this.storeName, { keyPath: 'id' });
+          }
+        };
+      });
+    }
+
+    async getAllNotes(): Promise<StickyNote[]> {
+      if (!this.db) await this.init();
+      
+      return new Promise((resolve, reject) => {
+        const transaction = this.db!.transaction([this.storeName], 'readonly');
+        const store = transaction.objectStore(this.storeName);
+        const request = store.getAll();
+
+        request.onsuccess = () => resolve(request.result || []);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    async saveNote(note: StickyNote): Promise<void> {
+      if (!this.db) await this.init();
+
+      return new Promise((resolve, reject) => {
+        const transaction = this.db!.transaction([this.storeName], 'readwrite');
+        const store = transaction.objectStore(this.storeName);
+        const request = store.put(note);
+
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    async deleteNote(id: string): Promise<void> {
+      if (!this.db) await this.init();
+
+      return new Promise((resolve, reject) => {
+        const transaction = this.db!.transaction([this.storeName], 'readwrite');
+        const store = transaction.objectStore(this.storeName);
+        const request = store.delete(id);
+
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    async clearAllNotes(): Promise<void> {
+      if (!this.db) await this.init();
+
+      return new Promise((resolve, reject) => {
+        const transaction = this.db!.transaction([this.storeName], 'readwrite');
+        const store = transaction.objectStore(this.storeName);
+        const request = store.clear();
+
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+      });
+    }
+  }
+
   class StickyNotesManager {
     private notes: StickyNote[] = [];
     private notesContainer: HTMLElement | null;
     private collapsedContainer: HTMLElement | null;
     private activeNoteId: string | null = null;
+    private db: NotesDB;
 
     private colors = [
       '#fef08a', // yellow
@@ -71,9 +150,37 @@ const meta = {
     constructor() {
       this.notesContainer = document.getElementById('notes-container');
       this.collapsedContainer = document.getElementById('collapsed-notes');
-      this.loadNotes();
+      this.db = new NotesDB();
+      this.initialize();
+    }
+
+    async initialize() {
+      await this.db.init();
+      await this.migrateFromLocalStorage();
+      await this.loadNotes();
       this.setupEventListeners();
       this.renderAllNotes();
+    }
+
+    async migrateFromLocalStorage() {
+      const oldNotes = localStorage.getItem('stickyNotes');
+      if (oldNotes) {
+        try {
+          const notes = JSON.parse(oldNotes);
+          console.log('Migrating', notes.length, 'notes from localStorage to IndexedDB...');
+          
+          for (const note of notes) {
+            await this.db.saveNote(note);
+          }
+          
+          // Keep a backup in localStorage for now
+          localStorage.setItem('stickyNotes_backup', oldNotes);
+          localStorage.removeItem('stickyNotes');
+          console.log('Migration complete!');
+        } catch (error) {
+          console.error('Migration error:', error);
+        }
+      }
     }
 
     setupEventListeners() {
@@ -84,28 +191,30 @@ const meta = {
       clearBtn?.addEventListener('click', () => this.clearAllNotes());
     }
 
-    loadNotes() {
-      const saved = localStorage.getItem('stickyNotes');
-      if (saved) {
-        try {
-          const loadedNotes = JSON.parse(saved);
-          // Migrate old notes to new format
-          this.notes = loadedNotes.map((note: any) => ({
-            ...note,
-            collapsed: note.collapsed !== undefined ? note.collapsed : true,
-          }));
-        } catch (error) {
-          console.error('Error loading notes:', error);
-          this.notes = [];
-        }
+    async loadNotes() {
+      try {
+        this.notes = await this.db.getAllNotes();
+        // Ensure all notes have the collapsed property
+        this.notes = this.notes.map((note: any) => ({
+          ...note,
+          collapsed: note.collapsed !== undefined ? note.collapsed : true,
+        }));
+      } catch (error) {
+        console.error('Error loading notes:', error);
+        this.notes = [];
       }
     }
 
-    saveNotes() {
-      localStorage.setItem('stickyNotes', JSON.stringify(this.notes));
+    async saveNote(note: StickyNote) {
+      try {
+        await this.db.saveNote(note);
+      } catch (error) {
+        console.error('Error saving note:', error);
+        alert('Failed to save note. Storage may be full.');
+      }
     }
 
-    createNote() {
+    async createNote() {
       const randomColor = this.colors[Math.floor(Math.random() * this.colors.length)];
       const noteNumber = this.notes.length + 1;
       const note: StickyNote = {
@@ -117,7 +226,7 @@ const meta = {
       };
 
       this.notes.push(note);
-      this.saveNotes();
+      await this.saveNote(note);
       this.renderExpandedNote(note);
       this.activeNoteId = note.id;
       
@@ -322,17 +431,17 @@ const meta = {
       this.notesContainer.appendChild(noteEl);
     }
 
-    expandNote(id: string) {
+    async expandNote(id: string) {
       // Collapse currently active note if any
       if (this.activeNoteId && this.activeNoteId !== id) {
-        this.collapseNote(this.activeNoteId);
+        await this.collapseNote(this.activeNoteId);
       }
 
       const note = this.notes.find(n => n.id === id);
       if (!note) return;
 
       note.collapsed = false;
-      this.saveNotes();
+      await this.saveNote(note);
 
       // Remove from collapsed view
       const tab = this.collapsedContainer?.querySelector(`[data-id="${id}"]`);
@@ -343,12 +452,12 @@ const meta = {
       this.activeNoteId = id;
     }
 
-    collapseNote(id: string) {
+    async collapseNote(id: string) {
       const note = this.notes.find(n => n.id === id);
       if (!note) return;
 
       note.collapsed = true;
-      this.saveNotes();
+      await this.saveNote(note);
 
       // Remove from expanded view
       const noteEl = this.notesContainer?.querySelector(`[data-id="${id}"]`);
@@ -362,11 +471,11 @@ const meta = {
       }
     }
 
-    updateNoteTitle(id: string, title: string) {
+    async updateNoteTitle(id: string, title: string) {
       const note = this.notes.find(n => n.id === id);
       if (note) {
         note.title = title;
-        this.saveNotes();
+        await this.saveNote(note);
         
         // Update collapsed tab if it exists
         const tab = this.collapsedContainer?.querySelector(`[data-id="${id}"] div`);
@@ -376,17 +485,17 @@ const meta = {
       }
     }
 
-    updateNoteContent(id: string, content: string) {
+    async updateNoteContent(id: string, content: string) {
       const note = this.notes.find(n => n.id === id);
       if (note) {
         note.content = content;
-        this.saveNotes();
+        await this.saveNote(note);
       }
     }
 
-    deleteNote(id: string) {
+    async deleteNote(id: string) {
       this.notes = this.notes.filter(n => n.id !== id);
-      this.saveNotes();
+      await this.db.deleteNote(id);
       
       const noteEl = this.notesContainer?.querySelector(`[data-id="${id}"]`);
       noteEl?.remove();
@@ -399,10 +508,10 @@ const meta = {
       }
     }
 
-    clearAllNotes() {
+    async clearAllNotes() {
       if (confirm('Delete all notes? This cannot be undone.')) {
         this.notes = [];
-        this.saveNotes();
+        await this.db.clearAllNotes();
         if (this.notesContainer) {
           this.notesContainer.innerHTML = '';
         }

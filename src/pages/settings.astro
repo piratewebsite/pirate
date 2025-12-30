@@ -200,54 +200,6 @@ try {
         </div>
         )}
 
-        {showStorageSection && (
-        <!-- Storage Usage Dashboard -->
-        <div class="plan-card mb-6">
-          <h2 class="text-2xl font-bold mb-4 flex items-center justify-center">
-            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/>
-            </svg>
-            Storage Usage
-          </h2>
-          <p class="mb-4 opacity-80">
-            Monitor your browser's localStorage usage. Limit: ~5MB total.
-          </p>
-          
-          <!-- Storage Stats -->
-          <div class="space-y-4">
-            <div>
-              <div class="flex justify-between text-sm mb-1">
-                <span>Total Used</span>
-                <span id="storage-total" class="font-mono">0 KB</span>
-              </div>
-              <div class="w-full bg-gray-700 rounded-full h-4 overflow-hidden">
-                <div id="storage-bar" class="bg-blue-500 h-full transition-all" style="width: 0%"></div>
-              </div>
-              <div class="text-xs opacity-60 mt-1 text-right" id="storage-percent">0% of 5MB</div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3 text-sm">
-              <div class="p-3 rounded bg-gray-800/50 border border-gray-700">
-                <div class="opacity-60 mb-1">Background Image</div>
-                <div id="storage-bg" class="font-mono text-lg">-</div>
-              </div>
-              <div class="p-3 rounded bg-gray-800/50 border border-gray-700">
-                <div class="opacity-60 mb-1">Sticky Notes</div>
-                <div id="storage-notes" class="font-mono text-lg">-</div>
-              </div>
-              <div class="p-3 rounded bg-gray-800/50 border border-gray-700">
-                <div class="opacity-60 mb-1">Favorites</div>
-                <div id="storage-favorites" class="font-mono text-lg">-</div>
-              </div>
-              <div class="p-3 rounded bg-gray-800/50 border border-gray-700">
-                <div class="opacity-60 mb-1">Other Data</div>
-                <div id="storage-other" class="font-mono text-lg">-</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        )}
-
         {showPwaSettingsSection && (
         <div class="plan-card mb-6">
           <!-- PWA Settings -->
@@ -341,35 +293,82 @@ try {
         </div>
         )}
 
-        {showBackupSection && (
-        <>
-        <!-- Data Overview -->
-        <div class="pricing-grid mb-8">
-          <div class="plan-card">
-            <h2 class="text-xl font-bold mb-4 flex items-center justify-center">
-              <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-              Current Data
-            </h2>
-            <div id="data-overview" class="space-y-3 text-sm">
-              <!-- Will be populated by JavaScript -->
+        {showStorageSection && (
+        <!-- Storage Usage Dashboard -->
+        <div class="plan-card mb-6">
+          <h2 class="text-2xl font-bold mb-4 flex items-center justify-center">
+            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/>
+            </svg>
+            Storage & Data Overview
+          </h2>
+          <p class="mb-4 opacity-80">
+            Monitor your browser storage. Sticky notes use IndexedDB (~50MB), other data uses localStorage (~5MB).
+          </p>
+          
+          <!-- Storage Stats -->
+          <div class="space-y-4">
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span>Total Used</span>
+                <span id="storage-total" class="font-mono">0 KB</span>
+              </div>
+              <div class="w-full bg-gray-700 rounded-full h-4 overflow-hidden">
+                <div id="storage-bar" class="bg-blue-500 h-full transition-all" style="width: 0%"></div>
+              </div>
+              <div class="text-xs opacity-60 mt-1 text-right" id="storage-percent">0% of ~55MB</div>
             </div>
-          </div>
 
-          <div class="plan-card">
-            <h2 class="text-xl font-bold mb-4 flex items-center justify-center">
-              <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M13 6a3 3 0 11-6 0 3 3 0 616 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/>
-              </svg>
-              Last Backup
-            </h2>
-            <div id="backup-info" class="text-sm">
-              <p>No backup found</p>
+            <div class="grid grid-cols-2 gap-3 text-sm">
+              <div class="p-3 rounded bg-gray-800/50 border border-gray-700">
+                <div class="opacity-60 mb-1">Background Image</div>
+                <div id="storage-bg" class="font-mono text-lg">-</div>
+              </div>
+              <div class="p-3 rounded bg-gray-800/50 border border-gray-700">
+                <div class="opacity-60 mb-1">Sticky Notes</div>
+                <div id="storage-notes" class="font-mono text-lg">-</div>
+              </div>
+              <div class="p-3 rounded bg-gray-800/50 border border-gray-700">
+                <div class="opacity-60 mb-1">Favorites</div>
+                <div id="storage-favorites" class="font-mono text-lg">-</div>
+              </div>
+              <div class="p-3 rounded bg-gray-800/50 border border-gray-700">
+                <div class="opacity-60 mb-1">Other Data</div>
+                <div id="storage-other" class="font-mono text-lg">-</div>
+              </div>
+            </div>
+
+            <!-- Current Data Overview -->
+            <div class="mt-6 p-4 rounded-lg bg-gray-800/30 border border-gray-700">
+              <h3 class="font-bold mb-3 flex items-center">
+                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Current Data
+              </h3>
+              <div id="data-overview" class="space-y-2 text-sm">
+                <!-- Will be populated by JavaScript -->
+              </div>
+            </div>
+
+            <!-- Last Backup Info -->
+            <div class="p-4 rounded-lg bg-gray-800/30 border border-gray-700">
+              <h3 class="font-bold mb-3 flex items-center">
+                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M13 6a3 3 0 11-6 0 3 3 0 616 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/>
+                </svg>
+                Last Backup
+              </h3>
+              <div id="backup-info" class="text-sm">
+                <p>No backup found</p>
+              </div>
             </div>
           </div>
         </div>
+        )}
 
+        {showBackupSection && (
+        <>
         <!-- Backup Section -->
         <div class="plan-card mb-6">
           <h2 class="text-2xl font-bold mb-4 flex items-center justify-center">
@@ -1029,7 +1028,15 @@ try {
       });
 
       // Storage Dashboard Update Function
-      function updateStorageDashboard() {
+      async function updateStorageDashboard() {
+        // Update UI helper
+        const formatSize = (bytes: number) => {
+          if (bytes === 0) return '-';
+          if (bytes < 1024) return `${bytes} B`;
+          if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+          return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+        };
+
         let totalSize = 0;
         const sizes: { [key: string]: number } = {
           background: 0,
@@ -1038,7 +1045,7 @@ try {
           other: 0
         };
 
-        // Calculate sizes for each category
+        // Calculate localStorage sizes
         for (let i = 0; i < localStorage.length; i++) {
           const key = localStorage.key(i);
           if (!key) continue;
@@ -1049,8 +1056,8 @@ try {
 
           if (key === 'userPageBackground') {
             sizes.background = size;
-          } else if (key === 'stickyNotes') {
-            sizes.notes = size;
+          } else if (key === 'stickyNotes' || key === 'stickyNotes_backup') {
+            sizes.notes += size;
           } else if (key.includes('Favorites') || key.includes('Channels')) {
             sizes.favorites += size;
           } else {
@@ -1058,48 +1065,82 @@ try {
           }
         }
 
-        // Update UI
-        const formatSize = (bytes: number) => {
-          if (bytes === 0) return '-';
-          if (bytes < 1024) return `${bytes} B`;
-          if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-          return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
-        };
+        // Calculate IndexedDB size for sticky notes
+        try {
+          const dbRequest = indexedDB.open('StickyNotesDB', 1);
+          
+          const db = await new Promise<IDBDatabase>((resolve, reject) => {
+            dbRequest.onsuccess = () => resolve(dbRequest.result);
+            dbRequest.onerror = () => reject(dbRequest.error);
+          });
 
-        const totalKB = (totalSize / 1024).toFixed(1);
-        const maxSize = 5 * 1024 * 1024; // 5MB
-        const percent = Math.min((totalSize / maxSize) * 100, 100);
+          const transaction = db.transaction(['notes'], 'readonly');
+          const store = transaction.objectStore('notes');
+          const notesRequest = store.getAll();
 
-        document.getElementById('storage-total')!.textContent = `${totalKB} KB`;
-        document.getElementById('storage-percent')!.textContent = `${percent.toFixed(1)}% of 5MB`;
-        
-        const storageBar = document.getElementById('storage-bar')!;
-        storageBar.style.width = `${percent}%`;
-        
-        // Color code the bar
-        if (percent > 90) {
-          storageBar.className = 'bg-red-500 h-full transition-all';
-        } else if (percent > 70) {
-          storageBar.className = 'bg-yellow-500 h-full transition-all';
-        } else {
-          storageBar.className = 'bg-blue-500 h-full transition-all';
+          const notes = await new Promise<any[]>((resolve, reject) => {
+            notesRequest.onsuccess = () => resolve(notesRequest.result || []);
+            notesRequest.onerror = () => reject(notesRequest.error);
+          });
+
+          db.close();
+
+          // Calculate size of IndexedDB notes
+          const notesSize = new Blob([JSON.stringify(notes)]).size;
+          sizes.notes = notesSize;
+          totalSize += notesSize;
+
+          // Update note count display
+          const notesEl = document.getElementById('storage-notes');
+          if (notesEl) {
+            notesEl.innerHTML = `${formatSize(notesSize)}<div class="text-xs opacity-60 mt-1">${notes.length} note${notes.length !== 1 ? 's' : ''}</div>`;
+          }
+        } catch (error) {
+          console.log('IndexedDB error:', error);
+          // Fallback to displaying localStorage notes if any
+          const notesEl = document.getElementById('storage-notes');
+          if (notesEl && sizes.notes > 0) {
+            notesEl.innerHTML = `${formatSize(sizes.notes)}<div class="text-xs opacity-60 mt-1">Migrating...</div>`;
+          }
         }
 
-        document.getElementById('storage-bg')!.textContent = formatSize(sizes.background);
-        document.getElementById('storage-notes')!.textContent = formatSize(sizes.notes);
-        document.getElementById('storage-favorites')!.textContent = formatSize(sizes.favorites);
-        document.getElementById('storage-other')!.textContent = formatSize(sizes.other);
+        const totalKB = (totalSize / 1024).toFixed(1);
+        const maxSize = 55 * 1024 * 1024; // 50MB IndexedDB + 5MB localStorage
+        const percent = Math.min((totalSize / maxSize) * 100, 100);
 
-        // Add count for sticky notes
-        try {
-          const notes = JSON.parse(localStorage.getItem('stickyNotes') || '[]');
-          const notesEl = document.getElementById('storage-notes')!;
-          notesEl.innerHTML = `${formatSize(sizes.notes)}<div class="text-xs opacity-60 mt-1">${notes.length} note${notes.length !== 1 ? 's' : ''}</div>`;
-        } catch {}
+        const totalEl = document.getElementById('storage-total');
+        const percentEl = document.getElementById('storage-percent');
+        const barEl = document.getElementById('storage-bar');
+        const bgEl = document.getElementById('storage-bg');
+        const favEl = document.getElementById('storage-favorites');
+        const otherEl = document.getElementById('storage-other');
+
+        if (totalEl) totalEl.textContent = `${totalKB} KB`;
+        if (percentEl) percentEl.textContent = `${percent.toFixed(1)}% of ~55MB`;
+        
+        if (barEl) {
+          barEl.style.width = `${percent}%`;
+          
+          // Color code the bar
+          if (percent > 90) {
+            barEl.className = 'bg-red-500 h-full transition-all';
+          } else if (percent > 70) {
+            barEl.className = 'bg-yellow-500 h-full transition-all';
+          } else {
+            barEl.className = 'bg-blue-500 h-full transition-all';
+          }
+        }
+
+        if (bgEl) bgEl.textContent = formatSize(sizes.background);
+        if (favEl) favEl.textContent = formatSize(sizes.favorites);
+        if (otherEl) otherEl.textContent = formatSize(sizes.other);
       }
 
       // Initial dashboard update
       updateStorageDashboard();
+
+      // Update dashboard periodically
+      setInterval(updateStorageDashboard, 5000);
 
       // Update dashboard after image uploads
       const originalSetItem = localStorage.setItem.bind(localStorage);
@@ -1107,14 +1148,14 @@ try {
       
       localStorage.setItem = function(key, value) {
         originalSetItem(key, value);
-        if (key.includes('userPage') || key === 'stickyNotes') {
+        if (key.includes('userPage')) {
           setTimeout(updateStorageDashboard, 100);
         }
       };
       
       localStorage.removeItem = function(key) {
         originalRemoveItem(key);
-        if (key.includes('userPage') || key === 'stickyNotes') {
+        if (key.includes('userPage')) {
           setTimeout(updateStorageDashboard, 100);
         }
       };
