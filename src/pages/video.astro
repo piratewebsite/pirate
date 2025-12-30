@@ -4,6 +4,10 @@ import { getEntry } from 'astro:content';
 import MemberFavorites from "@/components/MemberFavorites.astro";
 import { getDefaultImage } from "../utils/getDefaultImage";
 
+// Disable prerender to allow dynamic OG images based on URL parameters
+// This page uses SSR in hybrid mode to fetch video metadata
+export const prerender = false;
+
 // Get site settings for video time limit
 const siteSettings = await getEntry('siteSettings', 'main');
 const pwaSettings = await getEntry('pwaSettings', 'index');
