@@ -38,6 +38,8 @@ const meta = {
         <option value="images">Has Images</option>
         <option value="text">Text Only</option>
         <option value="empty">Empty Notes</option>
+        <option value="watchlist">📺 Watchlist Videos</option>
+        <option value="channels">📺 Subscribed Channels</option>
         <option value="color-white">⚪ White</option>
         <option value="color-yellow">🟡 Yellow</option>
         <option value="color-red">🔴 Red</option>
@@ -1113,6 +1115,119 @@ const meta = {
       }
     }
 
+    displayWatchlistVideos() {
+      const stickyContainer = document.getElementById('sticky-notes-container');
+      if (!stickyContainer) return;
+
+      const favorites = JSON.parse(localStorage.getItem('memberFavorites') || '[]');
+      stickyContainer.innerHTML = '';
+
+      if (favorites.length === 0) {
+        const noResults = document.createElement('div');
+        noResults.style.cssText = 'color: white; padding: 1rem; text-align: center;';
+        noResults.textContent = 'No watchlist videos';
+        stickyContainer.appendChild(noResults);
+        return;
+      }
+
+      favorites.forEach(video => {
+        const card = document.createElement('div');
+        card.className = 'sticky-note-card';
+        card.style.cssText = `
+          background-color: #fff;
+          cursor: pointer;
+          width: 200px;
+          min-height: 120px;
+          border-radius: 8px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+          transition: transform 0.2s;
+          overflow: hidden;
+        `;
+
+        const thumbnail = document.createElement('img');
+        thumbnail.src = video.thumbnail || '';
+        thumbnail.style.cssText = 'width: 100%; height: 110px; object-fit: cover;';
+
+        const title = document.createElement('div');
+        title.style.cssText = 'padding: 0.5rem; font-weight: 600; color: #333; font-size: 0.85rem; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;';
+        title.textContent = video.title || '';
+
+        const channel = document.createElement('div');
+        channel.style.cssText = 'padding: 0 0.5rem 0.5rem; color: #666; font-size: 0.75rem;';
+        channel.textContent = video.channelTitle || '';
+
+        card.appendChild(thumbnail);
+        card.appendChild(title);
+        card.appendChild(channel);
+
+        card.addEventListener('click', () => {
+          window.location.href = `/video?v=${video.videoId}`;
+        });
+        card.addEventListener('mouseenter', () => {
+          card.style.transform = 'translateY(-4px)';
+        });
+        card.addEventListener('mouseleave', () => {
+          card.style.transform = 'translateY(0)';
+        });
+
+        stickyContainer.appendChild(card);
+      });
+    }
+
+    displaySubscribedChannels() {
+      const stickyContainer = document.getElementById('sticky-notes-container');
+      if (!stickyContainer) return;
+
+      const channels = JSON.parse(localStorage.getItem('memberChannels') || '[]');
+      stickyContainer.innerHTML = '';
+
+      if (channels.length === 0) {
+        const noResults = document.createElement('div');
+        noResults.style.cssText = 'color: white; padding: 1rem; text-align: center;';
+        noResults.textContent = 'No subscribed channels';
+        stickyContainer.appendChild(noResults);
+        return;
+      }
+
+      channels.forEach(channel => {
+        const card = document.createElement('div');
+        card.className = 'sticky-note-card';
+        card.style.cssText = `
+          background-color: #fff;
+          cursor: pointer;
+          width: 200px;
+          min-height: 120px;
+          border-radius: 8px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+          transition: transform 0.2s;
+          overflow: hidden;
+        `;
+
+        const artwork = document.createElement('img');
+        artwork.src = channel.thumbnail || '';
+        artwork.style.cssText = 'width: 100%; height: 110px; object-fit: cover;';
+
+        const title = document.createElement('div');
+        title.style.cssText = 'padding: 0.5rem; font-weight: 600; color: #333; font-size: 0.85rem; text-align: center;';
+        title.textContent = channel.channelTitle || channel.title || '';
+
+        card.appendChild(artwork);
+        card.appendChild(title);
+
+        card.addEventListener('click', () => {
+          if (channel.url) window.open(channel.url, '_blank');
+        });
+        card.addEventListener('mouseenter', () => {
+          card.style.transform = 'translateY(-4px)';
+        });
+        card.addEventListener('mouseleave', () => {
+          card.style.transform = 'translateY(0)';
+        });
+
+        stickyContainer.appendChild(card);
+      });
+    }
+
     handleSearch(query: string) {
       const lowerQuery = query.toLowerCase().trim();
       
@@ -1211,6 +1326,12 @@ const meta = {
             return textContent === '';
           });
           break;
+        case 'watchlist':
+          this.displayWatchlistVideos();
+          return;
+        case 'channels':
+          this.displaySubscribedChannels();
+          return;
         default:
           // Check if it's a color filter
           if (sortType.startsWith('color-')) {
