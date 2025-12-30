@@ -575,76 +575,83 @@ const meta = {
         const items = e.clipboardData?.items;
         if (!items) return;
 
-        let hasImage = false;
-        
-        // Check all clipboard items
+        // First pass: check if there's an image in the clipboard
+        let hasImageData = false;
         for (let i = 0; i < items.length; i++) {
-          const item = items[i];
-          
-          // Check if it's an image type
-          if (item.type.indexOf('image') !== -1) {
-            e.preventDefault();
-            hasImage = true;
-            
-            try {
-              const blob = item.getAsFile();
-              if (!blob) {
-                console.log('No blob from getAsFile, trying alternative method');
-                continue;
-              }
+          if (items[i].type.indexOf('image') !== -1) {
+            hasImageData = true;
+            break;
+          }
+        }
 
-              // Check image size (max 1MB for pasted images)
-              if (blob.size > 1024 * 1024) {
-                alert('Pasted image is too large. Please use images under 1MB.');
+        // If we found image data, prevent default paste and handle the image
+        if (hasImageData) {
+          e.preventDefault();
+          
+          for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            
+            if (item.type.indexOf('image') !== -1) {
+              try {
+                const blob = item.getAsFile();
+                if (!blob) {
+                  console.log('No blob from getAsFile for type:', item.type);
+                  continue;
+                }
+
+                // Check image size (max 1MB for pasted images)
+                if (blob.size > 1024 * 1024) {
+                  alert('Pasted image is too large. Please use images under 1MB.');
+                  return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                  const imageData = event.target?.result as string;
+                  
+                  // Create and insert image element
+                  const img = document.createElement('img');
+                  img.src = imageData;
+                  img.style.cssText = 'max-width: 100%; height: auto; border-radius: 4px; margin: 0.5rem 0; display: block;';
+                  
+                  // Insert at cursor position or append
+                  const selection = window.getSelection();
+                  if (selection && selection.rangeCount > 0) {
+                    const range = selection.getRangeAt(0);
+                    range.deleteContents();
+                    range.insertNode(img);
+                    
+                    // Add a line break after the image
+                    const br = document.createElement('br');
+                    range.setStartAfter(img);
+                    range.insertNode(br);
+                    
+                    // Move cursor after the break
+                    range.setStartAfter(br);
+                    range.setEndAfter(br);
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                  } else {
+                    contentArea.appendChild(img);
+                    contentArea.appendChild(document.createElement('br'));
+                  }
+                  
+                  // Update note content
+                  this.updateNoteContent(note.id, contentArea.innerHTML);
+                };
+                
+                reader.onerror = (error) => {
+                  console.error('Error reading image:', error);
+                  alert('Failed to paste image. Please try again or use the upload button.');
+                };
+                
+                reader.readAsDataURL(blob);
+                return; // Exit after processing image
+              } catch (error) {
+                console.error('Error pasting image:', error);
+                alert('Failed to paste image. Please try the upload button instead.');
                 return;
               }
-
-              const reader = new FileReader();
-              reader.onload = (event) => {
-                const imageData = event.target?.result as string;
-                
-                // Create and insert image element
-                const img = document.createElement('img');
-                img.src = imageData;
-                img.style.cssText = 'max-width: 100%; height: auto; border-radius: 4px; margin: 0.5rem 0; display: block;';
-                
-                // Insert at cursor position or append
-                const selection = window.getSelection();
-                if (selection && selection.rangeCount > 0) {
-                  const range = selection.getRangeAt(0);
-                  range.deleteContents();
-                  range.insertNode(img);
-                  
-                  // Add a line break after the image
-                  const br = document.createElement('br');
-                  range.setStartAfter(img);
-                  range.insertNode(br);
-                  
-                  // Move cursor after the break
-                  range.setStartAfter(br);
-                  range.setEndAfter(br);
-                  selection.removeAllRanges();
-                  selection.addRange(range);
-                } else {
-                  contentArea.appendChild(img);
-                  contentArea.appendChild(document.createElement('br'));
-                }
-                
-                // Update note content
-                this.updateNoteContent(note.id, contentArea.innerHTML);
-              };
-              
-              reader.onerror = (error) => {
-                console.error('Error reading image:', error);
-                alert('Failed to paste image. Please try again.');
-              };
-              
-              reader.readAsDataURL(blob);
-              return; // Exit after processing image
-            } catch (error) {
-              console.error('Error pasting image:', error);
-              alert('Failed to paste image. Please try the upload button instead.');
-              return;
             }
           }
         }
@@ -652,10 +659,22 @@ const meta = {
       
       // Assemble the note
       header.appendChild(titleInput);
+      
+      // Add spacer before delete button
+      const spacer1 = document.createElement('div');
+      spacer1.style.cssText = 'width: 0.5rem; flex-shrink: 0;';
+      header.appendChild(spacer1);
+      
+      header.appendChild(deleteBtn);
+      
+      // Add larger spacer after delete button
+      const spacer2 = document.createElement('div');
+      spacer2.style.cssText = 'width: 1.5rem; flex-shrink: 0;';
+      header.appendChild(spacer2);
+      
       header.appendChild(imageBtn);
       header.appendChild(stickyBtn);
       header.appendChild(minimizeBtn);
-      header.appendChild(deleteBtn);
       noteEl.appendChild(header);
       noteEl.appendChild(contentArea);
       noteEl.appendChild(fileInput);
