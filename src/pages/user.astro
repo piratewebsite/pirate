@@ -118,20 +118,47 @@ const meta = {
           request.onerror = () => {
             console.error('IndexedDB open error:', request.error);
             this.useIndexedDB = false;
+            this.db = null;
             console.log('Falling back to localStorage');
             resolve();
           };
           
           request.onsuccess = () => {
             this.db = request.result;
-            console.log('IndexedDB opened successfully');
-            resolve();
+            
+            // Verify the object store exists
+            if (!this.db.objectStoreNames.contains(this.storeName)) {
+              console.error('Object store not found, reinitializing database');
+              this.db.close();
+              this.db = null;
+              
+              // Delete and recreate the database
+              const deleteRequest = indexedDB.deleteDatabase(this.dbName);
+              deleteRequest.onsuccess = () => {
+                console.log('Database deleted, recreating...');
+                // Reinitialize
+                this.init().then(resolve).catch(() => {
+                  this.useIndexedDB = false;
+                  resolve();
+                });
+              };
+              deleteRequest.onerror = () => {
+                console.error('Failed to delete database, using localStorage');
+                this.useIndexedDB = false;
+                resolve();
+              };
+            } else {
+              console.log('IndexedDB opened successfully with object store:', this.storeName);
+              resolve();
+            }
           };
 
           request.onupgradeneeded = (event) => {
             const db = (event.target as IDBOpenDBRequest).result;
+            console.log('Database upgrade needed, creating object store');
             if (!db.objectStoreNames.contains(this.storeName)) {
               db.createObjectStore(this.storeName, { keyPath: 'id' });
+              console.log('Object store created:', this.storeName);
             }
           };
         } catch (error) {
