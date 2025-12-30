@@ -570,22 +570,22 @@ const meta = {
       `;
       document.head.appendChild(style);
       
-      // Handle image paste
+      // Handle image paste - supports both image blobs and image URLs (iOS Safari)
       contentArea.addEventListener('paste', async (e) => {
         const items = e.clipboardData?.items;
         if (!items) return;
 
-        // First pass: check if there's an image in the clipboard
-        let hasImageData = false;
+        // First: check if there's an actual image blob in the clipboard
+        let hasImageBlob = false;
         for (let i = 0; i < items.length; i++) {
           if (items[i].type.indexOf('image') !== -1) {
-            hasImageData = true;
+            hasImageBlob = true;
             break;
           }
         }
 
-        // If we found image data, prevent default paste and handle the image
-        if (hasImageData) {
+        // If we found image blob, handle it
+        if (hasImageBlob) {
           e.preventDefault();
           
           for (let i = 0; i < items.length; i++) {
@@ -608,36 +608,7 @@ const meta = {
                 const reader = new FileReader();
                 reader.onload = (event) => {
                   const imageData = event.target?.result as string;
-                  
-                  // Create and insert image element
-                  const img = document.createElement('img');
-                  img.src = imageData;
-                  img.style.cssText = 'max-width: 100%; height: auto; border-radius: 4px; margin: 0.5rem 0; display: block;';
-                  
-                  // Insert at cursor position or append
-                  const selection = window.getSelection();
-                  if (selection && selection.rangeCount > 0) {
-                    const range = selection.getRangeAt(0);
-                    range.deleteContents();
-                    range.insertNode(img);
-                    
-                    // Add a line break after the image
-                    const br = document.createElement('br');
-                    range.setStartAfter(img);
-                    range.insertNode(br);
-                    
-                    // Move cursor after the break
-                    range.setStartAfter(br);
-                    range.setEndAfter(br);
-                    selection.removeAllRanges();
-                    selection.addRange(range);
-                  } else {
-                    contentArea.appendChild(img);
-                    contentArea.appendChild(document.createElement('br'));
-                  }
-                  
-                  // Update note content
-                  this.updateNoteContent(note.id, contentArea.innerHTML);
+                  this.insertImageIntoNote(contentArea, imageData, note.id);
                 };
                 
                 reader.onerror = (error) => {
@@ -646,12 +617,70 @@ const meta = {
                 };
                 
                 reader.readAsDataURL(blob);
-                return; // Exit after processing image
+                return;
               } catch (error) {
                 console.error('Error pasting image:', error);
                 alert('Failed to paste image. Please try the upload button instead.');
                 return;
               }
+            }
+          }
+        } else {
+          // iOS Safari often only provides the URL, not the image blob
+          // Check if the text being pasted is an image URL
+          for (let i = 0; i < items.length; i++) {
+            if (items[i].type === 'text/plain') {
+              e.preventDefault(); // Prevent default immediately
+              
+              items[i].getAsString(async (text) => {
+                const trimmedText = text.trim();
+                
+                // Check if it's an image URL
+                const imageUrlPattern = /\.(jpg|jpeg|png|gif|webp|bmp|svg)(\?.*)?$/i;
+                const isLikelyImageUrl = imageUrlPattern.test(trimmedText) || 
+                                        trimmedText.includes('googleusercontent.com') ||
+                                        trimmedText.includes('ggpht.com') ||
+                                        /https?:\/\/.*\.(jpg|jpeg|png|gif|webp)/i.test(trimmedText);
+                
+                if (isLikelyImageUrl && (trimmedText.startsWith('http://') || trimmedText.startsWith('https://'))) {
+                  try {
+                    // Try to fetch and convert the image to base64
+                    const response = await fetch(trimmedText);
+                    if (!response.ok) throw new Error('Failed to fetch image');
+                    
+                    const blob = await response.blob();
+                    
+                    // Check size
+                    if (blob.size > 1024 * 1024) {
+                      alert('Image is too large. Please use images under 1MB.');
+                      return;
+                    }
+                    
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                      const imageData = event.target?.result as string;
+                      this.insertImageIntoNote(contentArea, imageData, note.id);
+                    };
+                    reader.readAsDataURL(blob);
+                  } catch (error) {
+                    console.error('Failed to fetch image, inserting as reference:', error);
+                    // If fetch fails (CORS, etc), insert as external image reference
+                    this.insertImageIntoNote(contentArea, trimmedText, note.id);
+                  }
+                } else {
+                  // Not an image URL, allow default paste behavior by manually inserting
+                  const selection = window.getSelection();
+                  if (selection && selection.rangeCount > 0) {
+                    const range = selection.getRangeAt(0);
+                    range.deleteContents();
+                    range.insertNode(document.createTextNode(trimmedText));
+                  } else {
+                    contentArea.appendChild(document.createTextNode(trimmedText));
+                  }
+                  this.updateNoteContent(note.id, contentArea.innerHTML);
+                }
+              });
+              return; // Exit after processing text
             }
           }
         }
@@ -813,6 +842,38 @@ const meta = {
           tab.textContent = title;
         }
       }
+    }
+
+    insertImageIntoNote(contentArea: HTMLElement, imageSrc: string, noteId: string) {
+      // Create and insert image element
+      const img = document.createElement('img');
+      img.src = imageSrc;
+      img.style.cssText = 'max-width: 100%; height: auto; border-radius: 4px; margin: 0.5rem 0; display: block;';
+      
+      // Insert at cursor position or append
+      const selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        range.deleteContents();
+        range.insertNode(img);
+        
+        // Add a line break after the image
+        const br = document.createElement('br');
+        range.setStartAfter(img);
+        range.insertNode(br);
+        
+        // Move cursor after the break
+        range.setStartAfter(br);
+        range.setEndAfter(br);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      } else {
+        contentArea.appendChild(img);
+        contentArea.appendChild(document.createElement('br'));
+      }
+      
+      // Update note content
+      this.updateNoteContent(noteId, contentArea.innerHTML);
     }
 
     async updateNoteContent(id: string, content: string) {
