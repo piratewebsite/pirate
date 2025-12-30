@@ -1115,6 +1115,11 @@ export default config({
           description: 'Show/hide the Customize section on the Settings page (colors, menu position)',
           defaultValue: true
         }),
+        showStorageSection: fields.checkbox({
+          label: 'Show Storage Section',
+          description: 'Show/hide the Storage Usage section on the Settings page (localStorage monitoring)',
+          defaultValue: true
+        }),
         showPwaSettingsSection: fields.checkbox({
           label: 'Show PWA Settings Section',
           description: 'Show/hide the PWA Settings section on the Settings page (custom links, start page)',
