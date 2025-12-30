@@ -674,9 +674,9 @@ const meta = {
                   continue;
                 }
 
-                // Check image size (max 1MB for pasted images)
-                if (blob.size > 1024 * 1024) {
-                  alert('Pasted image is too large. Please use images under 1MB.');
+                // Check image size (max 2MB for pasted images)
+                if (blob.size > 2048 * 1024) {
+                  alert('Pasted image is too large. Please use images under 2MB.');
                   return;
                 }
 
@@ -737,8 +737,8 @@ const meta = {
                 if (!response.ok) throw new Error('Failed to fetch');
                 
                 const blob = await response.blob();
-                if (blob.size > 1024 * 1024) {
-                  alert('Image is too large. Please use images under 1MB.');
+                if (blob.size > 2048 * 1024) {
+                  alert('Image is too large. Please use images under 2MB.');
                   continue;
                 }
                 
@@ -795,8 +795,8 @@ const meta = {
         const file = (e.target as HTMLInputElement).files?.[0];
         if (!file) return;
 
-        if (file.size > 1024 * 1024) {
-          alert('Image is too large. Please use images under 1MB.');
+        if (file.size > 2048 * 1024) {
+          alert('Image is too large. Please use images under 2MB.');
           return;
         }
 
