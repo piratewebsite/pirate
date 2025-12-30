@@ -90,7 +90,6 @@ export default defineConfig({
   }), sitemap(), keystatic(),
   AstroPWA({
     registerType: 'autoUpdate',
-    includeAssets: ['robots.txt', 'manifest.webmanifest'],
     manifest: {
       id: pwaSettings?.siteUrl || '/',
       name: pwaConfig.name || 'PIRATE',
@@ -138,9 +137,11 @@ export default defineConfig({
     },
     workbox: {
       navigateFallback: '/',
-      globPatterns: ['**/*.{css,js,html,svg,png,ico,txt}'],
+      globPatterns: ['**/*.{css,js,html,svg,png,ico}'],
       globIgnores: [
         '**/keystatic-page.*', // Exclude large Keystatic bundle from cache
+        '**/robots.txt',
+        '**/manifest.webmanifest',
       ],
       maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3MB limit
       runtimeCaching: [
