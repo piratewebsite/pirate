@@ -629,58 +629,57 @@ const meta = {
       });
       
       // Additional handler: detect image URLs after paste (for iOS Safari)
+      let inputTimeout: number;
       contentArea.addEventListener('input', async () => {
-        // Check if the last added content is a bare image URL
-        const text = contentArea.textContent?.trim() || '';
-        const lines = text.split('\n');
-        const lastLine = lines[lines.length - 1]?.trim();
-        
-        if (lastLine) {
-          const imageUrlPattern = /^https?:\/\/[^\s]+\.(jpg|jpeg|png|gif|webp|bmp|svg)(\?[^\s]*)?$/i;
-          const isImageUrl = imageUrlPattern.test(lastLine) ||
-                            (lastLine.includes('googleusercontent.com') && /\.(jpg|jpeg|png|gif|webp)/i.test(lastLine)) ||
-                            (lastLine.includes('ggpht.com') && /\.(jpg|jpeg|png|gif|webp)/i.test(lastLine)) ||
-                            (lastLine.includes('i.guim.co.uk') && /\.(jpg|jpeg|png|gif|webp)/i.test(lastLine));
+        clearTimeout(inputTimeout);
+        inputTimeout = window.setTimeout(async () => {
+          // Get all text nodes and check for image URLs
+          const text = contentArea.textContent?.trim() || '';
+          console.log('Checking for image URLs in text:', text);
           
-          if (isImageUrl && lastLine.startsWith('http')) {
-            try {
-              // Remove the URL text
-              const textNodes: Node[] = [];
-              const walker = document.createTreeWalker(contentArea, NodeFilter.SHOW_TEXT);
-              let node: Node | null;
-              while (node = walker.nextNode()) {
-                if (node.textContent?.includes(lastLine)) {
-                  textNodes.push(node);
+          // Match any image URL in the text
+          const imageUrlPattern = /https?:\/\/[^\s]+\.(jpg|jpeg|png|gif|webp|bmp|svg)(\?[^\s]*)?/gi;
+          const matches = text.match(imageUrlPattern);
+          
+          if (matches && matches.length > 0) {
+            console.log('Found image URLs:', matches);
+            
+            for (const url of matches) {
+              try {
+                console.log('Fetching image:', url);
+                
+                // Remove the URL from content
+                const walker = document.createTreeWalker(contentArea, NodeFilter.SHOW_TEXT);
+                let node: Node | null;
+                while (node = walker.nextNode()) {
+                  if (node.textContent?.includes(url)) {
+                    node.textContent = node.textContent.replace(url, '');
+                  }
                 }
-              }
-              textNodes.forEach(n => {
-                if (n.textContent) {
-                  n.textContent = n.textContent.replace(lastLine, '');
+                
+                // Fetch and insert the image
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Failed to fetch');
+                
+                const blob = await response.blob();
+                if (blob.size > 1024 * 1024) {
+                  alert('Image is too large. Please use images under 1MB.');
+                  continue;
                 }
-              });
-              
-              // Fetch and insert the image
-              const response = await fetch(lastLine);
-              if (!response.ok) throw new Error('Failed to fetch');
-              
-              const blob = await response.blob();
-              if (blob.size > 1024 * 1024) {
-                alert('Image is too large. Please use images under 1MB.');
-                return;
+                
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                  const imageData = event.target?.result as string;
+                  console.log('Inserting image into note');
+                  this.insertImageIntoNote(contentArea, imageData, note.id);
+                };
+                reader.readAsDataURL(blob);
+              } catch (error) {
+                console.error('Failed to auto-fetch image URL:', error);
               }
-              
-              const reader = new FileReader();
-              reader.onload = (event) => {
-                const imageData = event.target?.result as string;
-                this.insertImageIntoNote(contentArea, imageData, note.id);
-              };
-              reader.readAsDataURL(blob);
-            } catch (error) {
-              console.error('Failed to auto-fetch image URL:', error);
-              // Leave the URL as text if fetch fails
             }
           }
-        }
+        }, 300); // Debounce for 300ms
       });
       
       // Assemble the note
