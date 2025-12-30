@@ -475,14 +475,14 @@ const meta = {
       
       // Create header
       const header = document.createElement('div');
-      header.style.cssText = 'display: flex; align-items: center; gap: 0.5rem; padding: 1rem; border-bottom: 2px solid rgba(0, 0, 0, 0.15); flex-shrink: 0;';
+      header.style.cssText = 'display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 0.5rem; border-bottom: 2px solid rgba(0, 0, 0, 0.15); flex-shrink: 0;';
       
       // Create title input
       const titleInput = document.createElement('input');
       titleInput.type = 'text';
       titleInput.value = note.title;
       titleInput.placeholder = 'Title';
-      titleInput.style.cssText = 'flex: 1; border: none; background: transparent; font-size: 1.1rem; font-weight: 600; color: #333; outline: none; padding: 0.25rem; cursor: text; pointer-events: auto;';
+      titleInput.style.cssText = 'flex: 1; min-width: 0; border: none; background: transparent; font-size: 1rem; font-weight: 600; color: #333; outline: none; padding: 0.25rem; cursor: text; pointer-events: auto;';
       titleInput.setAttribute('tabindex', '0');
       
       // Create sticky/pin button
@@ -490,19 +490,19 @@ const meta = {
       stickyBtn.innerHTML = note.sticky ? '📌' : '📍';
       stickyBtn.title = note.sticky ? 'Unpin note' : 'Pin note';
       stickyBtn.setAttribute('type', 'button');
-      stickyBtn.style.cssText = 'width: 32px; height: 32px; border: none; background: rgba(0, 0, 0, 0.1); border-radius: 4px; cursor: pointer; font-size: 1.2rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 0; pointer-events: auto;';
+      stickyBtn.style.cssText = 'width: 36px; height: 36px; min-width: 36px; border: none; background: rgba(0, 0, 0, 0.1); border-radius: 6px; cursor: pointer; font-size: 1.1rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 0; pointer-events: auto;';
       
       // Create minimize button
       const minimizeBtn = document.createElement('button');
       minimizeBtn.innerHTML = '−';
       minimizeBtn.setAttribute('type', 'button');
-      minimizeBtn.style.cssText = 'width: 32px; height: 32px; border: none; background: rgba(0, 0, 0, 0.1); border-radius: 4px; cursor: pointer; font-size: 1.5rem; color: #333; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 0; pointer-events: auto;';
+      minimizeBtn.style.cssText = 'width: 36px; height: 36px; min-width: 36px; border: none; background: rgba(0, 0, 0, 0.1); border-radius: 6px; cursor: pointer; font-size: 1.5rem; color: #333; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 0; pointer-events: auto;';
       
       // Create delete button
       const deleteBtn = document.createElement('button');
       deleteBtn.innerHTML = '×';
       deleteBtn.setAttribute('type', 'button');
-      deleteBtn.style.cssText = 'width: 32px; height: 32px; border: none; background: rgba(0, 0, 0, 0.1); border-radius: 4px; cursor: pointer; font-size: 1.5rem; color: #333; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 0; pointer-events: auto;';
+      deleteBtn.style.cssText = 'width: 36px; height: 36px; min-width: 36px; border: none; background: rgba(0, 0, 0, 0.1); border-radius: 6px; cursor: pointer; font-size: 1.5rem; color: #333; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 0; pointer-events: auto;';
       
       // Create content area with contenteditable div for rich content
       const contentArea = document.createElement('div');
@@ -615,7 +615,11 @@ const meta = {
         minimizeBtn.style.background = 'rgba(0, 0, 0, 0.1)';
       });
 
-      deleteBtn.addEventListener('click', () => this.deleteNote(note.id));
+      deleteBtn.addEventListener('click', () => {
+        if (confirm(`Delete "${note.title}"? This cannot be undone.`)) {
+          this.deleteNote(note.id);
+        }
+      });
       deleteBtn.addEventListener('mouseenter', () => {
         deleteBtn.style.background = 'rgba(255, 0, 0, 0.3)';
         deleteBtn.style.color = '#fff';
@@ -1287,15 +1291,37 @@ const meta = {
   @media (min-width: 641px) {
     .sticky-notes-container {
       max-height: calc(3 * 140px + 2rem);
+      overflow-y: auto;
     }
   }
 
   @media (max-width: 640px) {
     .sticky-notes-container {
-      max-height: calc(2 * 140px + 1rem);
+      flex-direction: column;
+      max-height: calc(100vh - 16rem);
       left: 1rem;
-      max-width: calc(100vw - 2rem);
+      max-width: 220px;
+      overflow-y: auto;
+      overflow-x: hidden;
     }
+  }
+
+  /* Scrollbar for sticky notes */
+  .sticky-notes-container::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .sticky-notes-container::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .sticky-notes-container::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+  }
+
+  .sticky-notes-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
   }
 
   /* Control Bar */
