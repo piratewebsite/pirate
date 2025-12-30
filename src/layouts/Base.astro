@@ -108,6 +108,13 @@ const pageOgImage = ogImage || meta?.ogImage;
         <script is:inline>
             // Handle PWA start page redirect
             (function() {
+                // Clear the problematic customStartPage setting that was causing redirects
+                if (localStorage.getItem('customStartPage')) {
+                    console.log('Removing customStartPage redirect setting');
+                    localStorage.removeItem('customStartPage');
+                    sessionStorage.removeItem('pwaStartPageRedirected');
+                }
+                
                 // Check if running as PWA
                 const isPWA = window.matchMedia('(display-mode: standalone)').matches || 
                              window.navigator.standalone === true;
