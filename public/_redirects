@@ -1,0 +1,2 @@
+# Ensure video page works with query parameters
+/video  /video/index.html  200
