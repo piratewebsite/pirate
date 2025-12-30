@@ -157,7 +157,7 @@ const meta = {
         tab.style.transform = 'translateX(0)';
       });
 
-      this.collapsedContainer.appendChild(tab);
+      this.collapsedContainer.prepend(tab);
     }
 
     renderExpandedNote(note: StickyNote) {
