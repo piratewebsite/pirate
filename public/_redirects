@@ -1,2 +1,1 @@
-# Serve video page for all /video requests (with or without query params)
-/video /video/ 200!
+# Intentionally empty - handled by Astro routing
