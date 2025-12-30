@@ -1161,7 +1161,7 @@ const meta = {
         card.appendChild(channel);
 
         card.addEventListener('click', () => {
-          window.location.href = `/video?v=${video.videoId}`;
+          window.location.href = `/video?videoId=${video.videoId}`;
         });
         card.addEventListener('mouseenter', () => {
           card.style.transform = 'translateY(-4px)';
@@ -1193,29 +1193,37 @@ const meta = {
         const card = document.createElement('div');
         card.className = 'sticky-note-card';
         card.style.cssText = `
-          background-color: #fff;
+          background-color: #e0e0e0;
           cursor: pointer;
           width: 200px;
-          min-height: 120px;
+          padding: 1rem;
           border-radius: 8px;
           box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
           transition: transform 0.2s;
-          overflow: hidden;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.5rem;
         `;
 
-        const artwork = document.createElement('img');
-        artwork.src = channel.thumbnail || '';
-        artwork.style.cssText = 'width: 100%; height: 110px; object-fit: cover;';
+        const icon = document.createElement('div');
+        icon.style.cssText = 'font-size: 3rem;';
+        icon.textContent = '📺';
 
         const title = document.createElement('div');
-        title.style.cssText = 'padding: 0.5rem; font-weight: 600; color: #333; font-size: 0.85rem; text-align: center;';
-        title.textContent = channel.channelTitle || channel.title || '';
+        title.style.cssText = 'font-weight: 600; color: #333; font-size: 0.9rem; text-align: center; word-break: break-word;';
+        title.textContent = channel.channelName || '';
 
-        card.appendChild(artwork);
+        card.appendChild(icon);
         card.appendChild(title);
 
         card.addEventListener('click', () => {
-          if (channel.url) window.open(channel.url, '_blank');
+          // Navigate directly to this specific channel's feed section
+          if (channel.channelId) {
+            window.location.href = `/video#channel-${channel.channelId}`;
+          } else {
+            window.location.href = '/video#channels-section';
+          }
         });
         card.addEventListener('mouseenter', () => {
           card.style.transform = 'translateY(-4px)';
