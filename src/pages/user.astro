@@ -1,0 +1,697 @@
+---
+import BaseLayout from '../layouts/Base.astro';
+import { getEntry } from 'astro:content';
+
+const pwaSettings = await getEntry('pwaSettings', 'index');
+
+const meta = {
+  title: 'My Page',
+  description: 'Customize your personal page',
+};
+---
+
+<BaseLayout meta={meta}>
+  <div class="user-page">
+    <div class="background-overlay"></div>
+    
+    <div class="page-header">
+      <h1 id="page-title" contenteditable="true" spellcheck="false">My Page</h1>
+      <p id="page-subtitle" class="subtitle" contenteditable="true" spellcheck="false">Your personal workspace</p>
+    </div>
+
+    <!-- Notes Sidebar -->
+    <div id="notes-sidebar" class="notes-sidebar">
+      <div id="collapsed-notes"></div>
+    </div>
+
+    <!-- Control Buttons -->
+    <div class="note-controls">
+      <button id="add-note-btn" class="btn-control btn-add">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+      </button>
+      <button id="clear-notes-btn" class="btn-control btn-clear">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 6h18M8 6V4h8v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Expanded Notes Container -->
+    <div id="notes-container"></div>
+  </div>
+</BaseLayout>
+
+<script>
+  interface StickyNote {
+    id: string;
+    title: string;
+    content: string;
+    color: string;
+    collapsed: boolean;
+  }
+
+  class StickyNotesManager {
+    private notes: StickyNote[] = [];
+    private notesContainer: HTMLElement | null;
+    private collapsedContainer: HTMLElement | null;
+    private activeNoteId: string | null = null;
+
+    private colors = [
+      '#fef08a', // yellow
+      '#fca5a5', // red
+      '#bfdbfe', // blue
+      '#bbf7d0', // green
+      '#e9d5ff', // purple
+      '#fed7aa', // orange
+    ];
+
+    constructor() {
+      this.notesContainer = document.getElementById('notes-container');
+      this.collapsedContainer = document.getElementById('collapsed-notes');
+      this.loadNotes();
+      this.setupEventListeners();
+      this.renderAllNotes();
+    }
+
+    setupEventListeners() {
+      const addBtn = document.getElementById('add-note-btn');
+      addBtn?.addEventListener('click', () => this.createNote());
+
+      const clearBtn = document.getElementById('clear-notes-btn');
+      clearBtn?.addEventListener('click', () => this.clearAllNotes());
+    }
+
+    loadNotes() {
+      const saved = localStorage.getItem('stickyNotes');
+      if (saved) {
+        try {
+          const loadedNotes = JSON.parse(saved);
+          // Migrate old notes to new format
+          this.notes = loadedNotes.map((note: any) => ({
+            ...note,
+            collapsed: note.collapsed !== undefined ? note.collapsed : true,
+          }));
+        } catch (error) {
+          console.error('Error loading notes:', error);
+          this.notes = [];
+        }
+      }
+    }
+
+    saveNotes() {
+      localStorage.setItem('stickyNotes', JSON.stringify(this.notes));
+    }
+
+    createNote() {
+      const randomColor = this.colors[Math.floor(Math.random() * this.colors.length)];
+      const noteNumber = this.notes.length + 1;
+      const note: StickyNote = {
+        id: Date.now().toString(),
+        title: `Note ${noteNumber}`,
+        content: '',
+        color: randomColor,
+        collapsed: false,
+      };
+
+      this.notes.push(note);
+      this.saveNotes();
+      this.renderExpandedNote(note);
+      this.activeNoteId = note.id;
+      
+      // Auto-focus the title for easy editing
+      setTimeout(() => {
+        const noteEl = this.notesContainer?.querySelector(`[data-id="${note.id}"]`);
+        const titleInput = noteEl?.querySelector('input');
+        titleInput?.select();
+      }, 100);
+    }
+
+    renderAllNotes() {
+      this.notes.forEach(note => {
+        if (note.collapsed) {
+          this.renderCollapsedNote(note);
+        } else {
+          this.renderExpandedNote(note);
+          this.activeNoteId = note.id;
+        }
+      });
+    }
+
+    renderCollapsedNote(note: StickyNote) {
+      if (!this.collapsedContainer) return;
+
+      const tab = document.createElement('div');
+      tab.className = 'collapsed-note-tab';
+      tab.dataset.id = note.id;
+      tab.style.cssText = `background-color: ${note.color}; cursor: pointer; padding: 0.75rem; margin-bottom: 0.5rem; border-radius: 8px 0 0 8px; box-shadow: -2px 2px 4px rgba(0,0,0,0.2); transition: all 0.2s;`;
+      tab.innerHTML = `<div style="font-weight: 600; color: #333; font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${this.escapeHtml(note.title)}</div>`;
+      
+      tab.addEventListener('click', () => this.expandNote(note.id));
+      tab.addEventListener('mouseenter', () => {
+        tab.style.transform = 'translateX(-5px)';
+      });
+      tab.addEventListener('mouseleave', () => {
+        tab.style.transform = 'translateX(0)';
+      });
+
+      this.collapsedContainer.appendChild(tab);
+    }
+
+    renderExpandedNote(note: StickyNote) {
+      if (!this.notesContainer) return;
+
+      const noteEl = document.createElement('div');
+      noteEl.className = 'sticky-note-expanded';
+      noteEl.dataset.id = note.id;
+      noteEl.style.cssText = `
+        background-color: ${note.color};
+        position: fixed;
+        width: 400px;
+        max-width: 90vw;
+        min-height: 300px;
+        max-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        z-index: 200;
+      `;
+      
+      // Create header
+      const header = document.createElement('div');
+      header.style.cssText = 'display: flex; align-items: center; gap: 0.5rem; padding: 1rem; border-bottom: 2px solid rgba(0, 0, 0, 0.15); flex-shrink: 0;';
+      
+      // Create title input
+      const titleInput = document.createElement('input');
+      titleInput.type = 'text';
+      titleInput.value = note.title;
+      titleInput.placeholder = 'Title';
+      titleInput.style.cssText = 'flex: 1; border: none; background: transparent; font-size: 1.1rem; font-weight: 600; color: #333; outline: none; padding: 0.25rem; cursor: text; pointer-events: auto;';
+      titleInput.setAttribute('tabindex', '0');
+      
+      // Create minimize button
+      const minimizeBtn = document.createElement('button');
+      minimizeBtn.innerHTML = '−';
+      minimizeBtn.setAttribute('type', 'button');
+      minimizeBtn.style.cssText = 'width: 32px; height: 32px; border: none; background: rgba(0, 0, 0, 0.1); border-radius: 4px; cursor: pointer; font-size: 1.5rem; color: #333; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 0; pointer-events: auto;';
+      
+      // Create delete button
+      const deleteBtn = document.createElement('button');
+      deleteBtn.innerHTML = '×';
+      deleteBtn.setAttribute('type', 'button');
+      deleteBtn.style.cssText = 'width: 32px; height: 32px; border: none; background: rgba(0, 0, 0, 0.1); border-radius: 4px; cursor: pointer; font-size: 1.5rem; color: #333; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 0; pointer-events: auto;';
+      
+      // Create content textarea
+      const contentArea = document.createElement('textarea');
+      contentArea.value = note.content;
+      contentArea.placeholder = 'Write your note...';
+      contentArea.style.cssText = 'flex: 1; border: none; background: transparent; padding: 1rem; font-size: 1rem; color: #333; resize: none; outline: none; cursor: text; line-height: 1.5; width: 100%; box-sizing: border-box; font-family: inherit; pointer-events: auto;';
+      contentArea.setAttribute('tabindex', '0');
+      
+      // Assemble the note
+      header.appendChild(titleInput);
+      header.appendChild(minimizeBtn);
+      header.appendChild(deleteBtn);
+      noteEl.appendChild(header);
+      noteEl.appendChild(contentArea);
+
+      // Event handlers
+      titleInput.addEventListener('input', (e) => {
+        const target = e.target as HTMLInputElement;
+        this.updateNoteTitle(note.id, target.value);
+      });
+
+      contentArea.addEventListener('input', (e) => {
+        const target = e.target as HTMLTextAreaElement;
+        this.updateNoteContent(note.id, target.value);
+      });
+
+      minimizeBtn.addEventListener('click', () => this.collapseNote(note.id));
+      minimizeBtn.addEventListener('mouseenter', () => {
+        minimizeBtn.style.background = 'rgba(0, 0, 0, 0.2)';
+      });
+      minimizeBtn.addEventListener('mouseleave', () => {
+        minimizeBtn.style.background = 'rgba(0, 0, 0, 0.1)';
+      });
+
+      deleteBtn.addEventListener('click', () => this.deleteNote(note.id));
+      deleteBtn.addEventListener('mouseenter', () => {
+        deleteBtn.style.background = 'rgba(255, 0, 0, 0.3)';
+        deleteBtn.style.color = '#fff';
+      });
+      deleteBtn.addEventListener('mouseleave', () => {
+        deleteBtn.style.background = 'rgba(0, 0, 0, 0.1)';
+        deleteBtn.style.color = '#333';
+      });
+
+      this.notesContainer.appendChild(noteEl);
+    }
+
+    expandNote(id: string) {
+      // Collapse currently active note if any
+      if (this.activeNoteId && this.activeNoteId !== id) {
+        this.collapseNote(this.activeNoteId);
+      }
+
+      const note = this.notes.find(n => n.id === id);
+      if (!note) return;
+
+      note.collapsed = false;
+      this.saveNotes();
+
+      // Remove from collapsed view
+      const tab = this.collapsedContainer?.querySelector(`[data-id="${id}"]`);
+      tab?.remove();
+
+      // Render expanded
+      this.renderExpandedNote(note);
+      this.activeNoteId = id;
+    }
+
+    collapseNote(id: string) {
+      const note = this.notes.find(n => n.id === id);
+      if (!note) return;
+
+      note.collapsed = true;
+      this.saveNotes();
+
+      // Remove from expanded view
+      const noteEl = this.notesContainer?.querySelector(`[data-id="${id}"]`);
+      noteEl?.remove();
+
+      // Render collapsed
+      this.renderCollapsedNote(note);
+
+      if (this.activeNoteId === id) {
+        this.activeNoteId = null;
+      }
+    }
+
+    updateNoteTitle(id: string, title: string) {
+      const note = this.notes.find(n => n.id === id);
+      if (note) {
+        note.title = title;
+        this.saveNotes();
+        
+        // Update collapsed tab if it exists
+        const tab = this.collapsedContainer?.querySelector(`[data-id="${id}"] div`);
+        if (tab) {
+          tab.textContent = title;
+        }
+      }
+    }
+
+    updateNoteContent(id: string, content: string) {
+      const note = this.notes.find(n => n.id === id);
+      if (note) {
+        note.content = content;
+        this.saveNotes();
+      }
+    }
+
+    deleteNote(id: string) {
+      this.notes = this.notes.filter(n => n.id !== id);
+      this.saveNotes();
+      
+      const noteEl = this.notesContainer?.querySelector(`[data-id="${id}"]`);
+      noteEl?.remove();
+      
+      const tab = this.collapsedContainer?.querySelector(`[data-id="${id}"]`);
+      tab?.remove();
+
+      if (this.activeNoteId === id) {
+        this.activeNoteId = null;
+      }
+    }
+
+    clearAllNotes() {
+      if (confirm('Delete all notes? This cannot be undone.')) {
+        this.notes = [];
+        this.saveNotes();
+        if (this.notesContainer) {
+          this.notesContainer.innerHTML = '';
+        }
+        if (this.collapsedContainer) {
+          this.collapsedContainer.innerHTML = '';
+        }
+        this.activeNoteId = null;
+      }
+    }
+
+    escapeHtml(text: string): string {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+  }
+
+  class UserPageManager {
+    private backgroundOverlay: HTMLElement | null;
+    private pageTitle: HTMLElement | null;
+    private pageSubtitle: HTMLElement | null;
+
+    constructor() {
+      this.backgroundOverlay = document.querySelector('.background-overlay') as HTMLElement;
+      this.pageTitle = document.getElementById('page-title');
+      this.pageSubtitle = document.getElementById('page-subtitle');
+      
+      this.loadBackground();
+      this.loadPageText();
+      this.setupPageTextEditing();
+    }
+
+    loadBackground() {
+      const savedBackground = localStorage.getItem('userPageBackground');
+      if (savedBackground && this.backgroundOverlay) {
+        this.backgroundOverlay.style.backgroundImage = `url(${savedBackground})`;
+        this.backgroundOverlay.style.opacity = '1';
+      }
+    }
+
+    loadPageText() {
+      const savedTitle = localStorage.getItem('userPageTitle');
+      const savedSubtitle = localStorage.getItem('userPageSubtitle');
+      
+      if (savedTitle !== null && this.pageTitle) {
+        this.pageTitle.textContent = savedTitle;
+        if (savedTitle === '') {
+          this.pageTitle.classList.add('edited-empty');
+        }
+      }
+      
+      if (savedSubtitle !== null && this.pageSubtitle) {
+        this.pageSubtitle.textContent = savedSubtitle;
+        if (savedSubtitle === '') {
+          this.pageSubtitle.classList.add('edited-empty');
+        }
+      }
+    }
+
+    setupPageTextEditing() {
+      if (this.pageTitle) {
+        this.pageTitle.addEventListener('blur', () => {
+          const text = this.pageTitle?.textContent?.trim() || '';
+          localStorage.setItem('userPageTitle', text);
+          if (text === '') {
+            this.pageTitle?.classList.add('edited-empty');
+          } else {
+            this.pageTitle?.classList.remove('edited-empty');
+          }
+        });
+        
+        this.pageTitle.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            this.pageTitle?.blur();
+          }
+        });
+      }
+
+      if (this.pageSubtitle) {
+        this.pageSubtitle.addEventListener('blur', () => {
+          const text = this.pageSubtitle?.textContent?.trim() || '';
+          localStorage.setItem('userPageSubtitle', text);
+          if (text === '') {
+            this.pageSubtitle?.classList.add('edited-empty');
+          } else {
+            this.pageSubtitle?.classList.remove('edited-empty');
+          }
+        });
+        
+        this.pageSubtitle.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            this.pageSubtitle?.blur();
+          }
+        });
+      }
+    }
+  }
+
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      new UserPageManager();
+      new StickyNotesManager();
+    });
+  } else {
+    new UserPageManager();
+    new StickyNotesManager();
+  }
+</script>
+
+<style>
+  .user-page {
+    min-height: 100vh;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .background-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: 0;
+  }
+
+  .background-overlay::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.3) 0%,
+      rgba(0, 0, 0, 0.5) 100%
+    );
+  }
+
+  .content-wrapper {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 2rem;
+    max-width: 600px;
+    width: 100%;
+  }
+
+  .page-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    padding: 2rem;
+    z-index: 50;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.5) 0%,
+      rgba(0, 0, 0, 0.3) 70%,
+      transparent 100%
+    );
+  }
+
+  .page-header h1 {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    color: #ffffff;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 0, 0, 0.6);
+    outline: none;
+    cursor: text;
+    display: block;
+    min-width: 100px;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: background 0.2s;
+  }
+
+  .page-header h1:hover,
+  .page-header h1:focus {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .page-header h1:empty:before {
+    content: 'My Page';
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .page-header h1.edited-empty:before {
+    content: '';
+  }
+
+  .welcome-section {
+    margin-bottom: 2rem;
+  }
+
+  .welcome-section h1 {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    color: var(--theme-text);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  }
+
+  .subtitle {
+    font-size: 1.25rem;
+    opacity: 0.9;
+    color: #ffffff;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 0, 0, 0.6);
+    outline: none;
+    cursor: text;
+    display: block;
+    min-width: 150px;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: background 0.2s;
+  }
+
+  .subtitle:hover,
+  .subtitle:focus {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .subtitle:empty:before {
+    content: 'Your personal workspace';
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .subtitle.edited-empty:before {
+    content: '';
+  }
+
+  /* Notes Sidebar */
+  .notes-sidebar {
+    position: fixed;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem 0;
+    max-height: 60vh;
+    overflow-y: auto;
+    z-index: 150;
+  }
+
+  .collapsed-note-tab {
+    max-width: 150px;
+    min-width: 100px;
+  }
+
+  /* Control Buttons */
+  .note-controls {
+    position: fixed;
+    right: 10px;
+    bottom: 124px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    z-index: 150;
+  }
+
+  .btn-control {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+  }
+
+  .btn-add {
+    background: rgba(34, 197, 94, 0.8);
+    color: white;
+  }
+
+  .btn-add:hover {
+    background: rgba(34, 197, 94, 1);
+    transform: scale(1.1);
+  }
+
+  .btn-clear {
+    background: rgba(239, 68, 68, 0.8);
+    color: white;
+  }
+
+  .btn-clear:hover {
+    background: rgba(239, 68, 68, 1);
+    transform: scale(1.1);
+  }
+
+  /* Expanded Notes */
+  #notes-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 200;
+  }
+
+  #notes-container * {
+    box-sizing: border-box;
+  }
+
+  .sticky-note-expanded {
+    pointer-events: auto;
+  }
+
+  @media (max-width: 640px) {
+    .page-header h1 {
+      font-size: 2rem;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+    }
+
+    .note-controls {
+      right: 1rem;
+      bottom: 100px;
+    }
+
+    .btn-control {
+      width: 44px;
+      height: 44px;
+    }
+
+    .sticky-note-expanded {
+      width: 90vw !important;
+    }
+
+    .notes-sidebar {
+      max-height: 50vh;
+    }
+
+    .collapsed-note-tab {
+      max-width: 120px;
+      font-size: 0.85rem;
+    }
+  }
+</style>

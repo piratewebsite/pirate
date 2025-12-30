@@ -219,12 +219,33 @@ try {
               <option value="/settings">Settings (Default)</option>
               <option value="/video">Videos</option>
               <option value="/">Index </option>
+              <option value="/user">My Page</option>
               {/* <option value="/posts">Posts</option> */}
               {/* <option value="/photos">Photos</option> */}
               {/* <option value="/resume">Resume</option> */}
               {/* <option value="/contact">Contact</option> */}
               {/* <option value="/install">install</option> */}
             </select>
+          </div>
+
+          <!-- User Page Background -->
+          <div class="p-4 rounded-lg mb-4 border border-gray-600">
+            <h3 class="font-bold mb-3">My Page Background</h3>
+            <p class="text-sm opacity-80 mb-3">Upload a custom background for your personal page</p>
+            <div class="flex flex-col gap-3">
+              <button id="upload-bg-trigger" class="w-full p-2 rounded bg-gray-700 hover:bg-gray-600 transition text-white flex items-center justify-center gap-2">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                  <circle cx="12" cy="13" r="4"></circle>
+                </svg>
+                <span id="upload-bg-text">Upload Background</span>
+              </button>
+              <input type="file" id="bg-upload-input" accept="image/*" style="display: none;">
+              <button id="remove-bg-btn" class="w-full p-2 rounded bg-red-900/20 hover:bg-red-900/30 transition text-red-400 border border-red-900/50" style="display: none;">
+                Remove Background
+              </button>
+              <div id="bg-preview" class="w-full h-32 rounded border border-gray-600 bg-gray-800 bg-cover bg-center" style="display: none;"></div>
+            </div>
           </div>
 
           <!-- Add New Link Form -->
@@ -425,6 +446,12 @@ try {
           'customMenuColor',
           'customMenuPosition',
           'customStartPage'
+        ],
+        userPage: [
+          'userPageBackground',
+          'userPageTitle',
+          'userPageSubtitle',
+          'stickyNotes'
         ],
         uiState: [] // Will be populated dynamically for channel-collapsed-* keys
       };
@@ -888,6 +915,67 @@ try {
           localStorage.setItem('customStartPage', target.value);
         });
       }
+
+      // User Page Background Upload
+      const uploadTrigger = document.getElementById('upload-bg-trigger');
+      const uploadInput = document.getElementById('bg-upload-input') as HTMLInputElement;
+      const removeBtn = document.getElementById('remove-bg-btn');
+      const bgPreview = document.getElementById('bg-preview');
+      const uploadText = document.getElementById('upload-bg-text');
+
+      // Load existing background
+      const savedBg = localStorage.getItem('userPageBackground');
+      if (savedBg && bgPreview && uploadText && removeBtn) {
+        bgPreview.style.backgroundImage = `url(${savedBg})`;
+        bgPreview.style.display = 'block';
+        uploadText.textContent = 'Change Background';
+        removeBtn.style.display = 'block';
+      }
+
+      uploadTrigger?.addEventListener('click', () => {
+        uploadInput?.click();
+      });
+
+      uploadInput?.addEventListener('change', (e) => {
+        const target = e.target as HTMLInputElement;
+        const file = target.files?.[0];
+        if (!file) return;
+
+        if (file.size > 5 * 1024 * 1024) {
+          alert('Image too large. Please choose under 5MB.');
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const result = event.target?.result as string;
+          if (result) {
+            try {
+              localStorage.setItem('userPageBackground', result);
+              if (bgPreview && uploadText && removeBtn) {
+                bgPreview.style.backgroundImage = `url(${result})`;
+                bgPreview.style.display = 'block';
+                uploadText.textContent = 'Change Background';
+                removeBtn.style.display = 'block';
+              }
+            } catch (error) {
+              alert('Failed to save. Image may be too large.');
+            }
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+
+      removeBtn?.addEventListener('click', () => {
+        localStorage.removeItem('userPageBackground');
+        if (bgPreview && uploadText && removeBtn && uploadInput) {
+          bgPreview.style.backgroundImage = 'none';
+          bgPreview.style.display = 'none';
+          uploadText.textContent = 'Upload Background';
+          removeBtn.style.display = 'none';
+          uploadInput.value = '';
+        }
+      });
     }
 
     setupColorPicker(type: 'bar' | 'menu', initialColor: string) {
