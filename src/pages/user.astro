@@ -37,6 +37,8 @@ const meta = {
         <option value="date">Sort by Date</option>
         <option value="images">Has Images</option>
         <option value="text">Text Only</option>
+        <option value="empty">Empty Notes</option>
+        <option value="color-white">⚪ White</option>
         <option value="color-yellow">🟡 Yellow</option>
         <option value="color-red">🔴 Red</option>
         <option value="color-blue">🔵 Blue</option>
@@ -1179,6 +1181,7 @@ const meta = {
       
       // Color mapping
       const colorMap: Record<string, string> = {
+        'color-white': '#ffffff',
         'color-yellow': '#fef08a',
         'color-red': '#fca5a5',
         'color-blue': '#bfdbfe',
@@ -1196,6 +1199,14 @@ const meta = {
           break;
         case 'text':
           sortedNotes = sortedNotes.filter(note => !note.content.includes('<img'));
+          break;
+        case 'empty':
+          sortedNotes = sortedNotes.filter(note => {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = note.content;
+            const textContent = tempDiv.textContent?.trim() || '';
+            return textContent === '';
+          });
           break;
         default:
           // Check if it's a color filter
