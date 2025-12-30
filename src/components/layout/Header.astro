@@ -676,6 +676,14 @@ style="flex-direction: column;"
     const pwaMenu = document.getElementById('pwa-menu-items');
     const menuContainer = document.getElementById('bottom-menu-container');
     
+    // Move menu popup and PWA menu to body to escape any stacking context issues
+    if (menuPopup && menuPopup.parentElement !== document.body) {
+      document.body.appendChild(menuPopup);
+    }
+    if (pwaMenu && pwaMenu.parentElement !== document.body) {
+      document.body.appendChild(pwaMenu);
+    }
+    
     console.log('initializeBottomMenu called');
     
     if (!menuBtn || !menuPopup || !menuContainer) {
