@@ -105,37 +105,6 @@ const pageOgImage = ogImage || meta?.ogImage;
             window.membershipUtilsReady = true;
             window.dispatchEvent(new Event('membershipUtilsLoaded'));
         </script>
-        <script is:inline>
-            // Handle PWA start page redirect
-            (function() {
-                // Clear the problematic customStartPage setting that was causing redirects
-                if (localStorage.getItem('customStartPage')) {
-                    console.log('Removing customStartPage redirect setting');
-                    localStorage.removeItem('customStartPage');
-                    sessionStorage.removeItem('pwaStartPageRedirected');
-                }
-                
-                // Check if running as PWA
-                const isPWA = window.matchMedia('(display-mode: standalone)').matches || 
-                             window.navigator.standalone === true;
-                
-                if (isPWA) {
-                    const customStartPage = localStorage.getItem('customStartPage');
-                    const currentPath = window.location.pathname;
-                    
-                    // Only redirect if:
-                    // 1. A custom start page is set
-                    // 2. We're on the root path
-                    // 3. This isn't a page reload (check sessionStorage)
-                    const hasRedirected = sessionStorage.getItem('pwaStartPageRedirected');
-                    
-                    if (customStartPage && currentPath === '/' && !hasRedirected) {
-                        sessionStorage.setItem('pwaStartPageRedirected', 'true');
-                        window.location.href = customStartPage;
-                    }
-                }
-            })();
-        </script>
         <SkipLink />
         <div id="nav-container"></div>
         <Header></Header>
