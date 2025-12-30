@@ -129,15 +129,33 @@ const meta = {
     }
 
     async saveNote(note: StickyNote): Promise<void> {
-      if (!this.db) await this.init();
+      if (!this.db) {
+        console.log('DB not initialized, initializing now...');
+        await this.init();
+      }
 
       return new Promise((resolve, reject) => {
-        const transaction = this.db!.transaction([this.storeName], 'readwrite');
-        const store = transaction.objectStore(this.storeName);
-        const request = store.put(note);
+        try {
+          const transaction = this.db!.transaction([this.storeName], 'readwrite');
+          const store = transaction.objectStore(this.storeName);
+          const request = store.put(note);
 
-        request.onsuccess = () => resolve();
-        request.onerror = () => reject(request.error);
+          request.onsuccess = () => {
+            console.log('Note saved successfully:', note.id);
+            resolve();
+          };
+          request.onerror = () => {
+            console.error('IndexedDB save error:', request.error);
+            reject(request.error);
+          };
+          transaction.onerror = () => {
+            console.error('Transaction error:', transaction.error);
+            reject(transaction.error);
+          };
+        } catch (err) {
+          console.error('Exception in saveNote:', err);
+          reject(err);
+        }
       });
     }
 
@@ -192,11 +210,21 @@ const meta = {
     }
 
     async initialize() {
-      await this.db.init();
-      await this.migrateFromLocalStorage();
-      await this.loadNotes();
-      this.setupEventListeners();
-      this.renderAllNotes();
+      try {
+        console.log('Initializing StickyNotesManager...');
+        await this.db.init();
+        console.log('DB initialized');
+        await this.migrateFromLocalStorage();
+        console.log('Migration complete');
+        await this.loadNotes();
+        console.log('Notes loaded:', this.notes.length);
+        this.setupEventListeners();
+        this.renderAllNotes();
+        console.log('StickyNotesManager initialized successfully');
+      } catch (error) {
+        console.error('Failed to initialize StickyNotesManager:', error);
+        alert('Failed to initialize notes system. Please refresh the page.');
+      }
     }
 
     async migrateFromLocalStorage() {
@@ -258,10 +286,14 @@ const meta = {
 
     async saveNote(note: StickyNote) {
       try {
+        console.log('Attempting to save note:', note.id, note.title);
         await this.db.saveNote(note);
+        console.log('Note saved successfully');
       } catch (error) {
         console.error('Error saving note:', error);
-        alert('Failed to save note. Storage may be full.');
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        alert(`Failed to save note: ${errorMsg}. Check console for details.`);
+        throw error;
       }
     }
 
@@ -580,6 +612,9 @@ const meta = {
       if (this.activeNoteId === id) {
         this.activeNoteId = null;
       }
+
+      // Re-render sticky notes to remove deleted note if it was pinned
+      this.renderStickyNotes();
     }
 
     async clearAllNotes() {
