@@ -14,9 +14,35 @@ const meta = {
   <div class="user-page">
     <div class="background-overlay"></div>
     
+    <!-- Sticky Notes Container (Top Left) -->
+    <div id="sticky-notes-container" class="sticky-notes-container"></div>
+    
     <div class="page-header">
       <h1 id="page-title" contenteditable="true" spellcheck="false">My Page</h1>
       <p id="page-subtitle" class="subtitle" contenteditable="true" spellcheck="false">Your personal workspace</p>
+    </div>
+
+    <!-- Control Bar -->
+    <div class="control-bar">
+      <button id="view-all-btn" class="btn-control-bar" title="View All Notes">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"></rect>
+          <rect x="14" y="3" width="7" height="7"></rect>
+          <rect x="3" y="14" width="7" height="7"></rect>
+          <rect x="14" y="14" width="7" height="7"></rect>
+        </svg>
+      </button>
+      <input type="text" id="search-notes" class="search-input" placeholder="Search notes...">
+      <select id="sort-notes" class="sort-select">
+        <option value="date">Sort by Date</option>
+        <option value="images">Has Images</option>
+        <option value="text">Text Only</option>
+      </select>
+      <button id="clear-notes-btn" class="btn-control-bar btn-danger" title="Delete All Notes">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 6h18M8 6V4h8v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"></path>
+        </svg>
+      </button>
     </div>
 
     <!-- Notes Sidebar -->
@@ -32,15 +58,24 @@ const meta = {
           <line x1="5" y1="12" x2="19" y2="12"></line>
         </svg>
       </button>
-      <button id="clear-notes-btn" class="btn-control btn-clear">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M3 6h18M8 6V4h8v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"></path>
-        </svg>
-      </button>
     </div>
 
     <!-- Expanded Notes Container -->
     <div id="notes-container"></div>
+
+    <!-- View All Panel (Hidden by default) -->
+    <div id="view-all-panel" class="view-all-panel" style="display: none;">
+      <div class="view-all-header">
+        <h2>All Notes</h2>
+        <button id="close-view-all-btn" class="btn-close-panel">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div id="view-all-content" class="view-all-content"></div>
+    </div>
   </div>
 </BaseLayout>
 
@@ -51,6 +86,8 @@ const meta = {
     content: string;
     color: string;
     collapsed: boolean;
+    sticky: boolean;
+    createdAt: number;
   }
 
   // IndexedDB Helper
@@ -189,15 +226,29 @@ const meta = {
 
       const clearBtn = document.getElementById('clear-notes-btn');
       clearBtn?.addEventListener('click', () => this.clearAllNotes());
+
+      const viewAllBtn = document.getElementById('view-all-btn');
+      viewAllBtn?.addEventListener('click', () => this.showViewAllPanel());
+
+      const closeViewAllBtn = document.getElementById('close-view-all-btn');
+      closeViewAllBtn?.addEventListener('click', () => this.hideViewAllPanel());
+
+      const searchInput = document.getElementById('search-notes') as HTMLInputElement;
+      searchInput?.addEventListener('input', (e) => this.handleSearch((e.target as HTMLInputElement).value));
+
+      const sortSelect = document.getElementById('sort-notes') as HTMLSelectElement;
+      sortSelect?.addEventListener('change', (e) => this.handleSort((e.target as HTMLSelectElement).value));
     }
 
     async loadNotes() {
       try {
         this.notes = await this.db.getAllNotes();
-        // Ensure all notes have the collapsed property
+        // Ensure all notes have required properties
         this.notes = this.notes.map((note: any) => ({
           ...note,
           collapsed: note.collapsed !== undefined ? note.collapsed : true,
+          sticky: note.sticky !== undefined ? note.sticky : false,
+          createdAt: note.createdAt || Date.now(),
         }));
       } catch (error) {
         console.error('Error loading notes:', error);
@@ -223,6 +274,8 @@ const meta = {
         content: '',
         color: randomColor,
         collapsed: false,
+        sticky: false,
+        createdAt: Date.now(),
       };
 
       this.notes.push(note);
@@ -247,6 +300,7 @@ const meta = {
           this.activeNoteId = note.id;
         }
       });
+      this.renderStickyNotes();
     }
 
     renderCollapsedNote(note: StickyNote) {
@@ -303,6 +357,13 @@ const meta = {
       titleInput.placeholder = 'Title';
       titleInput.style.cssText = 'flex: 1; border: none; background: transparent; font-size: 1.1rem; font-weight: 600; color: #333; outline: none; padding: 0.25rem; cursor: text; pointer-events: auto;';
       titleInput.setAttribute('tabindex', '0');
+      
+      // Create sticky/pin button
+      const stickyBtn = document.createElement('button');
+      stickyBtn.innerHTML = note.sticky ? '📌' : '📍';
+      stickyBtn.title = note.sticky ? 'Unpin note' : 'Pin note';
+      stickyBtn.setAttribute('type', 'button');
+      stickyBtn.style.cssText = 'width: 32px; height: 32px; border: none; background: rgba(0, 0, 0, 0.1); border-radius: 4px; cursor: pointer; font-size: 1.2rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 0; pointer-events: auto;';
       
       // Create minimize button
       const minimizeBtn = document.createElement('button');
@@ -395,6 +456,7 @@ const meta = {
       
       // Assemble the note
       header.appendChild(titleInput);
+      header.appendChild(stickyBtn);
       header.appendChild(minimizeBtn);
       header.appendChild(deleteBtn);
       noteEl.appendChild(header);
@@ -408,6 +470,14 @@ const meta = {
 
       contentArea.addEventListener('input', () => {
         this.updateNoteContent(note.id, contentArea.innerHTML);
+      });
+
+      stickyBtn.addEventListener('click', () => this.toggleSticky(note.id));
+      stickyBtn.addEventListener('mouseenter', () => {
+        stickyBtn.style.background = 'rgba(0, 0, 0, 0.2)';
+      });
+      stickyBtn.addEventListener('mouseleave', () => {
+        stickyBtn.style.background = 'rgba(0, 0, 0, 0.1)';
       });
 
       minimizeBtn.addEventListener('click', () => this.collapseNote(note.id));
@@ -446,6 +516,10 @@ const meta = {
       // Remove from collapsed view
       const tab = this.collapsedContainer?.querySelector(`[data-id="${id}"]`);
       tab?.remove();
+
+      // Remove existing expanded view if present
+      const existingExpanded = this.notesContainer?.querySelector(`[data-id="${id}"]`);
+      existingExpanded?.remove();
 
       // Render expanded
       this.renderExpandedNote(note);
@@ -519,7 +593,270 @@ const meta = {
           this.collapsedContainer.innerHTML = '';
         }
         this.activeNoteId = null;
+        this.renderStickyNotes();
       }
+    }
+
+    async toggleSticky(id: string) {
+      const note = this.notes.find(n => n.id === id);
+      if (!note) return;
+
+      note.sticky = !note.sticky;
+      await this.saveNote(note);
+      
+      // Update the sticky button in the expanded note
+      const noteEl = this.notesContainer?.querySelector(`[data-id="${id}"]`);
+      const stickyBtn = noteEl?.querySelector('button[title*="Pin"]') as HTMLButtonElement;
+      if (stickyBtn) {
+        stickyBtn.innerHTML = note.sticky ? '📌' : '📍';
+        stickyBtn.title = note.sticky ? 'Unpin note' : 'Pin note';
+      }
+      
+      this.renderStickyNotes();
+    }
+
+    renderStickyNotes() {
+      const stickyContainer = document.getElementById('sticky-notes-container');
+      if (!stickyContainer) return;
+
+      stickyContainer.innerHTML = '';
+      const stickyNotes = this.notes.filter(n => n.sticky).sort((a, b) => b.createdAt - a.createdAt);
+
+      stickyNotes.forEach((note, index) => {
+        const stickyNote = document.createElement('div');
+        stickyNote.className = 'sticky-note-card';
+        stickyNote.dataset.id = note.id;
+        stickyNote.style.cssText = `
+          background-color: ${note.color};
+          cursor: pointer;
+          width: 200px;
+          min-height: 120px;
+          padding: 1rem;
+          border-radius: 8px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+          transition: transform 0.2s;
+        `;
+
+        const title = document.createElement('div');
+        title.style.cssText = 'font-weight: 600; color: #333; font-size: 0.95rem; margin-bottom: 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;';
+        title.textContent = note.title;
+
+        const content = document.createElement('div');
+        content.style.cssText = 'color: #555; font-size: 0.85rem; line-height: 1.4; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;';
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = note.content;
+        content.textContent = tempDiv.textContent || '';
+
+        stickyNote.appendChild(title);
+        stickyNote.appendChild(content);
+
+        // Add thumbnail if note has an image
+        if (note.content.includes('<img')) {
+          const imgMatch = note.content.match(/<img[^>]+src="([^"]+)"/);
+          if (imgMatch) {
+            const thumbnail = document.createElement('img');
+            thumbnail.src = imgMatch[1];
+            thumbnail.style.cssText = 'width: 100%; height: 60px; object-fit: cover; border-radius: 4px; margin-top: 0.5rem;';
+            stickyNote.appendChild(thumbnail);
+          }
+        }
+
+        stickyNote.addEventListener('click', async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log('Sticky note clicked:', note.id);
+          await this.expandNote(note.id);
+        });
+        stickyNote.addEventListener('mouseenter', () => {
+          stickyNote.style.transform = 'translateY(-4px)';
+        });
+        stickyNote.addEventListener('mouseleave', () => {
+          stickyNote.style.transform = 'translateY(0)';
+        });
+
+        stickyContainer.appendChild(stickyNote);
+      });
+    }
+
+    showViewAllPanel() {
+      const panel = document.getElementById('view-all-panel');
+      const content = document.getElementById('view-all-content');
+      if (!panel || !content) return;
+
+      content.innerHTML = '';
+      
+      this.notes.sort((a, b) => b.createdAt - a.createdAt).forEach(note => {
+        const noteCard = document.createElement('div');
+        noteCard.className = 'view-all-note-card';
+        noteCard.style.cssText = `
+          background-color: ${note.color};
+          padding: 1rem;
+          border-radius: 8px;
+          margin-bottom: 1rem;
+          cursor: pointer;
+          transition: transform 0.2s;
+        `;
+
+        const title = document.createElement('div');
+        title.style.cssText = 'font-weight: 600; color: #333; font-size: 1rem; margin-bottom: 0.5rem;';
+        title.textContent = note.title + (note.sticky ? ' 📌' : '');
+
+        const contentDiv = document.createElement('div');
+        contentDiv.style.cssText = 'color: #555; font-size: 0.9rem; line-height: 1.5;';
+        contentDiv.innerHTML = note.content;
+
+        noteCard.appendChild(title);
+        noteCard.appendChild(contentDiv);
+
+        noteCard.addEventListener('click', () => {
+          this.hideViewAllPanel();
+          this.expandNote(note.id);
+        });
+        noteCard.addEventListener('mouseenter', () => {
+          noteCard.style.transform = 'translateX(4px)';
+        });
+        noteCard.addEventListener('mouseleave', () => {
+          noteCard.style.transform = 'translateX(0)';
+        });
+
+        content.appendChild(noteCard);
+      });
+
+      panel.style.display = 'flex';
+    }
+
+    hideViewAllPanel() {
+      const panel = document.getElementById('view-all-panel');
+      if (panel) {
+        panel.style.display = 'none';
+      }
+    }
+
+    handleSearch(query: string) {
+      const lowerQuery = query.toLowerCase().trim();
+      
+      if (!lowerQuery) {
+        this.renderStickyNotes();
+        return;
+      }
+
+      const stickyContainer = document.getElementById('sticky-notes-container');
+      if (!stickyContainer) return;
+
+      stickyContainer.innerHTML = '';
+      const filteredNotes = this.notes.filter(note => 
+        note.title.toLowerCase().includes(lowerQuery) || 
+        note.content.toLowerCase().includes(lowerQuery)
+      );
+
+      if (filteredNotes.length === 0) {
+        const noResults = document.createElement('div');
+        noResults.style.cssText = 'color: white; padding: 1rem; text-align: center;';
+        noResults.textContent = 'No notes found';
+        stickyContainer.appendChild(noResults);
+        return;
+      }
+
+      filteredNotes.forEach(note => {
+        const noteCard = document.createElement('div');
+        noteCard.className = 'sticky-note-card';
+        noteCard.dataset.id = note.id;
+        noteCard.style.cssText = `
+          background-color: ${note.color};
+          cursor: pointer;
+          width: 200px;
+          min-height: 120px;
+          padding: 1rem;
+          border-radius: 8px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+          transition: transform 0.2s;
+          margin-bottom: 1rem;
+        `;
+
+        const title = document.createElement('div');
+        title.style.cssText = 'font-weight: 600; color: #333; font-size: 0.95rem; margin-bottom: 0.5rem;';
+        title.textContent = note.title;
+
+        const content = document.createElement('div');
+        content.style.cssText = 'color: #555; font-size: 0.85rem; line-height: 1.4; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;';
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = note.content;
+        content.textContent = tempDiv.textContent || '';
+
+        noteCard.appendChild(title);
+        noteCard.appendChild(content);
+
+        noteCard.addEventListener('click', () => this.expandNote(note.id));
+        noteCard.addEventListener('mouseenter', () => {
+          noteCard.style.transform = 'translateY(-4px)';
+        });
+        noteCard.addEventListener('mouseleave', () => {
+          noteCard.style.transform = 'translateY(0)';
+        });
+
+        stickyContainer.appendChild(noteCard);
+      });
+    }
+
+    handleSort(sortType: string) {
+      let sortedNotes = [...this.notes];
+      
+      switch (sortType) {
+        case 'date':
+          sortedNotes.sort((a, b) => b.createdAt - a.createdAt);
+          break;
+        case 'images':
+          sortedNotes = sortedNotes.filter(note => note.content.includes('<img'));
+          break;
+        case 'text':
+          sortedNotes = sortedNotes.filter(note => !note.content.includes('<img'));
+          break;
+      }
+
+      const stickyContainer = document.getElementById('sticky-notes-container');
+      if (!stickyContainer) return;
+
+      stickyContainer.innerHTML = '';
+      
+      sortedNotes.forEach(note => {
+        const noteCard = document.createElement('div');
+        noteCard.className = 'sticky-note-card';
+        noteCard.dataset.id = note.id;
+        noteCard.style.cssText = `
+          background-color: ${note.color};
+          cursor: pointer;
+          width: 200px;
+          min-height: 120px;
+          padding: 1rem;
+          border-radius: 8px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+          transition: transform 0.2s;
+          margin-bottom: 1rem;
+        `;
+
+        const title = document.createElement('div');
+        title.style.cssText = 'font-weight: 600; color: #333; font-size: 0.95rem; margin-bottom: 0.5rem;';
+        title.textContent = note.title + (note.sticky ? ' 📌' : '');
+
+        const content = document.createElement('div');
+        content.style.cssText = 'color: #555; font-size: 0.85rem; line-height: 1.4; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;';
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = note.content;
+        content.textContent = tempDiv.textContent || '';
+
+        noteCard.appendChild(title);
+        noteCard.appendChild(content);
+
+        noteCard.addEventListener('click', () => this.expandNote(note.id));
+        noteCard.addEventListener('mouseenter', () => {
+          noteCard.style.transform = 'translateY(-4px)';
+        });
+        noteCard.addEventListener('mouseleave', () => {
+          noteCard.style.transform = 'translateY(0)';
+        });
+
+        stickyContainer.appendChild(noteCard);
+      });
     }
 
     escapeHtml(text: string): string {
@@ -678,18 +1015,18 @@ const meta = {
 
   .page-header {
     position: fixed;
-    top: 0;
+    top: 280px; /* Below sticky notes area (3 rows @ ~140px each + padding) */
     left: 0;
     right: 0;
     text-align: center;
     padding: 2rem;
     z-index: 50;
-    background: linear-gradient(
-      to bottom,
-      rgba(0, 0, 0, 0.5) 0%,
-      rgba(0, 0, 0, 0.3) 70%,
-      transparent 100%
-    );
+  }
+
+  @media (max-width: 640px) {
+    .page-header {
+      top: 200px; /* Below sticky notes area (2 rows on mobile) */
+    }
   }
 
   .page-header h1 {
@@ -801,6 +1138,191 @@ const meta = {
     min-width: 100px;
   }
 
+  /* Sticky Notes Container */
+  .sticky-notes-container {
+    position: fixed;
+    top: 2rem;
+    left: 2rem;
+    z-index: 100;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    max-width: calc(100vw - 220px);
+  }
+
+  .sticky-note-card {
+    pointer-events: auto !important;
+  }
+
+  @media (min-width: 641px) {
+    .sticky-notes-container {
+      max-height: calc(3 * 140px + 2rem);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .sticky-notes-container {
+      max-height: calc(2 * 140px + 1rem);
+      left: 1rem;
+      max-width: calc(100vw - 2rem);
+    }
+  }
+
+  /* Control Bar */
+  .control-bar {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 150;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    padding: 0.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .btn-control-bar {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border: none;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .btn-control-bar:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+  }
+
+  .btn-danger {
+    background: rgba(239, 68, 68, 0.6);
+  }
+
+  .btn-danger:hover {
+    background: rgba(239, 68, 68, 0.8);
+  }
+
+  .search-input {
+    width: 200px;
+    padding: 0.5rem;
+    border: none;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    font-size: 0.9rem;
+    outline: none;
+  }
+
+  .search-input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .search-input:focus {
+    background: rgba(255, 255, 255, 0.25);
+  }
+
+  .sort-select {
+    padding: 0.5rem;
+    border: none;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    font-size: 0.9rem;
+    cursor: pointer;
+    outline: none;
+  }
+
+  .sort-select:hover {
+    background: rgba(255, 255, 255, 0.25);
+  }
+
+  .sort-select option {
+    background: #1a1a1a;
+    color: white;
+  }
+
+  /* View All Panel */
+  .view-all-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 300;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+    overflow: hidden;
+  }
+
+  .view-all-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .view-all-header h2 {
+    color: white;
+    font-size: 1.8rem;
+    margin: 0;
+  }
+
+  .btn-close-panel {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(239, 68, 68, 0.8);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .btn-close-panel:hover {
+    background: rgba(239, 68, 68, 1);
+    transform: scale(1.1);
+  }
+
+  .view-all-content {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 1rem;
+  }
+
+  .view-all-content::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .view-all-content::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+  }
+
+  .view-all-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+  }
+
+  .view-all-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+  }
+
   /* Control Buttons */
   .note-controls {
     position: fixed;
@@ -866,6 +1388,10 @@ const meta = {
   }
 
   @media (max-width: 640px) {
+    .page-header {
+      top: 200px; /* Below sticky notes area (2 rows on mobile) */
+    }
+
     .page-header h1 {
       font-size: 2rem;
     }
@@ -873,11 +1399,6 @@ const meta = {
     .subtitle {
       font-size: 1rem;
     }
-
-    /* .note-controls {
-      right: 1rem;
-      bottom: 100px;
-    } */
 
     .btn-control {
       width: 44px;
@@ -895,6 +1416,20 @@ const meta = {
     .collapsed-note-tab {
       max-width: 120px;
       font-size: 0.85rem;
+    }
+
+    .search-input {
+      width: 140px;
+      font-size: 0.85rem;
+    }
+
+    .sort-select {
+      font-size: 0.85rem;
+    }
+
+    .btn-control-bar {
+      width: 36px;
+      height: 36px;
     }
   }
 </style>
