@@ -1,0 +1,32 @@
+
+✓ [UPDATE] Update started at Mon Dec 29 23:38:39 CST 2025
+
+✓ [UPDATE] Updating src/ directory...
+  ⏭️  Skipped (modified): components/layout/Header.astro
+  ⏭️  Skipped (modified): pages/user.astro
+✓ [UPDATE] Source files processed (updated: 0, skipped: 0)
+
+✓ [UPDATE] Checking root configuration files...
+✓ [UPDATE] Updated: package.json
+✓ [UPDATE] Updated: tsconfig.json
+✓ [UPDATE] Updated: postcss.config.js
+✓ [UPDATE] Updated: README.md
+
+✓ [UPDATE] Checking customizable files for local modifications...
+
+📝 File has local modifications: src/components/layout/Header.astro
+   Options:
+   [k] Keep local version (skip update)
+   [u] Update from theme (overwrite local changes)
+   [d] Show diff
+   [b] Backup local and update
+   Choose [k/u/d/b]: ✓ [UPDATE] Updated: src/components/layout/Header.astro
+
+✓ [UPDATE] Updating content configuration...
+✓ [UPDATE] Updated content config
+
+✓ [UPDATE] Updating keystatic.config.ts...
+✓ [UPDATE] Preserved Keystatic project ID
+
+✓ [UPDATE] Cleaning up...
+

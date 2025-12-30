@@ -37,6 +37,12 @@ const meta = {
         <option value="date">Sort by Date</option>
         <option value="images">Has Images</option>
         <option value="text">Text Only</option>
+        <option value="color-yellow">🟡 Yellow</option>
+        <option value="color-red">🔴 Red</option>
+        <option value="color-blue">🔵 Blue</option>
+        <option value="color-green">🟢 Green</option>
+        <option value="color-purple">🟣 Purple</option>
+        <option value="color-orange">🟠 Orange</option>
       </select>
       <button id="clear-notes-btn" class="btn-control-bar btn-danger" title="Delete All Notes">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -420,13 +426,12 @@ const meta = {
     }
 
     async createNote() {
-      const randomColor = this.colors[Math.floor(Math.random() * this.colors.length)];
       const noteNumber = this.notes.length + 1;
       const note: StickyNote = {
         id: Date.now().toString(),
         title: `Note ${noteNumber}`,
         content: '',
-        color: randomColor,
+        color: '#ffffff',
         collapsed: false,
         sticky: false,
         createdAt: Date.now(),
@@ -512,12 +517,77 @@ const meta = {
       titleInput.style.cssText = 'flex: 1; min-width: 0; border: none; background: transparent; font-size: 1rem; font-weight: 600; color: #333; outline: none; padding: 0.25rem; cursor: text; pointer-events: auto;';
       titleInput.setAttribute('tabindex', '0');
       
-      // Create image upload button (for mobile)
+      // Create color picker (hidden by default, shown as popup)
+      const colorPicker = document.createElement('div');
+      colorPicker.style.cssText = 'display: none; gap: 4px; flex-shrink: 0; pointer-events: auto; position: absolute; top: 45px; right: 0; background: white; padding: 8px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 20;';
+      this.colors.forEach(color => {
+        const colorDot = document.createElement('button');
+        colorDot.setAttribute('type', 'button');
+        colorDot.style.cssText = `
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          background-color: ${color};
+          border: ${note.color === color ? '3px solid #333' : '2px solid rgba(0,0,0,0.2)'};
+          cursor: pointer;
+          transition: transform 0.2s;
+          pointer-events: auto;
+          padding: 0;
+          flex-shrink: 0;
+        `;
+        colorDot.title = `Change to ${color}`;
+        
+        colorDot.addEventListener('click', async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          note.color = color;
+          noteEl.style.backgroundColor = color;
+          await this.saveNote(note);
+          this.renderStickyNotes();
+          
+          // Update all color dots borders
+          colorPicker.querySelectorAll('button').forEach((dot, i) => {
+            (dot as HTMLElement).style.border = this.colors[i] === color ? '3px solid #333' : '2px solid rgba(0,0,0,0.2)';
+          });
+        });
+        
+        colorDot.addEventListener('mouseenter', () => {
+          colorDot.style.transform = 'scale(1.2)';
+        });
+        
+        colorDot.addEventListener('mouseleave', () => {
+          colorDot.style.transform = 'scale(1)';
+        });
+        
+        colorPicker.appendChild(colorDot);
+      });
+      
+      // Create color indicator button
+      const colorIndicator = document.createElement('button');
+      colorIndicator.innerHTML = '🎨';
+      colorIndicator.title = 'Change color';
+      colorIndicator.setAttribute('type', 'button');
+      colorIndicator.style.cssText = 'width: 36px; height: 36px; min-width: 36px; border: none; background: rgba(0, 0, 0, 0.1); border-radius: 6px; cursor: pointer; font-size: 1.1rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 0; pointer-events: auto; position: relative;';
+      
+      colorIndicator.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isVisible = colorPicker.style.display === 'flex';
+        colorPicker.style.display = isVisible ? 'none' : 'flex';
+      });
+      
+      // Close picker when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!colorPicker.contains(e.target as Node) && !colorIndicator.contains(e.target as Node)) {
+          colorPicker.style.display = 'none';
+        }
+      });
+      
+      // Create image upload button (for mobile) - hidden
       const imageBtn = document.createElement('button');
       imageBtn.innerHTML = '🖼️';
       imageBtn.title = 'Add image';
       imageBtn.setAttribute('type', 'button');
-      imageBtn.style.cssText = 'width: 36px; height: 36px; min-width: 36px; border: none; background: rgba(0, 0, 0, 0.1); border-radius: 6px; cursor: pointer; font-size: 1.1rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 0; pointer-events: auto;';
+      imageBtn.style.cssText = 'display: none;';
       
       // Create hidden file input
       const fileInput = document.createElement('input');
@@ -525,12 +595,12 @@ const meta = {
       fileInput.accept = 'image/*';
       fileInput.style.display = 'none';
       
-      // Create sticky/pin button
+      // Create sticky/pin button - positioned at bottom-right
       const stickyBtn = document.createElement('button');
       stickyBtn.innerHTML = note.sticky ? '📌' : '📍';
       stickyBtn.title = note.sticky ? 'Unpin note' : 'Pin note';
       stickyBtn.setAttribute('type', 'button');
-      stickyBtn.style.cssText = 'width: 36px; height: 36px; min-width: 36px; border: none; background: rgba(0, 0, 0, 0.1); border-radius: 6px; cursor: pointer; font-size: 1.1rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 0; pointer-events: auto;';
+      stickyBtn.style.cssText = 'position: absolute; bottom: 8px; right: 8px; width: 36px; height: 36px; min-width: 36px; border: none; background: rgb(75, 75, 75); border-radius: 6px; cursor: pointer; font-size: 1.1rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 0; pointer-events: auto; transition: background 0.2s; z-index: 10;';
       
       // Create minimize button
       const minimizeBtn = document.createElement('button');
@@ -538,11 +608,12 @@ const meta = {
       minimizeBtn.setAttribute('type', 'button');
       minimizeBtn.style.cssText = 'width: 36px; height: 36px; min-width: 36px; border: none; background: rgba(0, 0, 0, 0.1); border-radius: 6px; cursor: pointer; font-size: 1.5rem; color: #333; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 0; pointer-events: auto;';
       
-      // Create delete button
+      // Create delete button - positioned at bottom-left
       const deleteBtn = document.createElement('button');
-      deleteBtn.innerHTML = '×';
+      deleteBtn.innerHTML = '🗑️';
+      deleteBtn.title = 'Delete note';
       deleteBtn.setAttribute('type', 'button');
-      deleteBtn.style.cssText = 'width: 36px; height: 36px; min-width: 36px; border: none; background: rgba(0, 0, 0, 0.1); border-radius: 6px; cursor: pointer; font-size: 1.5rem; color: #333; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 0; pointer-events: auto;';
+      deleteBtn.style.cssText = 'position: absolute; bottom: 8px; left: 8px; width: 36px; height: 36px; min-width: 36px; border: none; background: rgb(75, 75, 75); border-radius: 6px; cursor: pointer; font-size: 1.1rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 0; pointer-events: auto; transition: background 0.2s; z-index: 10;';
       
       // Create content area with contenteditable div for rich content
       const contentArea = document.createElement('div');
@@ -684,24 +755,15 @@ const meta = {
       
       // Assemble the note
       header.appendChild(titleInput);
-      
-      // Add spacer before delete button
-      const spacer1 = document.createElement('div');
-      spacer1.style.cssText = 'width: 0.5rem; flex-shrink: 0;';
-      header.appendChild(spacer1);
-      
-      header.appendChild(deleteBtn);
-      
-      // Add larger spacer after delete button
-      const spacer2 = document.createElement('div');
-      spacer2.style.cssText = 'width: 1.5rem; flex-shrink: 0;';
-      header.appendChild(spacer2);
+      header.appendChild(colorIndicator);
+      colorIndicator.appendChild(colorPicker);
       
       header.appendChild(imageBtn);
-      header.appendChild(stickyBtn);
       header.appendChild(minimizeBtn);
       noteEl.appendChild(header);
       noteEl.appendChild(contentArea);
+      noteEl.appendChild(deleteBtn);
+      noteEl.appendChild(stickyBtn);
       noteEl.appendChild(fileInput);
 
       // Event handlers
@@ -751,10 +813,10 @@ const meta = {
 
       stickyBtn.addEventListener('click', () => this.toggleSticky(note.id));
       stickyBtn.addEventListener('mouseenter', () => {
-        stickyBtn.style.background = 'rgba(0, 0, 0, 0.2)';
+        stickyBtn.style.background = 'rgb(50, 50, 50)';
       });
       stickyBtn.addEventListener('mouseleave', () => {
-        stickyBtn.style.background = 'rgba(0, 0, 0, 0.1)';
+        stickyBtn.style.background = 'rgb(75, 75, 75)';
       });
 
       minimizeBtn.addEventListener('click', () => this.collapseNote(note.id));
@@ -771,12 +833,10 @@ const meta = {
         }
       });
       deleteBtn.addEventListener('mouseenter', () => {
-        deleteBtn.style.background = 'rgba(255, 0, 0, 0.3)';
-        deleteBtn.style.color = '#fff';
+        deleteBtn.style.background = 'rgb(50, 50, 50)';
       });
       deleteBtn.addEventListener('mouseleave', () => {
-        deleteBtn.style.background = 'rgba(0, 0, 0, 0.1)';
-        deleteBtn.style.color = '#333';
+        deleteBtn.style.background = 'rgb(75, 75, 75)';
       });
 
       this.notesContainer.appendChild(noteEl);
@@ -1117,6 +1177,16 @@ const meta = {
     handleSort(sortType: string) {
       let sortedNotes = [...this.notes];
       
+      // Color mapping
+      const colorMap: Record<string, string> = {
+        'color-yellow': '#fef08a',
+        'color-red': '#fca5a5',
+        'color-blue': '#bfdbfe',
+        'color-green': '#bbf7d0',
+        'color-purple': '#e9d5ff',
+        'color-orange': '#fed7aa',
+      };
+      
       switch (sortType) {
         case 'date':
           sortedNotes.sort((a, b) => b.createdAt - a.createdAt);
@@ -1127,6 +1197,14 @@ const meta = {
         case 'text':
           sortedNotes = sortedNotes.filter(note => !note.content.includes('<img'));
           break;
+        default:
+          // Check if it's a color filter
+          if (sortType.startsWith('color-')) {
+            const targetColor = colorMap[sortType];
+            if (targetColor) {
+              sortedNotes = sortedNotes.filter(note => note.color === targetColor);
+            }
+          }
       }
 
       const stickyContainer = document.getElementById('sticky-notes-container');
