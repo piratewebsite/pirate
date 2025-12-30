@@ -2414,12 +2414,22 @@ async function handleVideoFavorite() {
         videoUrl = `https://www.youtube.com/watch?v=${detected.id}`;
       }
       
+      // Try to get the actual title from the iframe or page title
+      let actualTitle = videoData.title;
+      if (!actualTitle || actualTitle.includes('Video ' + detected.id)) {
+        const iframe = document.querySelector('iframe');
+        const iframeTitle = iframe?.getAttribute('title');
+        if (iframeTitle && iframeTitle !== 'Video Player') {
+          actualTitle = iframeTitle;
+        }
+      }
+      
       // Add to favorites with platform information
       const favorite = {
         uniqueId: uniqueId,
         videoId: detected.id,
         platform: detected.platform,
-        title: videoData.title || `${detected.platform.charAt(0).toUpperCase() + detected.platform.slice(1)} Video ${detected.id}`,
+        title: actualTitle || videoData.title || `${detected.platform.charAt(0).toUpperCase() + detected.platform.slice(1)} Video ${detected.id}`,
         thumbnail: videoData.thumbnail || '/socialCard.webp',
         channelTitle: videoData.author || `${detected.platform.charAt(0).toUpperCase() + detected.platform.slice(1)} Channel`,
         url: videoUrl,
@@ -2588,42 +2598,29 @@ async function handleChannelBookmark() {
 
 async function fetchVideoData(videoId: string) {
   try {
+    // Try to fetch video metadata using YouTube oEmbed API
+    const oembedUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
+    const response = await fetch(oembedUrl);
     
-    // Use the same API endpoint that MemberFavorites uses for channel resolution
-    const response = await fetch('/api/youtube-feed', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        action: 'resolve',
-        input: `https://www.youtube.com/watch?v=${videoId}`
-      })
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Failed to fetch video data: ${response.status}`);
+    if (response.ok) {
+      const data = await response.json();
+      
+      // Return data in the format expected by the bookmark system
+      return {
+        title: data.title || `Video ${videoId}`,
+        thumbnail: data.thumbnail_url || `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+        author: data.author_name || 'Unknown Channel',
+        channelId: null, // oEmbed doesn't provide channelId
+        published: new Date().toLocaleDateString(),
+        duration: '',
+        views: ''
+      };
     }
     
-    const data = await response.json();
-    
-    if (data.error) {
-      throw new Error(data.error);
-    }
-    
-    // Return data in the format expected by the bookmark system
-    return {
-      title: data.videoTitle || `Video ${videoId}`,
-      thumbnail: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
-      author: data.name || 'Unknown Channel',
-      channelId: data.channelId || null,
-      published: new Date().toLocaleDateString(),
-      duration: '',
-      views: ''
-    };
+    throw new Error('oEmbed failed');
   } catch (error) {
     console.error('Error fetching video data:', error);
-    // Return fallback data but with null channelId to indicate failure
+    // Return fallback data
     return {
       title: `Video ${videoId}`,
       thumbnail: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
