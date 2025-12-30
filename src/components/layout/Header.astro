@@ -134,14 +134,8 @@ const currentPath = normalizePath(url.pathname);
   display: flex;
   flex-direction: column;
   gap: 8px;
-  z-index: 99;
+  z-index: 450;
   pointer-events: auto;
-}
-
-@media all and (display-mode: browser) {
-  #pwa-menu-items {
-    display: none !important;
-  }
 }
 
 #pwa-menu-items a {
@@ -207,7 +201,7 @@ const currentPath = normalizePath(url.pathname);
   display: grid;
   place-items: center;
   pointer-events: none;
-  z-index: 100;
+  z-index: 500;
   transition: all 0.3s ease;
 }
 
@@ -270,7 +264,7 @@ const currentPath = normalizePath(url.pathname);
   color: #fff;
   border-radius: 8px;
   padding: .5rem;
-  z-index: 100;
+  z-index: 500;
   display: none;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
   width:60%;
@@ -674,6 +668,14 @@ style="flex-direction: column;"
     const menuBtn = document.getElementById('bottom-menu-btn');
     const menuPopup = document.getElementById('menu-popup');
     const pwaMenu = document.getElementById('pwa-menu-items');
+    
+    // Move menu popup and PWA menu to body to escape any stacking context issues
+    if (menuPopup && menuPopup.parentElement !== document.body) {
+      document.body.appendChild(menuPopup);
+    }
+    if (pwaMenu && pwaMenu.parentElement !== document.body) {
+      document.body.appendChild(pwaMenu);
+    }
     const menuContainer = document.getElementById('bottom-menu-container');
     
     console.log('initializeBottomMenu called');
