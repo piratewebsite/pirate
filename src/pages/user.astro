@@ -146,7 +146,7 @@ const meta = {
       const tab = document.createElement('div');
       tab.className = 'collapsed-note-tab';
       tab.dataset.id = note.id;
-      tab.style.cssText = `background-color: ${note.color}; cursor: pointer; padding: 0.75rem; margin-bottom: 0.5rem; border-radius: 8px 0 0 8px; box-shadow: -2px 2px 4px rgba(0,0,0,0.2); transition: all 0.2s;`;
+      tab.style.cssText = `background-color: ${note.color}; cursor: pointer; padding: 0.75rem; margin-bottom: 0.5rem; border-radius: 8px 0 0 8px; box-shadow: -2px 2px 4px rgba(0,0,0,0.2); transition: all 0.2s; width: 150px; max-width: 150px;`;
       tab.innerHTML = `<div style="font-weight: 600; color: #333; font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${this.escapeHtml(note.title)}</div>`;
       
       tab.addEventListener('click', () => this.expandNote(note.id));
