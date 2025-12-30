@@ -1073,14 +1073,17 @@ const meta = {
           margin-bottom: 1rem;
           cursor: pointer;
           transition: transform 0.2s;
+          overflow: hidden;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
         `;
 
         const title = document.createElement('div');
-        title.style.cssText = 'font-weight: 600; color: #333; font-size: 1rem; margin-bottom: 0.5rem;';
+        title.style.cssText = 'font-weight: 600; color: #333; font-size: 1rem; margin-bottom: 0.5rem; overflow-wrap: break-word; word-break: break-word;';
         title.textContent = note.title + (note.sticky ? ' 📌' : '');
 
         const contentDiv = document.createElement('div');
-        contentDiv.style.cssText = 'color: #555; font-size: 0.9rem; line-height: 1.5;';
+        contentDiv.style.cssText = 'color: #555; font-size: 0.9rem; line-height: 1.5; overflow-wrap: break-word; word-break: break-word; max-width: 100%;';
         contentDiv.innerHTML = note.content;
 
         noteCard.appendChild(title);
@@ -1743,6 +1746,7 @@ const meta = {
   .view-all-content {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     padding-right: 1rem;
   }
 
