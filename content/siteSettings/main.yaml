@@ -7,7 +7,7 @@ showHeader: false
 showLogo: true
 showHome: true
 showTheme: true
-showFooter: false
+showFooter: true
 showTitles: true
 showDates: true
 enableImageBlur: true
