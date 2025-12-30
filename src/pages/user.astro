@@ -656,15 +656,35 @@ const meta = {
   .notes-sidebar {
     position: fixed;
     right: 0;
-    top: 50%;
-    transform: translateY(-50%);
+    top: 120px;
+    bottom: 120px;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
     padding: 1rem 0;
-    max-height: 60vh;
+    max-height: calc(100vh - 240px);
     overflow-y: auto;
+    overflow-x: visible;
     z-index: 150;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  }
+
+  .notes-sidebar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .notes-sidebar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .notes-sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+  }
+
+  .notes-sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
   }
 
   .collapsed-note-tab {
