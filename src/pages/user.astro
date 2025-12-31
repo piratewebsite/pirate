@@ -20,7 +20,7 @@ const meta = {
     <div class="page-header" id="page-header">
       <!-- Sticky Control Bar at Top -->
       <div class="page-control-bar" id="page-control-bar" style="display: none;">
-        <div id="opacity-control" class="opacity-control">
+        <div id="opacity-control" class="opacity-control">opacity
           <input type="range" id="opacity-slider" class="opacity-slider" min="0" max="100" value="60" title="Adjust opacity">
         </div>
         <div id="page-icon-tray" class="page-icon-tray"></div>
@@ -2895,6 +2895,7 @@ const meta = {
 
   .opacity-control {
     display: flex;
+    flex-direction: column;
     align-items: center;
     gap: 0.5rem;
     background: rgba(0, 0, 0, 0.3);
@@ -2906,6 +2907,7 @@ const meta = {
     left: auto;
     right: auto;
     margin-bottom: 0;
+    font-size:12px;
   }
 
   .opacity-label {
@@ -2983,7 +2985,7 @@ const meta = {
     .page-control-bar {
       flex-direction: row;
       gap: 1rem;
-      padding: 0.5rem;
+      padding: 0.5rem 0;
       align-items: center;
       justify-content: flex-start;
     }
