@@ -661,6 +661,9 @@ const meta = {
         { cmd: 'bold', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"></path><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"></path></svg>', title: 'Bold (Cmd/Ctrl+B)' },
         { cmd: 'italic', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="4" x2="10" y2="4"></line><line x1="14" y1="20" x2="5" y2="20"></line><line x1="15" y1="4" x2="9" y2="20"></line></svg>', title: 'Italic (Cmd/Ctrl+I)' },
         { cmd: 'underline', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3"></path><line x1="4" y1="21" x2="20" y2="21"></line></svg>', title: 'Underline (Cmd/Ctrl+U)' },
+        { cmd: 'formatBlock-h1', icon: '<span style="font-weight: bold; font-size: 14px;">H1</span>', title: 'Heading 1' },
+        { cmd: 'formatBlock-h2', icon: '<span style="font-weight: bold; font-size: 12px;">H2</span>', title: 'Heading 2' },
+        { cmd: 'formatBlock-h3', icon: '<span style="font-weight: bold; font-size: 11px;">H3</span>', title: 'Heading 3' },
         { cmd: 'justifyLeft', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="17" y1="10" x2="3" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="17" y1="18" x2="3" y2="18"></line></svg>', title: 'Align Left' },
         { cmd: 'justifyCenter', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="10" x2="6" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="18" y1="18" x2="6" y2="18"></line></svg>', title: 'Align Center' },
         { cmd: 'justifyRight', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="10" x2="7" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="21" y1="18" x2="7" y2="18"></line></svg>', title: 'Align Right' },
@@ -677,8 +680,58 @@ const meta = {
         
         button.addEventListener('click', (e) => {
           e.preventDefault();
-          document.execCommand(btn.cmd, false);
-          contentArea.focus();
+          if (btn.cmd.startsWith('formatBlock-')) {
+            // Extract the tag from the command (e.g., 'formatBlock-h1' -> 'h1')
+            const tag = btn.cmd.replace('formatBlock-', '');
+            
+            // Ensure there's a block element to format
+            if (contentArea) {
+              const hasBlockChildren = Array.from(contentArea.childNodes).some(node => {
+                return node.nodeType === 1 && ['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'DIV', 'BLOCKQUOTE'].includes((node as Element).tagName);
+              });
+              
+              if (!hasBlockChildren && contentArea.textContent) {
+                // Wrap all content in a p tag
+                const content = contentArea.innerHTML;
+                contentArea.innerHTML = `<p>${content}</p>`;
+              }
+            }
+            
+            document.execCommand('formatBlock', false, `<${tag}>`);
+            
+            // Apply inline styles to the newly created header
+            setTimeout(() => {
+              const selection = window.getSelection();
+              let headerElement = null;
+              
+              if (selection && selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                headerElement = range.startContainer.parentElement;
+                
+                // Walk up the DOM to find the actual header element
+                while (headerElement && !['H1', 'H2', 'H3'].includes(headerElement.tagName)) {
+                  headerElement = headerElement.parentElement;
+                }
+              }
+              
+              // If we found a header element, apply styles
+              if (headerElement) {
+                const tagName = headerElement.tagName.toLowerCase();
+                if (tagName === 'h1') {
+                  headerElement.style.cssText = 'font-size: 2.2em !important; font-weight: bold !important; margin: 1rem 0 0.5rem 0 !important; color: inherit !important; text-shadow: none !important;';
+                } else if (tagName === 'h2') {
+                  headerElement.style.cssText = 'font-size: 1.8em !important; font-weight: bold !important; margin: 1rem 0 0.5rem 0 !important; color: inherit !important; text-shadow: none !important;';
+                } else if (tagName === 'h3') {
+                  headerElement.style.cssText = 'font-size: 1.4em !important; font-weight: bold !important; margin: 0.8rem 0 0.4rem 0 !important; color: inherit !important; text-shadow: none !important;';
+                }
+              }
+            }, 0);
+            
+            contentArea.focus();
+          } else {
+            document.execCommand(btn.cmd, false);
+            contentArea.focus();
+          }
         });
         
         button.addEventListener('mouseenter', () => {
@@ -1942,11 +1995,15 @@ const meta = {
         { cmd: 'bold', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"></path><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"></path></svg>', title: 'Bold (Cmd/Ctrl+B)' },
         { cmd: 'italic', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="4" x2="10" y2="4"></line><line x1="14" y1="20" x2="5" y2="20"></line><line x1="15" y1="4" x2="9" y2="20"></line></svg>', title: 'Italic (Cmd/Ctrl+I)' },
         { cmd: 'underline', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3"></path><line x1="4" y1="21" x2="20" y2="21"></line></svg>', title: 'Underline (Cmd/Ctrl+U)' },
+        { cmd: 'formatBlock-h1', icon: '<span style="font-weight: bold; font-size: 14px;">H1</span>', title: 'Heading 1' },
+        { cmd: 'formatBlock-h2', icon: '<span style="font-weight: bold; font-size: 12px;">H2</span>', title: 'Heading 2' },
+        { cmd: 'formatBlock-h3', icon: '<span style="font-weight: bold; font-size: 11px;">H3</span>', title: 'Heading 3' },
         { cmd: 'justifyLeft', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="17" y1="10" x2="3" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="17" y1="18" x2="3" y2="18"></line></svg>', title: 'Align Left' },
         { cmd: 'justifyCenter', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="10" x2="6" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="18" y1="18" x2="6" y2="18"></line></svg>', title: 'Align Center' },
         { cmd: 'justifyRight', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="10" x2="7" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="21" y1="18" x2="7" y2="18"></line></svg>', title: 'Align Right' },
         { cmd: 'insertUnorderedList', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>', title: 'Bullet List' },
         { cmd: 'insertOrderedList', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="6" x2="21" y2="6"></line><line x1="10" y1="12" x2="21" y2="12"></line><line x1="10" y1="18" x2="21" y2="18"></line><path d="M4 6h1v4"></path><path d="M4 10h2"></path><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"></path></svg>', title: 'Numbered List' },
+        { cmd: 'upload-photo', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>', title: 'Upload Photo' },
       ];
       
       formatButtons.forEach(btn => {
@@ -1958,8 +2015,86 @@ const meta = {
         
         button.addEventListener('click', (e) => {
           e.preventDefault();
-          document.execCommand(btn.cmd, false);
-          this.pageSubtitle?.focus();
+          e.stopPropagation();
+          if (btn.cmd === 'upload-photo') {
+            // Create a hidden file input and trigger it
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/*';
+            fileInput.onchange = async (event) => {
+              const file = (event.target as HTMLInputElement).files?.[0];
+              if (file) {
+                // Read file as data URL
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                  const dataUrl = e.target?.result as string;
+                  // Insert image into content area
+                  const img = document.createElement('img');
+                  img.src = dataUrl;
+                  img.style.cssText = 'max-width: 100%; height: auto; border-radius: 4px; margin: 0.5rem 0; display: block;';
+                  this.pageSubtitle?.appendChild(img);
+                  this.pageSubtitle?.focus();
+                };
+                reader.readAsDataURL(file);
+              }
+            };
+            fileInput.click();
+          } else if (btn.cmd.startsWith('formatBlock-')) {
+            // Extract the tag from the command (e.g., 'formatBlock-h1' -> 'h1')
+            const tag = btn.cmd.replace('formatBlock-', '');
+            
+            // Ensure there's a block element to format
+            // If the content is just text nodes, wrap them in p tags first
+            if (this.pageSubtitle) {
+              const hasBlockChildren = Array.from(this.pageSubtitle.childNodes).some(node => {
+                return node.nodeType === 1 && ['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'DIV', 'BLOCKQUOTE'].includes((node as Element).tagName);
+              });
+              
+              if (!hasBlockChildren && this.pageSubtitle.textContent) {
+                // Wrap all content in a p tag
+                const content = this.pageSubtitle.innerHTML;
+                this.pageSubtitle.innerHTML = `<p>${content}</p>`;
+              }
+            }
+            
+            document.execCommand('formatBlock', false, `<${tag}>`);
+            
+            // Apply inline styles to the newly created header
+            // Find the current selection or the last created header element
+            setTimeout(() => {
+              if (this.pageSubtitle) {
+                const selection = window.getSelection();
+                let headerElement = null;
+                
+                if (selection && selection.rangeCount > 0) {
+                  const range = selection.getRangeAt(0);
+                  headerElement = range.startContainer.parentElement;
+                  
+                  // Walk up the DOM to find the actual header element
+                  while (headerElement && !['H1', 'H2', 'H3'].includes(headerElement.tagName)) {
+                    headerElement = headerElement.parentElement;
+                  }
+                }
+                
+                // If we found a header element, apply styles
+                if (headerElement) {
+                  const tagName = headerElement.tagName.toLowerCase();
+                  if (tagName === 'h1') {
+                    headerElement.style.cssText = 'font-size: 2.2em !important; font-weight: bold !important; margin: 1rem 0 0.5rem 0 !important; color: inherit !important; text-shadow: none !important;';
+                  } else if (tagName === 'h2') {
+                    headerElement.style.cssText = 'font-size: 1.8em !important; font-weight: bold !important; margin: 1rem 0 0.5rem 0 !important; color: inherit !important; text-shadow: none !important;';
+                  } else if (tagName === 'h3') {
+                    headerElement.style.cssText = 'font-size: 1.4em !important; font-weight: bold !important; margin: 0.8rem 0 0.4rem 0 !important; color: inherit !important; text-shadow: none !important;';
+                  }
+                }
+              }
+            }, 0);
+            
+            this.pageSubtitle?.focus();
+          } else {
+            document.execCommand(btn.cmd, false);
+            this.pageSubtitle?.focus();
+          }
         });
         
         button.addEventListener('mouseenter', () => {
@@ -2348,6 +2483,34 @@ const meta = {
     background: rgba(255, 255, 255, 0.2);
     transform: scale(1.05);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  #page-subtitle h1 {
+    font-size: 2.2em !important;
+    font-weight: bold !important;
+    margin: 1rem 0 0.5rem 0 !important;
+    color: inherit !important;
+    text-shadow: none !important;
+  }
+
+  #page-subtitle h2 {
+    font-size: 1.8em !important;
+    font-weight: bold !important;
+    margin: 1rem 0 0.5rem 0 !important;
+    color: inherit !important;
+    text-shadow: none !important;
+  }
+
+  #page-subtitle h3 {
+    font-size: 1.4em !important;
+    font-weight: bold !important;
+    margin: 0.8rem 0 0.4rem 0 !important;
+    color: inherit !important;
+    text-shadow: none !important;
+  }
+
+  #page-subtitle p {
+    margin: 0.5rem 0 !important;
   }
 
   .page-toolbar {
