@@ -2377,6 +2377,10 @@ const meta = {
                     if (activeNote && this.pageSubtitle) {
                       activeNote.content = this.pageSubtitle.innerHTML;
                       await notesManager.saveNote(activeNote);
+                      // Re-render sticky notes to show the new image in the thumbnail
+                      if (activeNote.sticky) {
+                        notesManager.renderStickyNotes();
+                      }
                     }
                   }
                 };
