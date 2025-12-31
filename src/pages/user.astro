@@ -2359,7 +2359,7 @@ const meta = {
               if (file) {
                 // Read file as data URL
                 const reader = new FileReader();
-                reader.onload = (e) => {
+                reader.onload = async (e) => {
                   const dataUrl = e.target?.result as string;
                   // Insert image into content area
                   const img = document.createElement('img');
@@ -2367,6 +2367,16 @@ const meta = {
                   img.style.cssText = 'max-width: 100%; height: auto; border-radius: 4px; margin: 0.5rem 0; display: block;';
                   this.pageSubtitle?.appendChild(img);
                   this.pageSubtitle?.focus();
+                  
+                  // If editing an existing note, save it immediately with the new image
+                  const notesManager = (window as any).stickyNotesManager;
+                  if (notesManager && notesManager.activeNoteId) {
+                    const activeNote = notesManager.notes.find((n: any) => n.id === notesManager.activeNoteId);
+                    if (activeNote && this.pageSubtitle) {
+                      activeNote.content = this.pageSubtitle.innerHTML;
+                      await notesManager.saveNote(activeNote);
+                    }
+                  }
                 };
                 reader.readAsDataURL(file);
               }
