@@ -502,7 +502,7 @@ const meta = {
       tab.style.cssText = `background-color: ${note.color}; cursor: pointer; padding: 0.75rem; margin-bottom: 0.5rem; border-radius: 8px 0 0 8px; box-shadow: -2px 2px 4px rgba(0,0,0,0.2); transition: all 0.2s; width: 150px; max-width: 150px;`;
       tab.innerHTML = `<div style="font-weight: 600; color: #333; font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${this.escapeHtml(note.title)}</div>`;
       
-      tab.addEventListener('click', () => this.expandNote(note.id));
+      tab.addEventListener('click', () => this.expandNote(note.id, tab));
       tab.addEventListener('mouseenter', () => {
         tab.style.transform = 'translateX(-5px)';
       });
@@ -513,12 +513,23 @@ const meta = {
       this.collapsedContainer.prepend(tab);
     }
 
-    renderExpandedNote(note: StickyNote) {
+    renderExpandedNote(note: StickyNote, sourceRect?: DOMRect | null) {
       if (!this.notesContainer) return;
 
       const noteEl = document.createElement('div');
       noteEl.className = 'sticky-note-expanded';
       noteEl.dataset.id = note.id;
+      
+      // Calculate initial position from source if provided
+      let initialTransform = 'translate(-50%, -50%) scale(0.3)';
+      if (sourceRect) {
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+        const offsetX = sourceRect.left + (sourceRect.width / 2) - centerX;
+        const offsetY = sourceRect.top + (sourceRect.height / 2) - centerY;
+        initialTransform = `translate(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px)) scale(0.3)`;
+      }
+      
       noteEl.style.cssText = `
         background-color: ${note.color};
         position: fixed;
@@ -530,11 +541,21 @@ const meta = {
         flex-direction: column;
         top: 50%;
         left: 50%;
-        transform: translate(-50%, -50%);
+        transform: ${initialTransform};
         border-radius: 12px;
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
         z-index: 350;
+        opacity: 0;
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
       `;
+      
+      // Trigger animation after a frame
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          noteEl.style.transform = 'translate(-50%, -50%) scale(1)';
+          noteEl.style.opacity = '1';
+        });
+      });
       
       // Create header
       const header = document.createElement('div');
@@ -873,7 +894,7 @@ const meta = {
       this.notesContainer.appendChild(noteEl);
     }
 
-    async expandNote(id: string) {
+    async expandNote(id: string, sourceElement?: HTMLElement) {
       // Collapse currently active note if any
       if (this.activeNoteId && this.activeNoteId !== id) {
         await this.collapseNote(this.activeNoteId);
@@ -885,6 +906,12 @@ const meta = {
       note.collapsed = false;
       await this.saveNote(note);
 
+      // Get source position if element provided
+      let sourceRect = null;
+      if (sourceElement) {
+        sourceRect = sourceElement.getBoundingClientRect();
+      }
+
       // Remove from collapsed view
       const tab = this.collapsedContainer?.querySelector(`[data-id="${id}"]`);
       tab?.remove();
@@ -893,8 +920,8 @@ const meta = {
       const existingExpanded = this.notesContainer?.querySelector(`[data-id="${id}"]`);
       existingExpanded?.remove();
 
-      // Render expanded
-      this.renderExpandedNote(note);
+      // Render expanded with source position
+      this.renderExpandedNote(note, sourceRect);
       this.activeNoteId = id;
     }
 
@@ -902,11 +929,22 @@ const meta = {
       const note = this.notes.find(n => n.id === id);
       if (!note) return;
 
+      // Get the element before updating state
+      const noteEl = this.notesContainer?.querySelector(`[data-id="${id}"]`) as HTMLElement;
+      
+      if (noteEl) {
+        // Add collapsing animation by scaling down
+        noteEl.style.transform = 'translate(-50%, -50%) scale(0.3)';
+        noteEl.style.opacity = '0';
+        
+        // Wait for animation to complete
+        await new Promise(resolve => setTimeout(resolve, 300));
+      }
+
       note.collapsed = true;
       await this.saveNote(note);
 
       // Remove from expanded view
-      const noteEl = this.notesContainer?.querySelector(`[data-id="${id}"]`);
       noteEl?.remove();
 
       // Render collapsed
@@ -1074,7 +1112,7 @@ const meta = {
           e.preventDefault();
           e.stopPropagation();
           console.log('Sticky note clicked:', note.id);
-          await this.expandNote(note.id);
+          await this.expandNote(note.id, stickyNote);
         });
         stickyNote.addEventListener('mouseenter', () => {
           stickyNote.style.transform = 'translateY(-4px)';
@@ -1122,7 +1160,7 @@ const meta = {
 
         noteCard.addEventListener('click', () => {
           this.hideViewAllPanel();
-          this.expandNote(note.id);
+          this.expandNote(note.id, noteCard);
         });
         noteCard.addEventListener('mouseenter', () => {
           noteCard.style.transform = 'translateX(4px)';
@@ -1362,7 +1400,7 @@ const meta = {
           }
         }
 
-        noteCard.addEventListener('click', () => this.expandNote(note.id));
+        noteCard.addEventListener('click', () => this.expandNote(note.id, noteCard));
         noteCard.addEventListener('mouseenter', () => {
           noteCard.style.transform = 'translateY(-4px)';
         });
@@ -1479,7 +1517,7 @@ const meta = {
           }
         }
 
-        noteCard.addEventListener('click', () => this.expandNote(note.id));
+        noteCard.addEventListener('click', () => this.expandNote(note.id, noteCard));
         noteCard.addEventListener('mouseenter', () => {
           noteCard.style.transform = 'translateY(-4px)';
         });
@@ -2161,7 +2199,8 @@ const meta = {
   .control-bar {
     position: fixed;
     top: 1rem;
-    right: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
     z-index: 200;
     display: flex;
     gap: 0.5rem;
