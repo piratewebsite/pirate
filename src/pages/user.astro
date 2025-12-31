@@ -1979,16 +1979,18 @@ const meta = {
       const colorPicker = document.createElement('div');
       colorPicker.style.cssText = 'display: none; gap: 4px; position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.9); padding: 8px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.2);';
       
+      const note = getCurrentNote();
       this.colors.forEach(color => {
         const colorDot = document.createElement('button');
         colorDot.setAttribute('type', 'button');
-        colorDot.style.cssText = `width: 24px; height: 24px; border-radius: 50%; background-color: ${color}; border: 2px solid rgba(255,255,255,0.3); cursor: pointer; transition: transform 0.2s; padding: 0;`;
+        const isSelected = note && note.color === color;
+        colorDot.style.cssText = `width: 24px; height: 24px; border-radius: 50%; background-color: ${color}; border: ${isSelected ? '3px solid #fff' : '2px solid rgba(255,255,255,0.3)'}; cursor: pointer; transition: transform 0.2s; padding: 0;`;
         colorDot.title = `Change to ${color}`;
         colorDot.addEventListener('click', async () => {
-          const note = getCurrentNote();
-          if (note) {
-            note.color = color;
-            await this.saveNote(note);
+          const currentNote = getCurrentNote();
+          if (currentNote) {
+            currentNote.color = color;
+            await this.saveNote(currentNote);
             this.renderStickyNotes();
             colorPicker.querySelectorAll('button').forEach((dot, i) => {
               (dot as HTMLElement).style.border = this.colors[i] === color ? '3px solid #fff' : '2px solid rgba(255,255,255,0.3)';
