@@ -5,7 +5,7 @@ import { getEntry } from 'astro:content';
 const pwaSettings = await getEntry('pwaSettings', 'index');
 
 const meta = {
-  title: 'My Page',
+  title: 'One/App',
   description: 'Customize your personal page',
 };
 ---
@@ -18,7 +18,7 @@ const meta = {
     <div id="sticky-notes-container" class="sticky-notes-container"></div>
     
     <div class="page-header" id="page-header">
-      <h1 id="page-title" contenteditable="true" spellcheck="false">My Page</h1>
+      <h1 id="page-title" contenteditable="true" spellcheck="false">One/App</h1>
       <div id="page-subtitle" class="subtitle" contenteditable="true" spellcheck="false" data-placeholder="Your personal workspace...">Your personal workspace</div>
       <input type="range" id="opacity-slider" class="opacity-slider" min="0" max="100" value="60" style="display: none;" title="Adjust opacity">
       <button id="save-page-btn" class="btn-save-page" style="display: none;">Save</button>
@@ -1965,7 +1965,7 @@ const meta = {
   }
 
   .page-header h1:empty:before {
-    content: 'My Page';
+    content: 'One/App';
     color: rgba(255, 255, 255, 0.5);
   }
 
