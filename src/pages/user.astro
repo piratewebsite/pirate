@@ -29,7 +29,6 @@ const meta = {
       <div id="page-icon-tray" class="page-icon-tray" style="display: none;"></div>
       
       <div id="opacity-control" class="opacity-control" style="display: none;">
-        <label for="opacity-slider" class="opacity-label">Opacity:</label>
         <input type="range" id="opacity-slider" class="opacity-slider" min="0" max="100" value="60" title="Adjust opacity">
       </div>
       <button id="save-page-btn" class="btn-save-page" style="display: none;">Save</button>
@@ -2011,7 +2010,7 @@ const meta = {
       
       // Color picker container
       const colorPicker = document.createElement('div');
-      colorPicker.style.cssText = 'display: none; gap: 4px; position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.9); padding: 8px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.2);';
+      colorPicker.style.cssText = 'display: none; gap: 4px; position: absolute; top: 44px; left: -0.75rem; background: rgba(0, 0, 0, 0.9); padding: 8px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.2);';
       
       const note = getCurrentNote();
       this.colors.forEach(color => {
@@ -2776,7 +2775,7 @@ const meta = {
 
   .btn-close-modal {
     position: absolute;
-    top: 1rem;
+    top: 1.5rem;
     right: 1rem;
     width: 40px;
     height: 40px;
@@ -2843,18 +2842,16 @@ const meta = {
 
   .page-icon-tray {
     position: absolute;
-    bottom: 1rem;
-    left: 50%;
-    transform: translateX(-50%);
+    top: 1.25rem;
+    left: 10.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
-    padding: 0.75rem;
-    background: rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-    z-index: 10;
+    gap: 8px;
+    padding: 0;
+    background: transparent;
+    border-radius: 6px;
+    z-index: 1000;
   }
 
   .opacity-slider {
@@ -2924,7 +2921,7 @@ const meta = {
 
   .btn-save-page {
     position: absolute;
-    top: 1rem;
+    top: 1.5rem;
     right: calc(1rem + 50px);
     padding: 0.5rem 1.5rem;
     background: rgba(76, 175, 80, 0.9);
