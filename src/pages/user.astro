@@ -569,9 +569,26 @@ const meta = {
       titleInput.style.cssText = 'flex: 1; min-width: 0; border: none; background: transparent; font-size: 1rem; font-weight: 600; color: #333; outline: none; padding: 0.25rem; cursor: text; pointer-events: auto;';
       titleInput.setAttribute('tabindex', '0');
       
+      // Create hidden file input
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'image/*';
+      fileInput.style.display = 'none';
+      
+      // Create bottom icon tray (fixed at bottom)
+      const iconTray = document.createElement('div');
+      iconTray.style.cssText = 'position: absolute; bottom: 0; left: 0; right: 0; height: 48px; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 8px; background: rgba(0, 0, 0, 0.05); border-top: 1px solid rgba(0, 0, 0, 0.1); flex-shrink: 0; pointer-events: auto;';
+      
+      // Create delete button with SVG icon
+      const deleteBtn = document.createElement('button');
+      deleteBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+      deleteBtn.title = 'Delete note';
+      deleteBtn.setAttribute('type', 'button');
+      deleteBtn.style.cssText = 'width: 36px; height: 36px; min-width: 36px; border: none; background: rgba(0, 0, 0, 0.1); border-radius: 6px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 0; pointer-events: auto; transition: background 0.2s; color: #555;';
+      
       // Create color picker (hidden by default, shown as popup)
       const colorPicker = document.createElement('div');
-      colorPicker.style.cssText = 'display: none; gap: 4px; flex-shrink: 0; pointer-events: auto; position: absolute; top: 45px; right: 0; background: white; padding: 8px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 20;';
+      colorPicker.style.cssText = 'display: none; gap: 4px; flex-shrink: 0; pointer-events: auto; position: absolute; bottom: 52px; left: 50%; transform: translateX(-50%); background: white; padding: 8px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 20;';
       this.colors.forEach(color => {
         const colorDot = document.createElement('button');
         colorDot.setAttribute('type', 'button');
@@ -614,12 +631,12 @@ const meta = {
         colorPicker.appendChild(colorDot);
       });
       
-      // Create color indicator button
+      // Create color palette button with SVG icon
       const colorIndicator = document.createElement('button');
-      colorIndicator.innerHTML = '🎨';
+      colorIndicator.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5"></circle><circle cx="17.5" cy="10.5" r=".5"></circle><circle cx="8.5" cy="7.5" r=".5"></circle><circle cx="6.5" cy="12.5" r=".5"></circle><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"></path></svg>`;
       colorIndicator.title = 'Change color';
       colorIndicator.setAttribute('type', 'button');
-      colorIndicator.style.cssText = 'width: 36px; height: 36px; min-width: 36px; border: none; background: rgba(0, 0, 0, 0.1); border-radius: 6px; cursor: pointer; font-size: 1.1rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 0; pointer-events: auto; position: relative;';
+      colorIndicator.style.cssText = 'width: 36px; height: 36px; min-width: 36px; border: none; background: rgba(0, 0, 0, 0.1); border-radius: 6px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 0; pointer-events: auto; position: relative; transition: background 0.2s; color: #555;';
       
       colorIndicator.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -634,25 +651,14 @@ const meta = {
         }
       });
       
-      // Create image upload button (for mobile) - hidden
-      const imageBtn = document.createElement('button');
-      imageBtn.innerHTML = '🖼️';
-      imageBtn.title = 'Add image';
-      imageBtn.setAttribute('type', 'button');
-      imageBtn.style.cssText = 'display: none;';
-      
-      // Create hidden file input
-      const fileInput = document.createElement('input');
-      fileInput.type = 'file';
-      fileInput.accept = 'image/*';
-      fileInput.style.display = 'none';
-      
-      // Create sticky/pin button - positioned at bottom-right
+      // Create sticky/pin button with SVG icon
       const stickyBtn = document.createElement('button');
-      stickyBtn.innerHTML = note.sticky ? '📌' : '📍';
+      stickyBtn.innerHTML = note.sticky 
+        ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M16 9V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H19v-2c-1.66 0-3-1.34-3-3z"/></svg>`
+        : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 9V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H19v-2c-1.66 0-3-1.34-3-3z"/></svg>`;
       stickyBtn.title = note.sticky ? 'Unpin note' : 'Pin note';
       stickyBtn.setAttribute('type', 'button');
-      stickyBtn.style.cssText = 'position: absolute; bottom: 8px; right: 8px; width: 36px; height: 36px; min-width: 36px; border: none; background: rgb(75, 75, 75); border-radius: 6px; cursor: pointer; font-size: 1.1rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 0; pointer-events: auto; transition: background 0.2s; z-index: 10;';
+      stickyBtn.style.cssText = 'width: 36px; height: 36px; min-width: 36px; border: none; background: rgba(0, 0, 0, 0.1); border-radius: 6px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 0; pointer-events: auto; transition: background 0.2s; color: #555;';
       
       // Create minimize button
       const minimizeBtn = document.createElement('button');
@@ -660,19 +666,12 @@ const meta = {
       minimizeBtn.setAttribute('type', 'button');
       minimizeBtn.style.cssText = 'width: 36px; height: 36px; min-width: 36px; border: none; background: rgba(0, 0, 0, 0.1); border-radius: 6px; cursor: pointer; font-size: 1.5rem; color: #333; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 0; pointer-events: auto;';
       
-      // Create delete button - positioned at bottom-left
-      const deleteBtn = document.createElement('button');
-      deleteBtn.innerHTML = '🗑️';
-      deleteBtn.title = 'Delete note';
-      deleteBtn.setAttribute('type', 'button');
-      deleteBtn.style.cssText = 'position: absolute; bottom: 8px; left: 8px; width: 36px; height: 36px; min-width: 36px; border: none; background: rgb(75, 75, 75); border-radius: 6px; cursor: pointer; font-size: 1.1rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 0; pointer-events: auto; transition: background 0.2s; z-index: 10;';
-      
       // Create content area with contenteditable div for rich content
       const contentArea = document.createElement('div');
       contentArea.contentEditable = 'true';
       contentArea.innerHTML = this.renderContent(note.content);
-      contentArea.setAttribute('data-placeholder', 'Write your note... (paste images with Ctrl/Cmd+V)');
-      contentArea.style.cssText = 'flex: 1; border: none; background: transparent; padding: 1rem; font-size: 1rem; color: #333; outline: none; cursor: text; line-height: 1.5; width: 100%; box-sizing: border-box; font-family: inherit; pointer-events: auto; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;';
+      contentArea.setAttribute('data-placeholder', 'Write your note... (you can paste images too)');
+      contentArea.style.cssText = 'flex: 1; border: none; background: transparent; padding: 1rem; padding-bottom: 56px; font-size: 1rem; color: #333; outline: none; cursor: text; line-height: 1.5; width: 100%; box-sizing: border-box; font-family: inherit; pointer-events: auto; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;';
       contentArea.setAttribute('tabindex', '0');
       
       // Add placeholder styling
@@ -680,7 +679,7 @@ const meta = {
       style.textContent = `
         [contenteditable][data-placeholder]:empty:before {
           content: attr(data-placeholder);
-          color: #999;
+          color: #333;
           pointer-events: none;
         }
         [contenteditable] img {
@@ -807,15 +806,16 @@ const meta = {
       
       // Assemble the note
       header.appendChild(titleInput);
-      header.appendChild(colorIndicator);
-      colorIndicator.appendChild(colorPicker);
-      
-      header.appendChild(imageBtn);
       header.appendChild(minimizeBtn);
       noteEl.appendChild(header);
       noteEl.appendChild(contentArea);
-      noteEl.appendChild(deleteBtn);
-      noteEl.appendChild(stickyBtn);
+      
+      // Assemble icon tray
+      colorIndicator.appendChild(colorPicker);
+      iconTray.appendChild(deleteBtn);
+      iconTray.appendChild(colorIndicator);
+      iconTray.appendChild(stickyBtn);
+      noteEl.appendChild(iconTray);
       noteEl.appendChild(fileInput);
 
       // Event handlers
@@ -828,47 +828,19 @@ const meta = {
         this.updateNoteContent(note.id, contentArea.innerHTML);
       });
 
-      // Image upload handler
-      imageBtn.addEventListener('click', () => {
-        fileInput.click();
-      });
-      imageBtn.addEventListener('mouseenter', () => {
-        imageBtn.style.background = 'rgba(0, 0, 0, 0.2)';
-      });
-      imageBtn.addEventListener('mouseleave', () => {
-        imageBtn.style.background = 'rgba(0, 0, 0, 0.1)';
-      });
-
-      fileInput.addEventListener('change', async (e) => {
-        const file = (e.target as HTMLInputElement).files?.[0];
-        if (!file) return;
-
-        if (file.size > 2048 * 1024) {
-          alert('Image is too large. Please use images under 2MB.');
-          return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const imageData = event.target?.result as string;
-          
-          const img = document.createElement('img');
-          img.src = imageData;
-          img.style.cssText = 'max-width: 100%; height: auto; border-radius: 4px; margin: 0.5rem 0; display: block;';
-          
-          contentArea.appendChild(img);
-          this.updateNoteContent(note.id, contentArea.innerHTML);
-        };
-        reader.readAsDataURL(file);
-        fileInput.value = '';
-      });
-
       stickyBtn.addEventListener('click', () => this.toggleSticky(note.id));
       stickyBtn.addEventListener('mouseenter', () => {
-        stickyBtn.style.background = 'rgb(50, 50, 50)';
+        stickyBtn.style.background = 'rgba(0, 0, 0, 0.2)';
       });
       stickyBtn.addEventListener('mouseleave', () => {
-        stickyBtn.style.background = 'rgb(75, 75, 75)';
+        stickyBtn.style.background = 'rgba(0, 0, 0, 0.1)';
+      });
+      
+      colorIndicator.addEventListener('mouseenter', () => {
+        colorIndicator.style.background = 'rgba(0, 0, 0, 0.2)';
+      });
+      colorIndicator.addEventListener('mouseleave', () => {
+        colorIndicator.style.background = 'rgba(0, 0, 0, 0.1)';
       });
 
       minimizeBtn.addEventListener('click', () => this.collapseNote(note.id));
@@ -885,10 +857,10 @@ const meta = {
         }
       });
       deleteBtn.addEventListener('mouseenter', () => {
-        deleteBtn.style.background = 'rgb(50, 50, 50)';
+        deleteBtn.style.background = 'rgba(0, 0, 0, 0.2)';
       });
       deleteBtn.addEventListener('mouseleave', () => {
-        deleteBtn.style.background = 'rgb(75, 75, 75)';
+        deleteBtn.style.background = 'rgba(0, 0, 0, 0.1)';
       });
 
       this.notesContainer.appendChild(noteEl);
@@ -1082,30 +1054,42 @@ const meta = {
           border-radius: 8px;
           box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
           transition: transform 0.2s;
+          overflow: hidden;
         `;
 
         const title = document.createElement('div');
         title.style.cssText = 'font-weight: 600; color: #333; font-size: 0.95rem; margin-bottom: 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;';
         title.textContent = (note.sticky ? '📌 ' : '') + note.title;
 
-        const content = document.createElement('div');
-        content.style.cssText = 'color: #555; font-size: 0.85rem; line-height: 1.4; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;';
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = note.content;
-        content.textContent = tempDiv.textContent || '';
-
         stickyNote.appendChild(title);
-        stickyNote.appendChild(content);
 
-        // Add thumbnail if note has an image
+        // Check if note has an image - if so, show only the first image as content
         if (note.content.includes('<img')) {
-          const imgMatch = note.content.match(/<img[^>]+src="([^"]+)"/);
-          if (imgMatch) {
+          // Create a temporary DOM element to properly parse and extract the first image
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = note.content;
+          const firstImg = tempDiv.querySelector('img');
+          
+          if (firstImg && firstImg.src) {
             const thumbnail = document.createElement('img');
-            thumbnail.src = imgMatch[1];
-            thumbnail.style.cssText = 'width: 100%; height: 60px; object-fit: cover; border-radius: 4px; margin-top: 0.5rem;';
+            thumbnail.src = firstImg.src;
+            thumbnail.style.cssText = 'width: 100%; max-width: 100%; height: 80px; object-fit: cover; border-radius: 4px; margin-top: 0.25rem; display: block;';
+            
+            // Handle broken images - just hide them, don't show fallback
+            thumbnail.onerror = function() {
+              thumbnail.style.display = 'none';
+            };
+            
             stickyNote.appendChild(thumbnail);
           }
+        } else {
+          // No image, show text content only
+          const content = document.createElement('div');
+          content.style.cssText = 'color: #555; font-size: 0.85rem; line-height: 1.4; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;';
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = note.content;
+          content.textContent = tempDiv.textContent?.trim() || '';
+          stickyNote.appendChild(content);
         }
 
         stickyNote.addEventListener('click', async (e) => {
