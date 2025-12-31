@@ -27,6 +27,7 @@ try {
 ---
 
 <Base title={title} description={description}>
+  <div class="background-overlay"></div>
   <main class="main-content">
     <div class="membership-container">
       <!-- Header -->
@@ -1457,11 +1458,70 @@ try {
   document.addEventListener('DOMContentLoaded', () => {
     backupManager = new BackupManager();
     window.backupManager = backupManager;
+    
+    // Load user page background if it exists
+    const savedBackground = localStorage.getItem('userPageBackground');
+    const backgroundOverlay = document.querySelector('.background-overlay') as HTMLElement;
+    if (savedBackground && backgroundOverlay) {
+      backgroundOverlay.style.backgroundImage = `url(${savedBackground})`;
+      backgroundOverlay.style.opacity = '1';
+    }
+    
+    // Update plan-card backgrounds when theme changes
+    const updatePlanCards = () => {
+      const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+      const planCards = document.querySelectorAll('.plan-card') as NodeListOf<HTMLElement>;
+      planCards.forEach(card => {
+        if (isLight) {
+          card.style.background = 'rgba(255, 255, 255, 0.85)';
+          card.style.borderColor = 'rgba(0, 0, 0, 0.15)';
+          card.style.color = '#1f2937';
+        } else {
+          card.style.background = 'rgba(0, 0, 0, 0.9)';
+          card.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+          card.style.color = '';
+        }
+      });
+    };
+    
+    // Initial update
+    updatePlanCards();
+    
+    // Watch for theme changes
+    const observer = new MutationObserver(updatePlanCards);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   });
 </script>
 
 <style>
+  .background-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: 0;
+  }
+
+  .background-overlay::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1;
+  }
+
   .main-content {
+    position: relative;
+    z-index: 1;
     min-height: calc(100vh - 120px);
     /* background:#333; 
     color: white; */
@@ -1525,14 +1585,22 @@ try {
   }
 
   .plan-card {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 1rem;
     padding: 2rem;
     text-align: center;
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+  }
+  
+  [data-theme="light"] .plan-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    color: #1f2937;
   }
 
   .plan-card::before {
@@ -1595,11 +1663,6 @@ try {
     color: #6b7280;
   }
 
-  [data-theme="light"] .plan-card {
-    background: linear-gradient(135deg, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.02));
-    border: 1px solid rgba(0, 0, 0, 0.1);
-  }
-
   [data-theme="light"] .current-status {
     background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(0, 0, 0, 0.02));
     border: 1px solid rgba(255, 215, 0, 0.2);
@@ -1607,22 +1670,7 @@ try {
 
   /* Settings page theme support */
   [data-theme="light"] .main-content {
-    background: #f9fafb !important;
-  }
-
-  [data-theme="light"] .plan-card {
-    background: white !important;
-    border: 1px solid #e5e7eb !important;
-    color: #1f2937 !important;
-  }
-
-  [data-theme="light"] .plan-card::before {
-    background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.05), transparent) !important;
-  }
-
-  [data-theme="light"] .plan-card:hover {
-    border-color: #ffd700 !important;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important;
+    background: transparent !important;
   }
 
   /* Input fields in light mode - only for light bg inputs */

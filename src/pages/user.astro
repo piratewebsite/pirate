@@ -17,13 +17,27 @@ const meta = {
     <!-- Sticky Notes Container (Top Left) -->
     <div id="sticky-notes-container" class="sticky-notes-container"></div>
     
-    <div class="page-header">
+    <div class="page-header" id="page-header">
       <h1 id="page-title" contenteditable="true" spellcheck="false">My Page</h1>
-      <p id="page-subtitle" class="subtitle" contenteditable="true" spellcheck="false">Your personal workspace</p>
+      <div id="page-subtitle" class="subtitle" contenteditable="true" spellcheck="false" data-placeholder="Your personal workspace...">Your personal workspace</div>
+      <input type="range" id="opacity-slider" class="opacity-slider" min="0" max="100" value="60" style="display: none;" title="Adjust opacity">
+      <button id="save-page-btn" class="btn-save-page" style="display: none;">Save</button>
+      <button id="close-page-modal" class="btn-close-modal" style="display: none;" title="Close">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display: block; margin: 0 auto;">
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+        </svg>
+      </button>
     </div>
 
     <!-- Control Bar -->
     <div class="control-bar">
+      <button id="clear-notes-btn" class="btn-control-bar btn-danger" title="Delete All Notes">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 6h18M8 6V4h8v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"></path>
+        </svg>
+      </button>
+      <input type="text" id="search-notes" class="search-input" placeholder="Search notes..." autocomplete="off">
       <button id="view-all-btn" class="btn-control-bar" title="View All Notes">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="3" width="7" height="7"></rect>
@@ -32,14 +46,14 @@ const meta = {
           <rect x="14" y="14" width="7" height="7"></rect>
         </svg>
       </button>
-      <input type="text" id="search-notes" class="search-input" placeholder="Search notes...">
       <select id="sort-notes" class="sort-select">
+        <option value="">Posted Notes</option>
+        <option value="watchlist">📺 Watchlist</option>
+        <option value="channels">📺 Subscribed</option>
         <option value="date">Sort by Date</option>
         <option value="images">Has Images</option>
         <option value="text">Text Only</option>
         <option value="empty">Empty Notes</option>
-        <option value="watchlist">📺 Watchlist Videos</option>
-        <option value="channels">📺 Subscribed Channels</option>
         <option value="color-white">⚪ White</option>
         <option value="color-yellow">🟡 Yellow</option>
         <option value="color-red">🔴 Red</option>
@@ -48,9 +62,10 @@ const meta = {
         <option value="color-purple">🟣 Purple</option>
         <option value="color-orange">🟠 Orange</option>
       </select>
-      <button id="clear-notes-btn" class="btn-control-bar btn-danger" title="Delete All Notes">
+      <button id="add-note-btn" class="btn-control-bar btn-add">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M3 6h18M8 6V4h8v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"></path>
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
         </svg>
       </button>
     </div>
@@ -60,15 +75,13 @@ const meta = {
       <div id="collapsed-notes"></div>
     </div>
 
-    <!-- Control Buttons -->
-    <div class="note-controls">
-      <button id="add-note-btn" class="btn-control btn-add">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="12" y1="5" x2="12" y2="19"></line>
-          <line x1="5" y1="12" x2="19" y2="12"></line>
-        </svg>
-      </button>
-    </div>
+    <!-- Toggle Notes Button -->
+    <button id="toggle-notes-btn" class="btn-toggle-notes" title="Hide Notes">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M5 12h14M12 5l7 7-7 7"></path>
+      </svg>
+      <span>Hide Notes</span>
+    </button>
 
     <!-- Expanded Notes Container -->
     <div id="notes-container"></div>
@@ -350,6 +363,17 @@ const meta = {
         console.log('Migration complete');
         await this.loadNotes();
         console.log('Notes loaded:', this.notes.length);
+        
+        // Reset sort dropdown and search input BEFORE setting up listeners
+        const sortSelect = document.getElementById('sort-notes') as HTMLSelectElement;
+        if (sortSelect) {
+          sortSelect.value = '';
+        }
+        const searchInput = document.getElementById('search-notes') as HTMLInputElement;
+        if (searchInput) {
+          searchInput.value = '';
+        }
+        
         this.setupEventListeners();
         this.renderAllNotes();
         console.log('StickyNotesManager initialized successfully');
@@ -398,6 +422,9 @@ const meta = {
 
       const sortSelect = document.getElementById('sort-notes') as HTMLSelectElement;
       sortSelect?.addEventListener('change', (e) => this.handleSort((e.target as HTMLSelectElement).value));
+
+      const toggleNotesBtn = document.getElementById('toggle-notes-btn');
+      toggleNotesBtn?.addEventListener('click', () => this.toggleNotesInterface());
     }
 
     async loadNotes() {
@@ -1001,6 +1028,8 @@ const meta = {
 
       stickyContainer.innerHTML = '';
       const stickyNotes = this.notes.filter(n => n.sticky).sort((a, b) => a.createdAt - b.createdAt);
+      console.log('renderStickyNotes called - Total notes:', this.notes.length, 'Sticky notes:', stickyNotes.length);
+      console.log('Sticky notes being rendered:', stickyNotes.map(n => ({ id: n.id, title: n.title, sticky: n.sticky })));
 
       stickyNotes.forEach((note, index) => {
         const stickyNote = document.createElement('div');
@@ -1019,7 +1048,7 @@ const meta = {
 
         const title = document.createElement('div');
         title.style.cssText = 'font-weight: 600; color: #333; font-size: 0.95rem; margin-bottom: 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;';
-        title.textContent = note.title;
+        title.textContent = (note.sticky ? '📌 ' : '') + note.title;
 
         const content = document.createElement('div');
         content.style.cssText = 'color: #555; font-size: 0.85rem; line-height: 1.4; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;';
@@ -1082,7 +1111,7 @@ const meta = {
 
         const title = document.createElement('div');
         title.style.cssText = 'font-weight: 600; color: #333; font-size: 1rem; margin-bottom: 0.5rem; overflow-wrap: break-word; word-break: break-word;';
-        title.textContent = note.title + (note.sticky ? ' 📌' : '');
+        title.textContent = (note.sticky ? '📌 ' : '') + note.title;
 
         const contentDiv = document.createElement('div');
         contentDiv.style.cssText = 'color: #555; font-size: 0.9rem; line-height: 1.5; overflow-wrap: break-word; word-break: break-word; max-width: 100%;';
@@ -1236,6 +1265,38 @@ const meta = {
       });
     }
 
+    toggleNotesInterface() {
+      const stickyContainer = document.getElementById('sticky-notes-container');
+      const controlBar = document.querySelector('.control-bar') as HTMLElement;
+      const notesSidebar = document.getElementById('notes-sidebar');
+      const notesContainer = document.getElementById('notes-container');
+      const toggleBtn = document.getElementById('toggle-notes-btn');
+      
+      const isHidden = stickyContainer?.style.display === 'none';
+      
+      if (isHidden) {
+        // Show notes interface
+        if (stickyContainer) stickyContainer.style.display = '';
+        if (controlBar) controlBar.style.display = '';
+        if (notesSidebar) notesSidebar.style.display = '';
+        if (notesContainer) notesContainer.style.display = '';
+        if (toggleBtn) {
+          toggleBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"></path></svg><span>Hide Notes</span>';
+          toggleBtn.title = 'Hide Notes';
+        }
+      } else {
+        // Hide notes interface
+        if (stickyContainer) stickyContainer.style.display = 'none';
+        if (controlBar) controlBar.style.display = 'none';
+        if (notesSidebar) notesSidebar.style.display = 'none';
+        if (notesContainer) notesContainer.style.display = 'none';
+        if (toggleBtn) {
+          toggleBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"></path></svg><span>Show Notes</span>';
+          toggleBtn.title = 'Show Notes';
+        }
+      }
+    }
+
     handleSearch(query: string) {
       const lowerQuery = query.toLowerCase().trim();
       
@@ -1279,7 +1340,7 @@ const meta = {
 
         const title = document.createElement('div');
         title.style.cssText = 'font-weight: 600; color: #333; font-size: 0.95rem; margin-bottom: 0.5rem;';
-        title.textContent = note.title;
+        title.textContent = (note.sticky ? '📌 ' : '') + note.title;
 
         const content = document.createElement('div');
         content.style.cssText = 'color: #555; font-size: 0.85rem; line-height: 1.4; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;';
@@ -1289,6 +1350,17 @@ const meta = {
 
         noteCard.appendChild(title);
         noteCard.appendChild(content);
+
+        // Add thumbnail if note has an image
+        if (note.content.includes('<img')) {
+          const imgMatch = note.content.match(/<img[^>]+src="([^"]+)"/);
+          if (imgMatch) {
+            const thumbnail = document.createElement('img');
+            thumbnail.src = imgMatch[1];
+            thumbnail.style.cssText = 'width: 100%; height: 60px; object-fit: cover; border-radius: 4px; margin-top: 0.5rem;';
+            noteCard.appendChild(thumbnail);
+          }
+        }
 
         noteCard.addEventListener('click', () => this.expandNote(note.id));
         noteCard.addEventListener('mouseenter', () => {
@@ -1324,14 +1396,23 @@ const meta = {
           sortedNotes = sortedNotes.filter(note => note.content.includes('<img'));
           break;
         case 'text':
-          sortedNotes = sortedNotes.filter(note => !note.content.includes('<img'));
+          sortedNotes = sortedNotes.filter(note => {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = note.content;
+            const textContent = tempDiv.textContent?.trim() || '';
+            const hasImages = note.content.includes('<img');
+            // Has text content but no images
+            return textContent !== '' && !hasImages;
+          });
           break;
         case 'empty':
           sortedNotes = sortedNotes.filter(note => {
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = note.content;
             const textContent = tempDiv.textContent?.trim() || '';
-            return textContent === '';
+            // Also check if content has no images
+            const hasImages = note.content.includes('<img');
+            return textContent === '' && !hasImages;
           });
           break;
         case 'watchlist':
@@ -1347,6 +1428,9 @@ const meta = {
             if (targetColor) {
               sortedNotes = sortedNotes.filter(note => note.color === targetColor);
             }
+          } else if (sortType === '') {
+            // Default view - only show stickied notes
+            sortedNotes = sortedNotes.filter(note => note.sticky);
           }
       }
 
@@ -1373,7 +1457,7 @@ const meta = {
 
         const title = document.createElement('div');
         title.style.cssText = 'font-weight: 600; color: #333; font-size: 0.95rem; margin-bottom: 0.5rem;';
-        title.textContent = note.title + (note.sticky ? ' 📌' : '');
+        title.textContent = (note.sticky ? '📌 ' : '') + note.title;
 
         const content = document.createElement('div');
         content.style.cssText = 'color: #555; font-size: 0.85rem; line-height: 1.4; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;';
@@ -1383,6 +1467,17 @@ const meta = {
 
         noteCard.appendChild(title);
         noteCard.appendChild(content);
+
+        // Add thumbnail if note has an image
+        if (note.content.includes('<img')) {
+          const imgMatch = note.content.match(/<img[^>]+src="([^"]+)"/);
+          if (imgMatch) {
+            const thumbnail = document.createElement('img');
+            thumbnail.src = imgMatch[1];
+            thumbnail.style.cssText = 'width: 100%; height: 60px; object-fit: cover; border-radius: 4px; margin-top: 0.5rem;';
+            noteCard.appendChild(thumbnail);
+          }
+        }
 
         noteCard.addEventListener('click', () => this.expandNote(note.id));
         noteCard.addEventListener('mouseenter', () => {
@@ -1443,7 +1538,8 @@ const meta = {
       }
       
       if (savedSubtitle !== null && this.pageSubtitle) {
-        this.pageSubtitle.textContent = savedSubtitle;
+        // Load as HTML to support formatted content and images
+        this.pageSubtitle.innerHTML = savedSubtitle;
         if (savedSubtitle === '') {
           this.pageSubtitle.classList.add('edited-empty');
         }
@@ -1451,43 +1547,194 @@ const meta = {
     }
 
     setupPageTextEditing() {
-      if (this.pageTitle) {
-        this.pageTitle.addEventListener('blur', () => {
-          const text = this.pageTitle?.textContent?.trim() || '';
-          localStorage.setItem('userPageTitle', text);
-          if (text === '') {
-            this.pageTitle?.classList.add('edited-empty');
-          } else {
-            this.pageTitle?.classList.remove('edited-empty');
+      const pageHeader = document.getElementById('page-header');
+      const saveBtn = document.getElementById('save-page-btn');
+      const closeBtn = document.getElementById('close-page-modal');
+      const opacitySlider = document.getElementById('opacity-slider') as HTMLInputElement;
+      
+      const showSaveButton = () => {
+        if (saveBtn) saveBtn.style.display = 'block';
+        if (closeBtn) closeBtn.style.display = 'block';
+        if (opacitySlider) opacitySlider.style.display = 'block';
+        if (pageHeader) {
+          pageHeader.classList.add('editing');
+          
+          // Apply saved opacity when entering editing mode
+          const savedOpacity = localStorage.getItem('modalOpacity') || '60';
+          const value = parseInt(savedOpacity);
+          const opacity = value / 100;
+          const blur = (value / 100) * 10;
+          pageHeader.style.background = `rgba(0, 0, 0, ${opacity})`;
+          pageHeader.style.backdropFilter = `blur(${blur}px)`;
+        }
+      };
+      
+      const hideSaveButton = () => {
+        if (saveBtn) saveBtn.style.display = 'none';
+        if (closeBtn) closeBtn.style.display = 'none';
+        if (opacitySlider) opacitySlider.style.display = 'none';
+        if (pageHeader) {
+          pageHeader.classList.remove('editing');
+          
+          // Reset to transparent when exiting editing mode
+          pageHeader.style.background = '';
+          pageHeader.style.backdropFilter = '';
+        }
+      };
+      
+      const savePageContent = async () => {
+        const titleText = this.pageTitle?.textContent?.trim() || '';
+        const subtitleHTML = this.pageSubtitle?.innerHTML?.trim() || '';
+        
+        // Only create note if there's content
+        if (titleText || subtitleHTML) {
+          // Get the notes manager instance and create a note
+          const notesManager = (window as any).stickyNotesManager;
+          if (notesManager) {
+            await notesManager.createNote();
+            const newNote = notesManager.notes[notesManager.notes.length - 1];
+            if (newNote) {
+              newNote.title = titleText || 'Untitled Note';
+              newNote.content = subtitleHTML;
+              await notesManager.saveNote(newNote);
+              notesManager.renderStickyNotes();
+            }
           }
-        });
+          
+          // Reset fields to defaults
+          if (this.pageTitle) this.pageTitle.textContent = 'My Page';
+          if (this.pageSubtitle) this.pageSubtitle.innerHTML = 'Your personal workspace';
+          
+          // Clear localStorage so the defaults stay
+          localStorage.removeItem('userPageTitle');
+          localStorage.removeItem('userPageSubtitle');
+        }
+        
+        hideSaveButton();
+      };
+
+      if (this.pageTitle) {
+        this.pageTitle.addEventListener('focus', showSaveButton);
         
         this.pageTitle.addEventListener('keydown', (e) => {
           if (e.key === 'Enter') {
             e.preventDefault();
-            this.pageTitle?.blur();
+            this.pageSubtitle?.focus();
           }
         });
       }
 
       if (this.pageSubtitle) {
-        this.pageSubtitle.addEventListener('blur', () => {
-          const text = this.pageSubtitle?.textContent?.trim() || '';
-          localStorage.setItem('userPageSubtitle', text);
-          if (text === '') {
-            this.pageSubtitle?.classList.add('edited-empty');
-          } else {
-            this.pageSubtitle?.classList.remove('edited-empty');
-          }
-        });
+        this.pageSubtitle.addEventListener('focus', showSaveButton);
         
-        this.pageSubtitle.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') {
+        // Handle image paste
+        this.pageSubtitle.addEventListener('paste', async (e) => {
+          const items = e.clipboardData?.items;
+          if (!items) return;
+
+          let hasImageBlob = false;
+          for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+              hasImageBlob = true;
+              break;
+            }
+          }
+
+          if (hasImageBlob) {
             e.preventDefault();
-            this.pageSubtitle?.blur();
+            
+            for (let i = 0; i < items.length; i++) {
+              const item = items[i];
+              
+              if (item.type.indexOf('image') !== -1) {
+                try {
+                  const blob = item.getAsFile();
+                  if (!blob) continue;
+
+                  if (blob.size > 2048 * 1024) {
+                    alert('Pasted image is too large. Please use images under 2MB.');
+                    return;
+                  }
+
+                  const reader = new FileReader();
+                  reader.onload = (event) => {
+                    const imageData = event.target?.result as string;
+                    const img = document.createElement('img');
+                    img.src = imageData;
+                    img.style.maxWidth = '100%';
+                    img.style.height = 'auto';
+                    img.style.borderRadius = '4px';
+                    img.style.margin = '0.5rem 0';
+                    img.style.display = 'block';
+                    
+                    const selection = window.getSelection();
+                    if (selection && selection.rangeCount > 0) {
+                      const range = selection.getRangeAt(0);
+                      range.deleteContents();
+                      range.insertNode(img);
+                      range.setStartAfter(img);
+                      range.collapse(true);
+                      selection.removeAllRanges();
+                      selection.addRange(range);
+                    } else if (this.pageSubtitle) {
+                      this.pageSubtitle.appendChild(img);
+                    }
+                  };
+                  
+                  reader.readAsDataURL(blob);
+                  return;
+                } catch (error) {
+                  console.error('Error pasting image:', error);
+                  alert('Failed to paste image.');
+                  return;
+                }
+              }
+            }
           }
         });
       }
+      
+      if (saveBtn) {
+        saveBtn.addEventListener('click', savePageContent);
+      }
+      
+      // Close button just exits editing mode without resetting
+      if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+          hideSaveButton();
+        });
+      }
+      
+      // Load saved opacity setting
+      const savedOpacity = localStorage.getItem('modalOpacity');
+      if (opacitySlider && savedOpacity) {
+        opacitySlider.value = savedOpacity;
+      }
+      
+      // Opacity slider adjusts background opacity and blur
+      if (opacitySlider) {
+        opacitySlider.addEventListener('input', () => {
+          const value = parseInt(opacitySlider.value);
+          const opacity = value / 100;
+          const blur = (value / 100) * 10; // 0 to 10px blur
+          
+          if (pageHeader) {
+            pageHeader.style.background = `rgba(0, 0, 0, ${opacity})`;
+            pageHeader.style.backdropFilter = `blur(${blur}px)`;
+          }
+          
+          // Save setting to localStorage
+          localStorage.setItem('modalOpacity', value.toString());
+        });
+      }
+      
+      // Click outside to hide save button
+      document.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+        if (!pageHeader?.contains(target)) {
+          hideSaveButton();
+        }
+      });
     }
   }
 
@@ -1495,11 +1742,11 @@ const meta = {
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
       new UserPageManager();
-      new StickyNotesManager();
+      (window as any).stickyNotesManager = new StickyNotesManager();
     });
   } else {
     new UserPageManager();
-    new StickyNotesManager();
+    (window as any).stickyNotesManager = new StickyNotesManager();
   }
 </script>
 
@@ -1552,17 +1799,148 @@ const meta = {
 
   .page-header {
     position: fixed;
-    top: 280px; /* Below sticky notes area (3 rows @ ~140px each + padding) */
-    left: 0;
-    right: 0;
+    top: 280px;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 900px;
+    width: 90%;
     text-align: center;
     padding: 2rem;
     z-index: 25;
+    transition: all 0.3s;
+    border-radius: 12px;
+  }
+
+  .page-header.editing {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90vw;
+    max-width: 1200px;
+    height: 80vh;
+    max-height: 80vh;
+    overflow-y: auto;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    z-index: 400;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+    padding: 4rem 2rem 2rem 2rem;
+  }
+
+  .page-header.editing::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: -1;
+  }
+
+  .btn-close-modal {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .btn-close-modal:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  .opacity-slider {
+    position: absolute;
+    top: 1.5rem;
+    right: calc(1rem + 50px + 120px + 1rem);
+    width: 120px;
+    height: 6px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  .opacity-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .opacity-slider::-webkit-slider-thumb:hover {
+    background: white;
+    transform: scale(1.2);
+  }
+
+  .opacity-slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+  }
+
+  .opacity-slider::-moz-range-thumb:hover {
+    background: white;
+    transform: scale(1.2);
+  }
+
+  .btn-save-page {
+    position: absolute;
+    top: 1rem;
+    right: calc(1rem + 50px);
+    padding: 0.5rem 1.5rem;
+    background: rgba(76, 175, 80, 0.9);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .btn-save-page:hover {
+    background: rgba(76, 175, 80, 1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   }
 
   @media (max-width: 640px) {
     .page-header {
-      top: 200px; /* Below sticky notes area (2 rows on mobile) */
+      top: 200px;
+    }
+    
+    .page-header.editing {
+      width: 95vw;
+      height: 90vh;
+      max-height: 90vh;
+      padding: 6rem 1rem 1rem 1rem;
     }
   }
 
@@ -1616,9 +1994,14 @@ const meta = {
     cursor: text;
     display: block;
     min-width: 150px;
+    max-width: 800px;
+    margin: 0 auto;
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
     transition: background 0.2s;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    line-height: 1.6;
   }
 
   .subtitle:hover,
@@ -1626,31 +2009,69 @@ const meta = {
     background: rgba(255, 255, 255, 0.1);
   }
 
-  .subtitle:empty:before {
-    content: 'Your personal workspace';
+  .subtitle[data-placeholder]:empty:before {
+    content: attr(data-placeholder);
     color: rgba(255, 255, 255, 0.5);
+    pointer-events: none;
   }
 
   .subtitle.edited-empty:before {
     content: '';
   }
 
+  .subtitle img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 0.5rem auto;
+    display: block;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  }
+
   /* Notes Sidebar */
   .notes-sidebar {
-    position: fixed;
-    right: 0;
-    top: 120px;
-    bottom: 120px;
+    position: fixed !important;
+    right: 0 !important;
+    top: 70px !important;
+    bottom: 150px !important;
     display: flex;
-    flex-direction: column;
+    flex-direction: column !important;
     gap: 0.5rem;
     padding: 1rem 0 1rem 10px;
-    max-height: calc(100vh - 240px);
+    max-height: calc(100vh - 220px) !important;
     overflow-y: auto;
     overflow-x: visible;
     z-index: 150;
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  }
+
+  .btn-toggle-notes {
+    position: fixed;
+    bottom: 130px;
+    right: 0;
+    width: 160px;
+    height: 44px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    border: none;
+    border-radius: 8px 0 0 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: -2px 2px 8px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    z-index: 160;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .btn-toggle-notes:hover {
+    background: rgba(0, 0, 0, 0.95);
+    box-shadow: -4px 4px 12px rgba(0, 0, 0, 0.4);
+    transform: translateX(-5px);
   }
 
   .notes-sidebar::-webkit-scrollbar {
@@ -1746,7 +2167,7 @@ const meta = {
     position: fixed;
     top: 1rem;
     right: 1rem;
-    z-index: 150;
+    z-index: 200;
     display: flex;
     gap: 0.5rem;
     align-items: center;
@@ -1984,7 +2405,9 @@ const meta = {
     }
 
     .notes-sidebar {
-      max-height: 50vh;
+      top: 70px !important;
+      bottom: 150px !important;
+      max-height: calc(100vh - 220px) !important;
     }
 
     .collapsed-note-tab {
