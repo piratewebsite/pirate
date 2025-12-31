@@ -119,6 +119,7 @@ const meta = {
     collapsed: boolean;
     sticky: boolean;
     createdAt: number;
+    order: number;
   }
 
   // IndexedDB Helper
@@ -443,11 +444,12 @@ const meta = {
       try {
         this.notes = await this.db.getAllNotes();
         // Ensure all notes have required properties
-        this.notes = this.notes.map((note: any) => ({
+        this.notes = this.notes.map((note: any, index: number) => ({
           ...note,
           collapsed: note.collapsed !== undefined ? note.collapsed : true,
           sticky: note.sticky !== undefined ? note.sticky : false,
           createdAt: note.createdAt || Date.now(),
+          order: note.order !== undefined ? note.order : index,
         }));
       } catch (error) {
         console.error('Error loading notes:', error);
@@ -470,6 +472,7 @@ const meta = {
 
     async createNote() {
       const noteNumber = this.notes.length + 1;
+      const maxOrder = this.notes.reduce((max, n) => Math.max(max, n.order || 0), 0);
       const note: StickyNote = {
         id: Date.now().toString(),
         title: `Note ${noteNumber}`,
@@ -478,6 +481,7 @@ const meta = {
         collapsed: true,
         sticky: false,
         createdAt: Date.now(),
+        order: maxOrder + 1,
       };
 
       this.notes.push(note);
@@ -1099,6 +1103,33 @@ const meta = {
       this.renderStickyNotes();
     }
 
+    async reorderNotes(draggedId: string, targetId: string) {
+      console.log('reorderNotes called:', draggedId, targetId);
+      const draggedNote = this.notes.find(n => n.id === draggedId);
+      const targetNote = this.notes.find(n => n.id === targetId);
+      
+      console.log('draggedNote:', draggedNote, 'targetNote:', targetNote);
+      
+      if (!draggedNote || !targetNote) {
+        console.error('Could not find notes to reorder');
+        return;
+      }
+
+      // Swap order values
+      const tempOrder = draggedNote.order;
+      draggedNote.order = targetNote.order;
+      targetNote.order = tempOrder;
+
+      console.log('After swap - draggedNote.order:', draggedNote.order, 'targetNote.order:', targetNote.order);
+
+      // Save both notes
+      await this.saveNote(draggedNote);
+      await this.saveNote(targetNote);
+
+      // Re-render sticky notes to reflect new order
+      this.renderStickyNotes();
+    }
+
     async clearAllNotes() {
       if (confirm('Delete all notes? This cannot be undone.')) {
         this.notes = [];
@@ -1137,7 +1168,7 @@ const meta = {
       if (!stickyContainer) return;
 
       stickyContainer.innerHTML = '';
-      const stickyNotes = this.notes.filter(n => n.sticky).sort((a, b) => a.createdAt - b.createdAt);
+      const stickyNotes = this.notes.filter(n => n.sticky).sort((a, b) => a.order - b.order);
       console.log('renderStickyNotes called - Total notes:', this.notes.length, 'Sticky notes:', stickyNotes.length);
       console.log('Sticky notes being rendered:', stickyNotes.map(n => ({ id: n.id, title: n.title, sticky: n.sticky })));
 
@@ -1145,15 +1176,16 @@ const meta = {
         const stickyNote = document.createElement('div');
         stickyNote.className = 'sticky-note-card';
         stickyNote.dataset.id = note.id;
+        stickyNote.draggable = true;
         stickyNote.style.cssText = `
           background-color: ${note.color};
-          cursor: pointer;
+          cursor: grab;
           width: 180px;
           min-height: 120px;
           padding: 1rem;
           border-radius: 8px;
           box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-          transition: transform 0.2s;
+          transition: transform 0.2s, opacity 0.2s;
           overflow: hidden;
         `;
 
@@ -1207,6 +1239,69 @@ const meta = {
         });
         stickyNote.addEventListener('mouseleave', () => {
           stickyNote.style.transform = 'translateY(0)';
+        });
+
+        // Drag and drop handlers
+        stickyNote.addEventListener('dragstart', (e) => {
+          console.log('Dragstart on note:', note.id);
+          e.dataTransfer!.effectAllowed = 'move';
+          e.dataTransfer!.setData('text/plain', note.id);
+          console.log('Set dataTransfer data to:', note.id);
+          stickyNote.style.opacity = '0.5';
+          stickyNote.style.cursor = 'grabbing';
+        });
+
+        stickyNote.addEventListener('dragend', (e) => {
+          stickyNote.style.opacity = '1';
+          stickyNote.style.cursor = 'grab';
+          // Remove all drag-over classes
+          document.querySelectorAll('.sticky-note-card').forEach(card => {
+            card.classList.remove('drag-over');
+          });
+        });
+
+        stickyNote.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          e.dataTransfer!.dropEffect = 'move';
+          // Just add the class on any dragover - we'll check the data on drop
+          stickyNote.classList.add('drag-over');
+        });
+
+        stickyNote.addEventListener('dragleave', (e) => {
+          stickyNote.classList.remove('drag-over');
+        });
+
+        stickyNote.addEventListener('drop', async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log('Drop event fired on note:', note.id);
+          const draggedId = e.dataTransfer!.getData('text/plain');
+          console.log('Dragged ID from dataTransfer:', draggedId);
+          if (draggedId !== note.id) {
+            console.log('Calling reorderNotes with draggedId:', draggedId, 'targetId:', note.id);
+            await this.reorderNotes(draggedId, note.id);
+          }
+          stickyNote.classList.remove('drag-over');
+        });
+
+        // Add click handler that doesn't interfere with dragging
+        let isDragging = false;
+        stickyNote.addEventListener('mousedown', () => {
+          isDragging = false;
+        });
+
+        stickyNote.addEventListener('mousemove', () => {
+          isDragging = true;
+        });
+
+        stickyNote.addEventListener('click', async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          // Only open note if not dragging
+          if (!isDragging) {
+            console.log('Sticky note clicked:', note.id);
+            await this.expandNote(note.id, stickyNote);
+          }
         });
 
         stickyContainer.appendChild(stickyNote);
@@ -1587,8 +1682,9 @@ const meta = {
               sortedNotes = sortedNotes.filter(note => note.color === targetColor);
             }
           } else if (sortType === '') {
-            // Default view - only show stickied notes
-            sortedNotes = sortedNotes.filter(note => note.sticky);
+            // Default view - call renderStickyNotes to show stickied notes with proper drag handlers
+            this.renderStickyNotes();
+            return;
           }
       }
 
@@ -2487,6 +2583,11 @@ const meta = {
   .sticky-note-card {
     pointer-events: auto !important;
     flex-shrink: 0;
+  }
+
+  .sticky-note-card.drag-over {
+    transform: scale(1.05) !important;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5), inset 0 0 0 2px rgba(59, 130, 246, 0.5) !important;
   }
 
   @media (max-width: 640px) {
