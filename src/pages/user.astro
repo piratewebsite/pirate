@@ -1122,11 +1122,18 @@ const meta = {
       const note = this.notes.find(n => n.id === id);
       if (!note) return;
 
-      // If this is a new unsaved note with no content, delete it instead of saving
-      if ((note as any).isNew && !note.title?.trim().replace(/^Note \d+$/, '') && !note.content?.trim()) {
-        // Delete the empty new note
+      // If this is a new unsaved note with no meaningful content, delete it instead of saving
+      const isNewNote = (note as any).isNew;
+      const titleText = note.title?.trim() || '';
+      const contentText = note.content?.trim() || '';
+      const isDefaultTitle = /^Note \d+$/.test(titleText);
+      const isEmpty = titleText === '' || isDefaultTitle;
+      
+      if (isNewNote && isEmpty && contentText === '') {
+        // Delete the empty new note from memory
         this.notes = this.notes.filter(n => n.id !== id);
         // Don't need to delete from DB since it was never saved
+        console.log('Deleted empty new note:', id);
       } else {
         note.collapsed = true;
         await this.saveNote(note);
@@ -1163,12 +1170,25 @@ const meta = {
         closeBtn.style.display = 'none';
         closeBtn.onclick = null;
       }
+      
+      // Hide save button
+      const saveBtn = document.getElementById('save-page-btn');
+      if (saveBtn) {
+        saveBtn.style.display = 'none';
+        saveBtn.onclick = null;
+      }
+      
       if (opacitySlider) opacitySlider.style.display = 'none';
       const opacityControl = document.getElementById('opacity-control') as HTMLElement;
       if (opacityControl) opacityControl.style.display = 'none';
 
-      // Render collapsed
-      this.renderCollapsedNote(note);
+      // Only render collapsed if note still exists (wasn't deleted as empty)
+      if (this.notes.find(n => n.id === id)) {
+        this.renderCollapsedNote(note);
+      } else {
+        // Note was deleted, refresh sidebar
+        this.renderStickyNotes();
+      }
 
       if (this.activeNoteId === id) {
         this.activeNoteId = null;
