@@ -28,7 +28,7 @@ const meta = {
       <!-- Icon tray at bottom with delete, pin, color -->
       <div id="page-icon-tray" class="page-icon-tray" style="display: none;"></div>
       
-      <div class="opacity-control" style="display: none;">
+      <div id="opacity-control" class="opacity-control" style="display: none;">
         <label for="opacity-slider" class="opacity-label">Opacity:</label>
         <input type="range" id="opacity-slider" class="opacity-slider" min="0" max="100" value="60" title="Adjust opacity">
       </div>
@@ -1048,13 +1048,27 @@ const meta = {
         closeBtn.onclick = () => this.collapseNote(id);
       }
       
-      if (opacitySlider) {
-        const opacityControl = document.querySelector('.opacity-control') as HTMLElement;
-        if (opacityControl) opacityControl.style.display = 'flex';
+      // Always show opacity control when expanding a note
+      const opacityControl = document.getElementById('opacity-control') as HTMLElement;
+      if (opacityControl) {
+        opacityControl.style.display = 'flex';
+        opacityControl.style.visibility = 'visible';
         // Apply saved opacity value to slider
         const savedOpacity = localStorage.getItem('modalOpacity') || '60';
-        opacitySlider.value = savedOpacity;
+        if (opacitySlider) {
+          opacitySlider.value = savedOpacity;
+          opacitySlider.style.display = 'block';
+        }
       }
+      
+      // Double-check after a frame to ensure it's visible
+      requestAnimationFrame(() => {
+        const opControl = document.getElementById('opacity-control') as HTMLElement;
+        if (opControl) {
+          opControl.style.display = 'flex';
+          opControl.style.visibility = 'visible';
+        }
+      });
 
       // Show save button for new unsaved notes
       const saveBtn = document.getElementById('save-page-btn');
@@ -1150,7 +1164,7 @@ const meta = {
         closeBtn.onclick = null;
       }
       if (opacitySlider) opacitySlider.style.display = 'none';
-      const opacityControl = document.querySelector('.opacity-control') as HTMLElement;
+      const opacityControl = document.getElementById('opacity-control') as HTMLElement;
       if (opacityControl) opacityControl.style.display = 'none';
 
       // Render collapsed
@@ -2396,13 +2410,31 @@ const meta = {
         
         if (saveBtn) saveBtn.style.display = 'block';
         if (closeBtn) closeBtn.style.display = 'block';
-        const opacityControl = document.querySelector('.opacity-control') as HTMLElement;
-        if (opacityControl) opacityControl.style.display = 'flex';
+        const opacityControl = document.getElementById('opacity-control') as HTMLElement;
+        if (opacityControl) {
+          opacityControl.style.display = 'flex';
+          opacityControl.style.visibility = 'visible';
+        }
         if (opacitySlider) {
           // Apply saved opacity value
           const savedOpacity = localStorage.getItem('modalOpacity') || '60';
           opacitySlider.value = savedOpacity;
+          opacitySlider.style.display = 'block';
+          opacitySlider.style.visibility = 'visible';
         }
+        // Double-check after a frame
+        requestAnimationFrame(() => {
+          const opControl = document.getElementById('opacity-control') as HTMLElement;
+          if (opControl) {
+            opControl.style.display = 'flex';
+            opControl.style.visibility = 'visible';
+          }
+          const opSlider = document.getElementById('opacity-slider') as HTMLInputElement;
+          if (opSlider) {
+            opSlider.style.display = 'block';
+            opSlider.style.visibility = 'visible';
+          }
+        });
         if (toolbar) {
           toolbar.style.display = 'flex';
           this.populatePageToolbar();
@@ -2435,7 +2467,7 @@ const meta = {
         if (saveBtn) saveBtn.style.display = 'none';
         if (closeBtn) closeBtn.style.display = 'none';
         if (opacitySlider) opacitySlider.style.display = 'none';
-        const opacityControl = document.querySelector('.opacity-control') as HTMLElement;
+        const opacityControl = document.getElementById('opacity-control') as HTMLElement;
         if (opacityControl) opacityControl.style.display = 'none';
         if (toolbar) toolbar.style.display = 'none';
         if (iconTray) iconTray.style.display = 'none';
@@ -2800,6 +2832,8 @@ const meta = {
     outline: none;
     cursor: pointer;
     flex-shrink: 0;
+    min-width: 100px;
+    display: block !important;
   }
 
   .opacity-control {
@@ -2809,7 +2843,11 @@ const meta = {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    z-index: 100;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    pointer-events: auto;
   }
 
   .opacity-label {
@@ -3424,12 +3462,18 @@ const meta = {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      z-index: 100;
+      z-index: 1000;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      pointer-events: auto;
     }
 
     .opacity-slider {
       width: 80px;
       flex-shrink: 0;
+      min-width: 80px;
+      display: block !important;
     }
   }
 </style>
