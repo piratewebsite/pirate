@@ -1996,7 +1996,7 @@ const meta = {
       
       // Delete button
       const deleteBtn = document.createElement('button');
-      deleteBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+      deleteBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>`;
       deleteBtn.title = 'Delete note';
       deleteBtn.setAttribute('type', 'button');
       deleteBtn.style.cssText = 'width: 36px; height: 36px; min-width: 36px; border: none; background: rgba(255, 255, 255, 0.1); border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transition: background 0.2s; color: #fff;';
@@ -2051,22 +2051,37 @@ const meta = {
       
       // Pin button
       const pinBtn = document.createElement('button');
-      pinBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 9V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H19v-2c-1.66 0-3-1.34-3-3z"/></svg>`;
-      pinBtn.title = 'Pin/Unpin note';
+      const updatePinButton = (isSticky: boolean) => {
+        if (isSticky) {
+          pinBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M16 9V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H19v-2c-1.66 0-3-1.34-3-3z"/></svg>`;
+          pinBtn.style.background = 'rgba(255, 193, 7, 0.3)';
+          pinBtn.style.color = '#ffc107';
+          pinBtn.title = 'Unpin note (currently pinned)';
+        } else {
+          pinBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 9V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H19v-2c-1.66 0-3-1.34-3-3z"/></svg>`;
+          pinBtn.style.background = 'rgba(255, 255, 255, 0.1)';
+          pinBtn.style.color = '#fff';
+          pinBtn.title = 'Pin note';
+        }
+      };
+      
       pinBtn.setAttribute('type', 'button');
-      pinBtn.style.cssText = 'width: 36px; height: 36px; min-width: 36px; border: none; background: rgba(255, 255, 255, 0.1); border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transition: background 0.2s; color: #fff;';
+      pinBtn.style.cssText = 'width: 36px; height: 36px; min-width: 36px; border: none; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transition: all 0.2s; font-weight: 500;';
+      updatePinButton(note?.sticky || false);
+      
       pinBtn.addEventListener('click', async () => {
-        const note = getCurrentNote();
-        if (note) {
-          await this.toggleSticky(note.id);
-          // Update icon based on sticky state
-          pinBtn.innerHTML = note.sticky 
-            ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M16 9V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H19v-2c-1.66 0-3-1.34-3-3z"/></svg>`
-            : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 9V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H19v-2c-1.66 0-3-1.34-3-3z"/></svg>`;
+        const currentNote = getCurrentNote();
+        if (currentNote) {
+          await this.toggleSticky(currentNote.id);
+          updatePinButton(currentNote.sticky);
         }
       });
-      pinBtn.addEventListener('mouseenter', () => { pinBtn.style.background = 'rgba(255, 255, 255, 0.2)'; });
-      pinBtn.addEventListener('mouseleave', () => { pinBtn.style.background = 'rgba(255, 255, 255, 0.1)'; });
+      pinBtn.addEventListener('mouseenter', () => { 
+        pinBtn.style.opacity = '0.8';
+      });
+      pinBtn.addEventListener('mouseleave', () => { 
+        pinBtn.style.opacity = '1';
+      });
       
       // Close picker when clicking outside
       document.addEventListener('click', (e) => {
