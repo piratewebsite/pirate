@@ -19,7 +19,15 @@ const meta = {
     
     <div class="page-header" id="page-header">
       <h1 id="page-title" contenteditable="true" spellcheck="false">One/App</h1>
+      
+      <!-- Formatting toolbar (between title and subtitle) -->
+      <div id="page-toolbar" class="page-toolbar" style="display: none;"></div>
+      
       <div id="page-subtitle" class="subtitle" contenteditable="true" spellcheck="false" data-placeholder="Your personal workspace...">Your personal workspace</div>
+      
+      <!-- Icon tray at bottom with delete, pin, color -->
+      <div id="page-icon-tray" class="page-icon-tray" style="display: none;"></div>
+      
       <input type="range" id="opacity-slider" class="opacity-slider" min="0" max="100" value="60" style="display: none;" title="Adjust opacity">
       <button id="save-page-btn" class="btn-save-page" style="display: none;">Save</button>
       <button id="close-page-modal" class="btn-close-modal" style="display: none;" title="Close">
@@ -407,7 +415,10 @@ const meta = {
 
     setupEventListeners() {
       const addBtn = document.getElementById('add-note-btn');
-      addBtn?.addEventListener('click', () => this.createNote());
+      addBtn?.addEventListener('click', async () => {
+        const newNote = await this.createNote();
+        await this.expandNote(newNote.id);
+      });
 
       const clearBtn = document.getElementById('clear-notes-btn');
       clearBtn?.addEventListener('click', () => this.clearAllNotes());
@@ -464,32 +475,23 @@ const meta = {
         title: `Note ${noteNumber}`,
         content: '',
         color: '#ffffff',
-        collapsed: false,
+        collapsed: true,
         sticky: false,
         createdAt: Date.now(),
       };
 
       this.notes.push(note);
       await this.saveNote(note);
-      this.renderExpandedNote(note);
-      this.activeNoteId = note.id;
       
-      // Auto-focus the title for easy editing
-      setTimeout(() => {
-        const noteEl = this.notesContainer?.querySelector(`[data-id="${note.id}"]`);
-        const titleInput = noteEl?.querySelector('input');
-        titleInput?.select();
-      }, 100);
+      return note;
     }
 
     renderAllNotes() {
       this.notes.forEach(note => {
         if (note.collapsed) {
           this.renderCollapsedNote(note);
-        } else {
-          this.renderExpandedNote(note);
-          this.activeNoteId = note.id;
         }
+        // Don't auto-expand notes on page load
       });
       this.renderStickyNotes();
     }
@@ -514,48 +516,28 @@ const meta = {
       this.collapsedContainer.prepend(tab);
     }
 
-    renderExpandedNote(note: StickyNote, sourceRect?: DOMRect | null) {
-      if (!this.notesContainer) return;
+    renderExpandedNote(note: StickyNote, container: HTMLElement | null) {
+      if (!container) return;
 
       const noteEl = document.createElement('div');
       noteEl.className = 'sticky-note-expanded';
       noteEl.dataset.id = note.id;
       
-      // Calculate initial position from source if provided
-      let initialTransform = 'translate(-50%, -50%) scale(0.3)';
-      if (sourceRect) {
-        const centerX = window.innerWidth / 2;
-        const centerY = window.innerHeight / 2;
-        const offsetX = sourceRect.left + (sourceRect.width / 2) - centerX;
-        const offsetY = sourceRect.top + (sourceRect.height / 2) - centerY;
-        initialTransform = `translate(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px)) scale(0.3)`;
-      }
-      
       noteEl.style.cssText = `
-        background-color: ${note.color};
-        position: fixed;
-        width: 400px;
-        max-width: 90vw;
-        min-height: 300px;
-        max-height: 80vh;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
         display: flex;
         flex-direction: column;
-        top: 50%;
-        left: 50%;
-        transform: ${initialTransform};
-        border-radius: 12px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-        z-index: 350;
         opacity: 0;
-        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        transition: opacity 0.3s ease;
       `;
       
       // Trigger animation after a frame
       requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          noteEl.style.transform = 'translate(-50%, -50%) scale(1)';
-          noteEl.style.opacity = '1';
-        });
+        noteEl.style.opacity = '1';
       });
       
       // Create header
@@ -904,7 +886,7 @@ const meta = {
         deleteBtn.style.background = 'rgba(0, 0, 0, 0.1)';
       });
 
-      this.notesContainer.appendChild(noteEl);
+      container.appendChild(noteEl);
     }
 
     async expandNote(id: string, sourceElement?: HTMLElement) {
@@ -919,46 +901,123 @@ const meta = {
       note.collapsed = false;
       await this.saveNote(note);
 
-      // Get source position if element provided
-      let sourceRect = null;
-      if (sourceElement) {
-        sourceRect = sourceElement.getBoundingClientRect();
-      }
-
       // Remove from collapsed view
       const tab = this.collapsedContainer?.querySelector(`[data-id="${id}"]`);
       tab?.remove();
 
-      // Remove existing expanded view if present
-      const existingExpanded = this.notesContainer?.querySelector(`[data-id="${id}"]`);
-      existingExpanded?.remove();
+      // Load note into page editor
+      const pageTitle = document.getElementById('page-title');
+      const pageSubtitle = document.getElementById('page-subtitle');
+      const pageHeader = document.getElementById('page-header');
+      const toolbar = document.getElementById('page-toolbar');
+      const iconTray = document.getElementById('page-icon-tray');
+      const closeBtn = document.getElementById('close-page-modal');
+      const opacitySlider = document.getElementById('opacity-slider') as HTMLInputElement;
+      
+      if (pageTitle) pageTitle.textContent = note.title;
+      if (pageSubtitle) pageSubtitle.innerHTML = note.content;
+      
+      if (pageHeader) {
+        pageHeader.classList.add('editing');
+        
+        // Apply saved opacity
+        const savedOpacity = localStorage.getItem('modalOpacity') || '60';
+        const value = parseInt(savedOpacity);
+        const opacity = value / 100;
+        const blur = (value / 100) * 10;
+        pageHeader.style.background = `rgba(0, 0, 0, ${opacity})`;
+        pageHeader.style.backdropFilter = `blur(${blur}px)`;
+      }
+      
+      if (toolbar) {
+        toolbar.style.display = 'flex';
+        // Call the user page manager to populate toolbar
+        const userPageManager = (window as any).userPageManager;
+        if (userPageManager) {
+          userPageManager.populatePageToolbar();
+        }
+      }
+      
+      if (iconTray) {
+        iconTray.style.display = 'flex';
+        iconTray.innerHTML = ''; // Clear previous
+        this.populatePageIconTray();
+      }
+      
+      if (closeBtn) {
+        closeBtn.style.display = 'block';
+        // Override close button to collapse note instead
+        closeBtn.onclick = () => this.collapseNote(id);
+      }
+      
+      if (opacitySlider) {
+        opacitySlider.style.display = 'block';
+        // Apply saved opacity value to slider
+        const savedOpacity = localStorage.getItem('modalOpacity') || '60';
+        opacitySlider.value = savedOpacity;
+      }
 
-      // Render expanded with source position
-      this.renderExpandedNote(note, sourceRect);
+      // Hide the save button since we're auto-saving notes
+      const saveBtn = document.getElementById('save-page-btn');
+      if (saveBtn) saveBtn.style.display = 'none';
+
       this.activeNoteId = id;
+      
+      // Auto-save on content change
+      if (pageSubtitle) {
+        pageSubtitle.oninput = async () => {
+          note.content = pageSubtitle.innerHTML;
+          await this.saveNote(note);
+        };
+      }
+      
+      if (pageTitle) {
+        pageTitle.oninput = async () => {
+          note.title = pageTitle.textContent || 'Untitled';
+          await this.saveNote(note);
+        };
+      }
     }
 
     async collapseNote(id: string) {
       const note = this.notes.find(n => n.id === id);
       if (!note) return;
 
-      // Get the element before updating state
-      const noteEl = this.notesContainer?.querySelector(`[data-id="${id}"]`) as HTMLElement;
-      
-      if (noteEl) {
-        // Add collapsing animation by scaling down
-        noteEl.style.transform = 'translate(-50%, -50%) scale(0.3)';
-        noteEl.style.opacity = '0';
-        
-        // Wait for animation to complete
-        await new Promise(resolve => setTimeout(resolve, 300));
-      }
-
       note.collapsed = true;
       await this.saveNote(note);
 
-      // Remove from expanded view
-      noteEl?.remove();
+      // Restore page editor to default state
+      const pageHeader = document.getElementById('page-header');
+      const pageTitle = document.getElementById('page-title');
+      const pageSubtitle = document.getElementById('page-subtitle');
+      const toolbar = document.getElementById('page-toolbar');
+      const iconTray = document.getElementById('page-icon-tray');
+      const closeBtn = document.getElementById('close-page-modal');
+      const opacitySlider = document.getElementById('opacity-slider');
+      
+      if (pageTitle) {
+        pageTitle.textContent = 'One/App';
+        pageTitle.oninput = null; // Remove auto-save
+      }
+      
+      if (pageSubtitle) {
+        pageSubtitle.innerHTML = 'Your personal workspace';
+        pageSubtitle.oninput = null; // Remove auto-save
+      }
+      
+      if (pageHeader) {
+        pageHeader.classList.remove('editing');
+        pageHeader.style.background = '';
+        pageHeader.style.backdropFilter = '';
+      }
+      
+      if (toolbar) toolbar.style.display = 'none';
+      if (iconTray) iconTray.style.display = 'none';
+      if (closeBtn) {
+        closeBtn.style.display = 'none';
+        closeBtn.onclick = null;
+      }
+      if (opacitySlider) opacitySlider.style.display = 'none';
 
       // Render collapsed
       this.renderCollapsedNote(note);
@@ -1564,6 +1623,103 @@ const meta = {
       // Content is already HTML with images, just return it
       return htmlContent;
     }
+
+    populatePageIconTray() {
+      const iconTray = document.getElementById('page-icon-tray');
+      if (!iconTray) return;
+      
+      // Clear existing buttons
+      iconTray.innerHTML = '';
+      
+      // Get the current note being edited (if any)
+      const getCurrentNote = () => {
+        return this.activeNoteId ? this.notes.find(n => n.id === this.activeNoteId) : null;
+      };
+      
+      // Delete button
+      const deleteBtn = document.createElement('button');
+      deleteBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+      deleteBtn.title = 'Delete note';
+      deleteBtn.setAttribute('type', 'button');
+      deleteBtn.style.cssText = 'width: 36px; height: 36px; min-width: 36px; border: none; background: rgba(255, 255, 255, 0.1); border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transition: background 0.2s; color: #fff;';
+      deleteBtn.addEventListener('click', async () => {
+        const note = getCurrentNote();
+        if (note && confirm(`Delete "${note.title}"? This cannot be undone.`)) {
+          await this.deleteNote(note.id);
+        }
+      });
+      deleteBtn.addEventListener('mouseenter', () => { deleteBtn.style.background = 'rgba(255, 255, 255, 0.2)'; });
+      deleteBtn.addEventListener('mouseleave', () => { deleteBtn.style.background = 'rgba(255, 255, 255, 0.1)'; });
+      
+      // Color picker container
+      const colorPicker = document.createElement('div');
+      colorPicker.style.cssText = 'display: none; gap: 4px; position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.9); padding: 8px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.2);';
+      
+      this.colors.forEach(color => {
+        const colorDot = document.createElement('button');
+        colorDot.setAttribute('type', 'button');
+        colorDot.style.cssText = `width: 24px; height: 24px; border-radius: 50%; background-color: ${color}; border: 2px solid rgba(255,255,255,0.3); cursor: pointer; transition: transform 0.2s; padding: 0;`;
+        colorDot.title = `Change to ${color}`;
+        colorDot.addEventListener('click', async () => {
+          const note = getCurrentNote();
+          if (note) {
+            note.color = color;
+            await this.saveNote(note);
+            this.renderStickyNotes();
+            colorPicker.querySelectorAll('button').forEach((dot, i) => {
+              (dot as HTMLElement).style.border = this.colors[i] === color ? '3px solid #fff' : '2px solid rgba(255,255,255,0.3)';
+            });
+          }
+        });
+        colorDot.addEventListener('mouseenter', () => { colorDot.style.transform = 'scale(1.2)'; });
+        colorDot.addEventListener('mouseleave', () => { colorDot.style.transform = 'scale(1)'; });
+        colorPicker.appendChild(colorDot);
+      });
+      
+      // Color palette button
+      const colorBtn = document.createElement('button');
+      colorBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5"></circle><circle cx="17.5" cy="10.5" r=".5"></circle><circle cx="8.5" cy="7.5" r=".5"></circle><circle cx="6.5" cy="12.5" r=".5"></circle><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"></path></svg>`;
+      colorBtn.title = 'Change color';
+      colorBtn.setAttribute('type', 'button');
+      colorBtn.style.cssText = 'width: 36px; height: 36px; min-width: 36px; border: none; background: rgba(255, 255, 255, 0.1); border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; position: relative; transition: background 0.2s; color: #fff;';
+      colorBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        colorPicker.style.display = colorPicker.style.display === 'flex' ? 'none' : 'flex';
+      });
+      colorBtn.addEventListener('mouseenter', () => { colorBtn.style.background = 'rgba(255, 255, 255, 0.2)'; });
+      colorBtn.addEventListener('mouseleave', () => { colorBtn.style.background = 'rgba(255, 255, 255, 0.1)'; });
+      
+      // Pin button
+      const pinBtn = document.createElement('button');
+      pinBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 9V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H19v-2c-1.66 0-3-1.34-3-3z"/></svg>`;
+      pinBtn.title = 'Pin/Unpin note';
+      pinBtn.setAttribute('type', 'button');
+      pinBtn.style.cssText = 'width: 36px; height: 36px; min-width: 36px; border: none; background: rgba(255, 255, 255, 0.1); border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transition: background 0.2s; color: #fff;';
+      pinBtn.addEventListener('click', async () => {
+        const note = getCurrentNote();
+        if (note) {
+          await this.toggleSticky(note.id);
+          // Update icon based on sticky state
+          pinBtn.innerHTML = note.sticky 
+            ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M16 9V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H19v-2c-1.66 0-3-1.34-3-3z"/></svg>`
+            : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 9V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H19v-2c-1.66 0-3-1.34-3-3z"/></svg>`;
+        }
+      });
+      pinBtn.addEventListener('mouseenter', () => { pinBtn.style.background = 'rgba(255, 255, 255, 0.2)'; });
+      pinBtn.addEventListener('mouseleave', () => { pinBtn.style.background = 'rgba(255, 255, 255, 0.1)'; });
+      
+      // Close picker when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!colorPicker.contains(e.target as Node) && !colorBtn.contains(e.target as Node)) {
+          colorPicker.style.display = 'none';
+        }
+      });
+      
+      colorBtn.appendChild(colorPicker);
+      iconTray.appendChild(deleteBtn);
+      iconTray.appendChild(colorBtn);
+      iconTray.appendChild(pinBtn);
+    }
   }
 
   class UserPageManager {
@@ -1579,6 +1735,49 @@ const meta = {
       this.loadBackground();
       this.loadPageText();
       this.setupPageTextEditing();
+    }
+
+    populatePageToolbar() {
+      const toolbar = document.getElementById('page-toolbar');
+      if (!toolbar) return;
+      
+      // Clear existing buttons
+      toolbar.innerHTML = '';
+      
+      const formatButtons = [
+        { cmd: 'bold', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"></path><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"></path></svg>', title: 'Bold (Cmd/Ctrl+B)' },
+        { cmd: 'italic', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="4" x2="10" y2="4"></line><line x1="14" y1="20" x2="5" y2="20"></line><line x1="15" y1="4" x2="9" y2="20"></line></svg>', title: 'Italic (Cmd/Ctrl+I)' },
+        { cmd: 'underline', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3"></path><line x1="4" y1="21" x2="20" y2="21"></line></svg>', title: 'Underline (Cmd/Ctrl+U)' },
+        { cmd: 'justifyLeft', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="17" y1="10" x2="3" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="17" y1="18" x2="3" y2="18"></line></svg>', title: 'Align Left' },
+        { cmd: 'justifyCenter', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="10" x2="6" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="18" y1="18" x2="6" y2="18"></line></svg>', title: 'Align Center' },
+        { cmd: 'justifyRight', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="10" x2="7" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="21" y1="18" x2="7" y2="18"></line></svg>', title: 'Align Right' },
+        { cmd: 'insertUnorderedList', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>', title: 'Bullet List' },
+        { cmd: 'insertOrderedList', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="6" x2="21" y2="6"></line><line x1="10" y1="12" x2="21" y2="12"></line><line x1="10" y1="18" x2="21" y2="18"></line><path d="M4 6h1v4"></path><path d="M4 10h2"></path><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"></path></svg>', title: 'Numbered List' },
+      ];
+      
+      formatButtons.forEach(btn => {
+        const button = document.createElement('button');
+        button.innerHTML = btn.icon;
+        button.title = btn.title;
+        button.setAttribute('type', 'button');
+        button.style.cssText = 'width: 32px; height: 32px; border: none; background: rgba(255, 255, 255, 0.1); border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transition: background 0.2s; color: #fff;';
+        
+        button.addEventListener('click', (e) => {
+          e.preventDefault();
+          document.execCommand(btn.cmd, false);
+          this.pageSubtitle?.focus();
+        });
+        
+        button.addEventListener('mouseenter', () => {
+          button.style.background = 'rgba(255, 255, 255, 0.2)';
+        });
+        
+        button.addEventListener('mouseleave', () => {
+          button.style.background = 'rgba(255, 255, 255, 0.1)';
+        });
+        
+        toolbar.appendChild(button);
+      });
     }
 
     loadBackground() {
@@ -1614,11 +1813,33 @@ const meta = {
       const saveBtn = document.getElementById('save-page-btn');
       const closeBtn = document.getElementById('close-page-modal');
       const opacitySlider = document.getElementById('opacity-slider') as HTMLInputElement;
+      const toolbar = document.getElementById('page-toolbar');
+      const iconTray = document.getElementById('page-icon-tray');
       
       const showSaveButton = () => {
+        // Don't interfere if we're editing a note
+        const notesManager = (window as any).stickyNotesManager;
+        if (notesManager?.activeNoteId) return;
+        
         if (saveBtn) saveBtn.style.display = 'block';
         if (closeBtn) closeBtn.style.display = 'block';
-        if (opacitySlider) opacitySlider.style.display = 'block';
+        if (opacitySlider) {
+          opacitySlider.style.display = 'block';
+          // Apply saved opacity value
+          const savedOpacity = localStorage.getItem('modalOpacity') || '60';
+          opacitySlider.value = savedOpacity;
+        }
+        if (toolbar) {
+          toolbar.style.display = 'flex';
+          this.populatePageToolbar();
+        }
+        if (iconTray) {
+          iconTray.style.display = 'flex';
+          // Call the sticky notes manager to populate the icon tray
+          if (notesManager) {
+            notesManager.populatePageIconTray();
+          }
+        }
         if (pageHeader) {
           pageHeader.classList.add('editing');
           
@@ -1633,9 +1854,20 @@ const meta = {
       };
       
       const hideSaveButton = () => {
+        // Don't hide if we're editing a note (it has its own close handler)
+        const notesManager = (window as any).stickyNotesManager;
+        if (notesManager?.activeNoteId) return;
+        
         if (saveBtn) saveBtn.style.display = 'none';
         if (closeBtn) closeBtn.style.display = 'none';
         if (opacitySlider) opacitySlider.style.display = 'none';
+        if (toolbar) toolbar.style.display = 'none';
+        if (iconTray) iconTray.style.display = 'none';
+        
+        // Reset text to defaults
+        if (this.pageTitle) this.pageTitle.textContent = 'One/App';
+        if (this.pageSubtitle) this.pageSubtitle.innerHTML = 'Your personal workspace';
+        
         if (pageHeader) {
           pageHeader.classList.remove('editing');
           
@@ -1649,35 +1881,31 @@ const meta = {
         const titleText = this.pageTitle?.textContent?.trim() || '';
         const subtitleHTML = this.pageSubtitle?.innerHTML?.trim() || '';
         
-        // Only create note if there's content
+        // Create a note if there's content
         if (titleText || subtitleHTML) {
-          // Get the notes manager instance and create a note
           const notesManager = (window as any).stickyNotesManager;
           if (notesManager) {
-            await notesManager.createNote();
-            const newNote = notesManager.notes[notesManager.notes.length - 1];
-            if (newNote) {
-              newNote.title = titleText || 'Untitled Note';
-              newNote.content = subtitleHTML;
-              await notesManager.saveNote(newNote);
-              notesManager.renderStickyNotes();
-            }
+            const newNote = await notesManager.createNote();
+            newNote.title = titleText || 'Untitled Note';
+            newNote.content = subtitleHTML;
+            await notesManager.saveNote(newNote);
+            notesManager.renderStickyNotes();
+            notesManager.renderCollapsedNote(newNote);
           }
-          
-          // Reset fields to defaults
-          if (this.pageTitle) this.pageTitle.textContent = 'My Page';
-          if (this.pageSubtitle) this.pageSubtitle.innerHTML = 'Your personal workspace';
-          
-          // Clear localStorage so the defaults stay
-          localStorage.removeItem('userPageTitle');
-          localStorage.removeItem('userPageSubtitle');
         }
+        
+        // Reset fields to defaults - must be done after creating note
+        setTimeout(() => {
+          if (this.pageTitle) this.pageTitle.textContent = 'One/App';
+          if (this.pageSubtitle) this.pageSubtitle.innerHTML = 'Your personal workspace';
+        }, 100);
         
         hideSaveButton();
       };
 
       if (this.pageTitle) {
         this.pageTitle.addEventListener('focus', showSaveButton);
+        this.pageTitle.addEventListener('click', showSaveButton);
         
         this.pageTitle.addEventListener('keydown', (e) => {
           if (e.key === 'Enter') {
@@ -1689,6 +1917,7 @@ const meta = {
 
       if (this.pageSubtitle) {
         this.pageSubtitle.addEventListener('focus', showSaveButton);
+        this.pageSubtitle.addEventListener('click', showSaveButton);
         
         // Handle image paste
         this.pageSubtitle.addEventListener('paste', async (e) => {
@@ -1804,12 +2033,12 @@ const meta = {
   // Initialize when DOM is ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-      new UserPageManager();
       (window as any).stickyNotesManager = new StickyNotesManager();
+      (window as any).userPageManager = new UserPageManager();
     });
   } else {
-    new UserPageManager();
     (window as any).stickyNotesManager = new StickyNotesManager();
+    (window as any).userPageManager = new UserPageManager();
   }
 </script>
 
@@ -1925,6 +2154,36 @@ const meta = {
     background: rgba(255, 255, 255, 0.2);
     transform: scale(1.05);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  .page-toolbar {
+    display: flex;
+    gap: 4px;
+    padding: 0.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+    background: rgba(0, 0, 0, 0.2);
+    margin: 1rem auto;
+    border-radius: 6px;
+    width: fit-content;
+    justify-content: center;
+  }
+
+  .page-icon-tray {
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 0.75rem;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    z-index: 10;
   }
 
   .opacity-slider {
@@ -2424,13 +2683,17 @@ const meta = {
 
   /* Expanded Notes */
   #notes-container {
-    position: fixed;
+    display: none;
+  }
+
+  #notes-container.active {
+    display: block;
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    pointer-events: none;
-    z-index: 350;
+    z-index: 10;
   }
 
   #notes-container * {
