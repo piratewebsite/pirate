@@ -1049,7 +1049,7 @@ const meta = {
       }
       
       if (opacitySlider) {
-        const opacityControl = document.querySelector('.opacity-control');
+        const opacityControl = document.querySelector('.opacity-control') as HTMLElement;
         if (opacityControl) opacityControl.style.display = 'flex';
         // Apply saved opacity value to slider
         const savedOpacity = localStorage.getItem('modalOpacity') || '60';
@@ -1150,7 +1150,7 @@ const meta = {
         closeBtn.onclick = null;
       }
       if (opacitySlider) opacitySlider.style.display = 'none';
-      const opacityControl = document.querySelector('.opacity-control');
+      const opacityControl = document.querySelector('.opacity-control') as HTMLElement;
       if (opacityControl) opacityControl.style.display = 'none';
 
       // Render collapsed
@@ -2394,7 +2394,7 @@ const meta = {
         
         if (saveBtn) saveBtn.style.display = 'block';
         if (closeBtn) closeBtn.style.display = 'block';
-        const opacityControl = document.querySelector('.opacity-control');
+        const opacityControl = document.querySelector('.opacity-control') as HTMLElement;
         if (opacityControl) opacityControl.style.display = 'flex';
         if (opacitySlider) {
           // Apply saved opacity value
@@ -2433,7 +2433,7 @@ const meta = {
         if (saveBtn) saveBtn.style.display = 'none';
         if (closeBtn) closeBtn.style.display = 'none';
         if (opacitySlider) opacitySlider.style.display = 'none';
-        const opacityControl = document.querySelector('.opacity-control');
+        const opacityControl = document.querySelector('.opacity-control') as HTMLElement;
         if (opacityControl) opacityControl.style.display = 'none';
         if (toolbar) toolbar.style.display = 'none';
         if (iconTray) iconTray.style.display = 'none';
