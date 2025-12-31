@@ -2809,6 +2809,7 @@ const meta = {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    z-index: 100;
   }
 
   .opacity-label {
@@ -3414,6 +3415,21 @@ const meta = {
     .collapsed-note-tab {
       max-width: 120px;
       font-size: 0.85rem;
+    }
+
+    .opacity-control {
+      position: absolute;
+      left: 1rem;
+      top: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      z-index: 100;
+    }
+
+    .opacity-slider {
+      width: 80px;
+      flex-shrink: 0;
     }
   }
 </style>
