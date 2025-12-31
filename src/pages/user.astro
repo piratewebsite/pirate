@@ -1158,12 +1158,12 @@ const meta = {
         `;
 
         const title = document.createElement('div');
-        title.style.cssText = 'font-weight: 600; color: #333; font-size: 0.95rem; margin-bottom: 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;';
+        title.style.cssText = 'font-weight: 600; color: #333; font-size: 0.95rem; margin-bottom: 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; position: relative; z-index: 2;';
         title.textContent = (note.sticky ? '📌 ' : '') + note.title;
 
         stickyNote.appendChild(title);
 
-        // Check if note has an image - if so, show only the first image as content
+        // Check if note has an image - if so, use it as background cover
         if (note.content.includes('<img')) {
           // Create a temporary DOM element to properly parse and extract the first image
           const tempDiv = document.createElement('div');
@@ -1171,16 +1171,20 @@ const meta = {
           const firstImg = tempDiv.querySelector('img');
           
           if (firstImg && firstImg.src) {
-            const thumbnail = document.createElement('img');
-            thumbnail.src = firstImg.src;
-            thumbnail.style.cssText = 'width: 100%; max-width: 100%; height: 80px; object-fit: cover; border-radius: 4px; margin-top: 0.25rem; display: block;';
+            // Use image as background cover
+            stickyNote.style.backgroundImage = `url(${firstImg.src})`;
+            stickyNote.style.backgroundSize = 'cover';
+            stickyNote.style.backgroundPosition = 'center';
+            stickyNote.style.backgroundRepeat = 'no-repeat';
             
-            // Handle broken images - just hide them, don't show fallback
-            thumbnail.onerror = function() {
-              thumbnail.style.display = 'none';
-            };
+            // Add semi-transparent overlay for text readability
+            stickyNote.style.position = 'relative';
             
-            stickyNote.appendChild(thumbnail);
+            // Make title background semi-transparent so text is readable over image
+            title.style.backgroundColor = 'rgba(255, 255, 255, 0.85)';
+            title.style.padding = '0.25rem 0.5rem';
+            title.style.borderRadius = '4px';
+            title.style.color = '#333';
           }
         } else {
           // No image, show text content only
@@ -1229,18 +1233,39 @@ const meta = {
           overflow: hidden;
           word-wrap: break-word;
           overflow-wrap: break-word;
+          position: relative;
+          min-height: 100px;
         `;
 
         const title = document.createElement('div');
-        title.style.cssText = 'font-weight: 600; color: #333; font-size: 1rem; margin-bottom: 0.5rem; overflow-wrap: break-word; word-break: break-word;';
+        title.style.cssText = 'font-weight: 600; color: #333; font-size: 1rem; margin-bottom: 0.5rem; overflow-wrap: break-word; word-break: break-word; position: relative; z-index: 2;';
         title.textContent = (note.sticky ? '📌 ' : '') + note.title;
 
-        const contentDiv = document.createElement('div');
-        contentDiv.style.cssText = 'color: #555; font-size: 0.9rem; line-height: 1.5; overflow-wrap: break-word; word-break: break-word; max-width: 100%;';
-        contentDiv.innerHTML = note.content;
-
         noteCard.appendChild(title);
-        noteCard.appendChild(contentDiv);
+
+        // Check if note has an image - if so, use it as background cover
+        if (note.content.includes('<img')) {
+          const imgMatch = note.content.match(/<img[^>]+src="([^"]+)"/);
+          if (imgMatch) {
+            // Use image as background cover
+            noteCard.style.backgroundImage = `url(${imgMatch[1]})`;
+            noteCard.style.backgroundSize = 'cover';
+            noteCard.style.backgroundPosition = 'center';
+            noteCard.style.backgroundRepeat = 'no-repeat';
+            
+            // Make title background semi-transparent so text is readable over image
+            title.style.backgroundColor = 'rgba(255, 255, 255, 0.85)';
+            title.style.padding = '0.25rem 0.5rem';
+            title.style.borderRadius = '4px';
+            title.style.color = '#333';
+          }
+        } else {
+          // No image, show text content
+          const contentDiv = document.createElement('div');
+          contentDiv.style.cssText = 'color: #555; font-size: 0.9rem; line-height: 1.5; overflow-wrap: break-word; word-break: break-word; max-width: 100%; position: relative; z-index: 2;';
+          contentDiv.innerHTML = note.content;
+          noteCard.appendChild(contentDiv);
+        }
 
         noteCard.addEventListener('click', () => {
           this.hideViewAllPanel();
@@ -1293,21 +1318,26 @@ const meta = {
           box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
           transition: transform 0.2s;
           overflow: hidden;
+          position: relative;
+          display: flex;
+          flex-direction: column;
         `;
 
-        const thumbnail = document.createElement('img');
-        thumbnail.src = video.thumbnail || '';
-        thumbnail.style.cssText = 'width: 100%; height: 110px; object-fit: cover;';
+        if (video.thumbnail) {
+          card.style.backgroundImage = `url(${video.thumbnail})`;
+          card.style.backgroundSize = 'cover';
+          card.style.backgroundPosition = 'center';
+          card.style.backgroundRepeat = 'no-repeat';
+        }
 
         const title = document.createElement('div');
-        title.style.cssText = 'padding: 0.5rem; font-weight: 600; color: #333; font-size: 0.85rem; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;';
+        title.style.cssText = 'padding: 0.5rem; font-weight: 600; color: #fff; font-size: 0.85rem; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; background: rgba(0, 0, 0, 0.7); position: relative; z-index: 2; margin-top: auto;';
         title.textContent = video.title || '';
 
         const channel = document.createElement('div');
-        channel.style.cssText = 'padding: 0 0.5rem 0.5rem; color: #666; font-size: 0.75rem;';
+        channel.style.cssText = 'padding: 0 0.5rem 0.5rem; color: #ccc; font-size: 0.75rem; background: rgba(0, 0, 0, 0.7); position: relative; z-index: 2;';
         channel.textContent = video.channelTitle || '';
 
-        card.appendChild(thumbnail);
         card.appendChild(title);
         card.appendChild(channel);
 
@@ -1458,30 +1488,36 @@ const meta = {
           box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
           transition: transform 0.2s;
           margin-bottom: 1rem;
+          overflow: hidden;
+          position: relative;
         `;
 
         const title = document.createElement('div');
-        title.style.cssText = 'font-weight: 600; color: #333; font-size: 0.95rem; margin-bottom: 0.5rem;';
+        title.style.cssText = 'font-weight: 600; color: #333; font-size: 0.95rem; margin-bottom: 0.5rem; position: relative; z-index: 2;';
         title.textContent = (note.sticky ? '📌 ' : '') + note.title;
 
-        const content = document.createElement('div');
-        content.style.cssText = 'color: #555; font-size: 0.85rem; line-height: 1.4; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;';
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = note.content;
-        content.textContent = tempDiv.textContent || '';
-
         noteCard.appendChild(title);
-        noteCard.appendChild(content);
 
-        // Add thumbnail if note has an image
+        // Check if note has an image - if so, use it as background cover
         if (note.content.includes('<img')) {
           const imgMatch = note.content.match(/<img[^>]+src="([^"]+)"/);
           if (imgMatch) {
-            const thumbnail = document.createElement('img');
-            thumbnail.src = imgMatch[1];
-            thumbnail.style.cssText = 'width: 100%; height: 60px; object-fit: cover; border-radius: 4px; margin-top: 0.5rem;';
-            noteCard.appendChild(thumbnail);
+            noteCard.style.backgroundImage = `url(${imgMatch[1]})`;
+            noteCard.style.backgroundSize = 'cover';
+            noteCard.style.backgroundPosition = 'center';
+            noteCard.style.backgroundRepeat = 'no-repeat';
+            title.style.backgroundColor = 'rgba(255, 255, 255, 0.85)';
+            title.style.padding = '0.25rem 0.5rem';
+            title.style.borderRadius = '4px';
+            title.style.color = '#333';
           }
+        } else {
+          const content = document.createElement('div');
+          content.style.cssText = 'color: #555; font-size: 0.85rem; line-height: 1.4; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;';
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = note.content;
+          content.textContent = tempDiv.textContent || '';
+          noteCard.appendChild(content);
         }
 
         noteCard.addEventListener('click', () => this.expandNote(note.id, noteCard));
@@ -1575,30 +1611,40 @@ const meta = {
           box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
           transition: transform 0.2s;
           margin-bottom: 1rem;
+          overflow: hidden;
+          position: relative;
         `;
 
         const title = document.createElement('div');
-        title.style.cssText = 'font-weight: 600; color: #333; font-size: 0.95rem; margin-bottom: 0.5rem;';
+        title.style.cssText = 'font-weight: 600; color: #333; font-size: 0.95rem; margin-bottom: 0.5rem; position: relative; z-index: 2;';
         title.textContent = (note.sticky ? '📌 ' : '') + note.title;
 
-        const content = document.createElement('div');
-        content.style.cssText = 'color: #555; font-size: 0.85rem; line-height: 1.4; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;';
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = note.content;
-        content.textContent = tempDiv.textContent || '';
-
         noteCard.appendChild(title);
-        noteCard.appendChild(content);
 
-        // Add thumbnail if note has an image
+        // Check if note has an image - if so, use it as background cover
         if (note.content.includes('<img')) {
           const imgMatch = note.content.match(/<img[^>]+src="([^"]+)"/);
           if (imgMatch) {
-            const thumbnail = document.createElement('img');
-            thumbnail.src = imgMatch[1];
-            thumbnail.style.cssText = 'width: 100%; height: 60px; object-fit: cover; border-radius: 4px; margin-top: 0.5rem;';
-            noteCard.appendChild(thumbnail);
+            // Use image as background cover
+            noteCard.style.backgroundImage = `url(${imgMatch[1]})`;
+            noteCard.style.backgroundSize = 'cover';
+            noteCard.style.backgroundPosition = 'center';
+            noteCard.style.backgroundRepeat = 'no-repeat';
+            
+            // Make title background semi-transparent so text is readable over image
+            title.style.backgroundColor = 'rgba(255, 255, 255, 0.85)';
+            title.style.padding = '0.25rem 0.5rem';
+            title.style.borderRadius = '4px';
+            title.style.color = '#333';
           }
+        } else {
+          // No image, show text content
+          const content = document.createElement('div');
+          content.style.cssText = 'color: #555; font-size: 0.85rem; line-height: 1.4; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;';
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = note.content;
+          content.textContent = tempDiv.textContent || '';
+          noteCard.appendChild(content);
         }
 
         noteCard.addEventListener('click', () => this.expandNote(note.id, noteCard));
