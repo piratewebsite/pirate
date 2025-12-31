@@ -546,6 +546,12 @@ const meta = {
     renderCollapsedNote(note: StickyNote) {
       if (!this.collapsedContainer) return;
 
+      // Check if tab already exists to prevent duplicates
+      const existingTab = this.collapsedContainer.querySelector(`[data-id="${note.id}"]`);
+      if (existingTab) {
+        existingTab.remove();
+      }
+
       const tab = document.createElement('div');
       tab.className = 'collapsed-note-tab';
       tab.dataset.id = note.id;
@@ -1242,6 +1248,13 @@ const meta = {
     }
 
     async deleteNote(id: string) {
+      // Close the modal BEFORE removing the note from the array
+      if (this.activeNoteId === id) {
+        this.activeNoteId = null;
+        await this.collapseNote(id);
+      }
+
+      // Now remove the note from the array and database
       this.notes = this.notes.filter(n => n.id !== id);
       await this.db.deleteNote(id);
       
@@ -1250,10 +1263,6 @@ const meta = {
       
       const tab = this.collapsedContainer?.querySelector(`[data-id="${id}"]`);
       tab?.remove();
-
-      if (this.activeNoteId === id) {
-        this.activeNoteId = null;
-      }
 
       // Re-render sticky notes to remove deleted note if it was pinned
       this.renderStickyNotes();
@@ -2516,10 +2525,23 @@ const meta = {
         const titleText = this.pageTitle?.textContent?.trim() || '';
         const subtitleHTML = this.pageSubtitle?.innerHTML?.trim() || '';
         
-        // Create a note if there's content
-        if (titleText || subtitleHTML) {
-          const notesManager = (window as any).stickyNotesManager;
-          if (notesManager) {
+        // Don't save if using default title (means user is editing page header, not creating a note)
+        const isDefaultTitle = titleText === 'One/App' || titleText === '';
+        
+        // Check if there's an active note being edited
+        const notesManager = (window as any).stickyNotesManager;
+        if (notesManager) {
+          if (notesManager.activeNoteId) {
+            // Save the existing note that's being edited
+            const activeNote = notesManager.notes.find((n: any) => n.id === notesManager.activeNoteId);
+            if (activeNote) {
+              activeNote.title = titleText || 'Untitled Note';
+              activeNote.content = subtitleHTML;
+              (activeNote as any).isNew = false;
+              await notesManager.saveNote(activeNote);
+            }
+          } else if (!isDefaultTitle && (titleText || subtitleHTML)) {
+            // Only create a note if title has been changed from default AND there's content
             const newNote = await notesManager.createNote();
             newNote.title = titleText || 'Untitled Note';
             newNote.content = subtitleHTML;
