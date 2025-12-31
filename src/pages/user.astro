@@ -2422,22 +2422,13 @@ const meta = {
     }
 
     loadPageText() {
-      const savedTitle = localStorage.getItem('userPageTitle');
-      const savedSubtitle = localStorage.getItem('userPageSubtitle');
-      
-      if (savedTitle !== null && this.pageTitle) {
-        this.pageTitle.textContent = savedTitle;
-        if (savedTitle === '') {
-          this.pageTitle.classList.add('edited-empty');
-        }
+      // Always start with default title and subtitle (don't load from localStorage)
+      if (this.pageTitle) {
+        this.pageTitle.textContent = 'One/App';
       }
       
-      if (savedSubtitle !== null && this.pageSubtitle) {
-        // Load as HTML to support formatted content and images
-        this.pageSubtitle.innerHTML = savedSubtitle;
-        if (savedSubtitle === '') {
-          this.pageSubtitle.classList.add('edited-empty');
-        }
+      if (this.pageSubtitle) {
+        this.pageSubtitle.innerHTML = 'Your personal workspace';
       }
     }
 
@@ -2535,9 +2526,6 @@ const meta = {
         const titleText = this.pageTitle?.textContent?.trim() || '';
         const subtitleHTML = this.pageSubtitle?.innerHTML?.trim() || '';
         
-        // Don't save if using default title (means user is editing page header, not creating a note)
-        const isDefaultTitle = titleText === 'One/App' || titleText === '';
-        
         // Check if there's an active note being edited
         const notesManager = (window as any).stickyNotesManager;
         if (notesManager) {
@@ -2550,8 +2538,8 @@ const meta = {
               (activeNote as any).isNew = false;
               await notesManager.saveNote(activeNote);
             }
-          } else if (!isDefaultTitle && (titleText || subtitleHTML)) {
-            // Only create a note if title has been changed from default AND there's content
+          } else if (titleText && titleText !== 'One/App' && (titleText || subtitleHTML)) {
+            // Only create a note if title has been substantially changed from default
             const newNote = await notesManager.createNote();
             newNote.title = titleText || 'Untitled Note';
             newNote.content = subtitleHTML;
