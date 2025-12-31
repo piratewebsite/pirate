@@ -28,7 +28,10 @@ const meta = {
       <!-- Icon tray at bottom with delete, pin, color -->
       <div id="page-icon-tray" class="page-icon-tray" style="display: none;"></div>
       
-      <input type="range" id="opacity-slider" class="opacity-slider" min="0" max="100" value="60" style="display: none;" title="Adjust opacity">
+      <div class="opacity-control" style="display: none;">
+        <label for="opacity-slider" class="opacity-label">Opacity:</label>
+        <input type="range" id="opacity-slider" class="opacity-slider" min="0" max="100" value="60" title="Adjust opacity">
+      </div>
       <button id="save-page-btn" class="btn-save-page" style="display: none;">Save</button>
       <button id="close-page-modal" class="btn-close-modal" style="display: none;" title="Close">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display: block; margin: 0 auto;">
@@ -128,6 +131,7 @@ const meta = {
     sticky: boolean;
     createdAt: number;
     order: number;
+    isNew?: boolean;
   }
 
   // IndexedDB Helper
@@ -518,10 +522,11 @@ const meta = {
         sticky: false,
         createdAt: Date.now(),
         order: maxOrder + 1,
+        isNew: true, // Mark as unsaved new note
       };
 
       this.notes.push(note);
-      await this.saveNote(note);
+      // Don't save to database yet - wait for explicit save
       
       return note;
     }
@@ -1044,31 +1049,58 @@ const meta = {
       }
       
       if (opacitySlider) {
-        opacitySlider.style.display = 'block';
+        const opacityControl = document.querySelector('.opacity-control');
+        if (opacityControl) opacityControl.style.display = 'flex';
         // Apply saved opacity value to slider
         const savedOpacity = localStorage.getItem('modalOpacity') || '60';
         opacitySlider.value = savedOpacity;
       }
 
-      // Hide the save button since we're auto-saving notes
+      // Show save button for new unsaved notes
       const saveBtn = document.getElementById('save-page-btn');
-      if (saveBtn) saveBtn.style.display = 'none';
+      const isNewNote = (note as any).isNew;
+      
+      if (saveBtn) {
+        if (isNewNote) {
+          saveBtn.style.display = 'block';
+          saveBtn.textContent = 'Save Note';
+          saveBtn.onclick = async () => {
+            // Mark note as saved
+            (note as any).isNew = false;
+            note.title = pageTitle?.textContent?.trim() || `Note ${this.notes.indexOf(note) + 1}`;
+            note.content = pageSubtitle?.innerHTML?.trim() || '';
+            await this.saveNote(note);
+            
+            // Re-render to show saved note
+            this.renderCollapsedNote(note);
+            this.renderStickyNotes();
+            
+            // Close the editor
+            await this.collapseNote(id);
+          };
+        } else {
+          saveBtn.style.display = 'none';
+        }
+      }
 
       this.activeNoteId = id;
       
-      // Auto-save on content change
-      if (pageSubtitle) {
-        pageSubtitle.oninput = async () => {
-          note.content = pageSubtitle.innerHTML;
+      // For new notes, don't auto-save until explicitly saved
+      if (!isNewNote) {
+        // Auto-save on content change for existing notes
+        if (pageSubtitle) {
+          pageSubtitle.oninput = async () => {
+            note.content = pageSubtitle.innerHTML;
+            await this.saveNote(note);
+          };
+        }
+        
+        if (pageTitle) {
+          pageTitle.oninput = async () => {
+            note.title = pageTitle.textContent || 'Untitled';
           await this.saveNote(note);
         };
       }
-      
-      if (pageTitle) {
-        pageTitle.oninput = async () => {
-          note.title = pageTitle.textContent || 'Untitled';
-          await this.saveNote(note);
-        };
       }
     }
 
@@ -1076,8 +1108,15 @@ const meta = {
       const note = this.notes.find(n => n.id === id);
       if (!note) return;
 
-      note.collapsed = true;
-      await this.saveNote(note);
+      // If this is a new unsaved note with no content, delete it instead of saving
+      if ((note as any).isNew && !note.title?.trim().replace(/^Note \d+$/, '') && !note.content?.trim()) {
+        // Delete the empty new note
+        this.notes = this.notes.filter(n => n.id !== id);
+        // Don't need to delete from DB since it was never saved
+      } else {
+        note.collapsed = true;
+        await this.saveNote(note);
+      }
 
       // Restore page editor to default state
       const pageHeader = document.getElementById('page-header');
@@ -1111,6 +1150,8 @@ const meta = {
         closeBtn.onclick = null;
       }
       if (opacitySlider) opacitySlider.style.display = 'none';
+      const opacityControl = document.querySelector('.opacity-control');
+      if (opacityControl) opacityControl.style.display = 'none';
 
       // Render collapsed
       this.renderCollapsedNote(note);
@@ -2353,8 +2394,9 @@ const meta = {
         
         if (saveBtn) saveBtn.style.display = 'block';
         if (closeBtn) closeBtn.style.display = 'block';
+        const opacityControl = document.querySelector('.opacity-control');
+        if (opacityControl) opacityControl.style.display = 'flex';
         if (opacitySlider) {
-          opacitySlider.style.display = 'block';
           // Apply saved opacity value
           const savedOpacity = localStorage.getItem('modalOpacity') || '60';
           opacitySlider.value = savedOpacity;
@@ -2391,6 +2433,8 @@ const meta = {
         if (saveBtn) saveBtn.style.display = 'none';
         if (closeBtn) closeBtn.style.display = 'none';
         if (opacitySlider) opacitySlider.style.display = 'none';
+        const opacityControl = document.querySelector('.opacity-control');
+        if (opacityControl) opacityControl.style.display = 'none';
         if (toolbar) toolbar.style.display = 'none';
         if (iconTray) iconTray.style.display = 'none';
         
@@ -2745,10 +2789,7 @@ const meta = {
   }
 
   .opacity-slider {
-    position: absolute;
-    top: 1.5rem;
-    right: calc(1rem + 50px + 120px + 1rem);
-    width: 120px;
+    width: 100px;
     height: 6px;
     -webkit-appearance: none;
     appearance: none;
@@ -2756,6 +2797,22 @@ const meta = {
     border-radius: 3px;
     outline: none;
     cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .opacity-control {
+    position: absolute;
+    left: 1rem;
+    top: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .opacity-label {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+    white-space: nowrap;
   }
 
   .opacity-slider::-webkit-slider-thumb {
