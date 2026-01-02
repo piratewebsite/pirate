@@ -188,8 +188,8 @@ app.post('/api/subscriptions/create-checkout', async (req, res) => {
           quantity: 1
         }
       ],
-      success_url: 'https://skypost.pro/success?session_id={CHECKOUT_SESSION_ID}',
-      cancel_url: 'https://skypost.pro/cancel',
+      success_url: 'https://skypost.app/pro/success?session_id={CHECKOUT_SESSION_ID}',
+      cancel_url: 'https://skypost.app/pro/cancel',
       customer_email: userEmail,
       metadata: {
         userEmail
