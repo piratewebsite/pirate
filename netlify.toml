@@ -1,9 +1,9 @@
 [build]
-  command = "npm install -g pnpm@latest && pnpm install && pnpm run build"
+  command = "corepack enable && corepack prepare pnpm@10 --activate && pnpm install && pnpm run build"
   publish = "dist"
 
 [build.environment]
-  NODE_VERSION = "22.12.0"
+  NODE_VERSION = "20"
   NPM_FLAGS = "--version"
 
 
