@@ -9,14 +9,12 @@ import AstroPWA from '@vite-pwa/astro';
 import markdoc from "@astrojs/markdoc";
 import keystatic from '@keystatic/astro';
 import netlify from "@astrojs/netlify";
-import vercel from '@astrojs/vercel/serverless';
 import { createReader } from '@keystatic/core/reader';
 import keystaticConfig from './keystatic.config';
 
 export const reader = createReader(process.cwd(), keystaticConfig);
 
-const isVercel = !!process.env.VERCEL;
-const adapter = isVercel ? vercel() : netlify({ edgeMiddleware: false });
+const adapter = netlify({ edgeMiddleware: false });
 const output: 'static' | 'server' = 'static'; 
 
 const pwaSettings = await reader.singletons.pwaSettings.read();
