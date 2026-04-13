@@ -9,7 +9,7 @@ interface Props {
 
 const { title, description, ctaUrl, showTransition=false, showFancy = false } = Astro.props;
 ---
-<div style={{ margin: '2rem 0', zIndex: '1', position: 'relative' }}>
+<div class="cta-wrapper">
   {description && <p>{description}</p>}
 
   {title && (
@@ -28,3 +28,11 @@ const { title, description, ctaUrl, showTransition=false, showFancy = false } = 
     </button>
   )}
 </div>
+
+<style>
+  .cta-wrapper {
+    margin: 2rem 0;
+    z-index: 1;
+    position: relative;
+  }
+</style>
