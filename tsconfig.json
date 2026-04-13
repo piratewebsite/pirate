@@ -1,7 +1,6 @@
 {
 	"extends": "astro/tsconfigs/base",
 	"compilerOptions": {
-	  "ignoreDeprecations": "6.0",
 	  "baseUrl": ".",
 	  "lib": ["es2022", "dom", "dom.iterable"],
 	  "paths": {
