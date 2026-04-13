@@ -28,10 +28,16 @@ try {
       themeColor = '#000000';
     } else if (pwaThemeColor?.includes('rgba(')) {
       // Extract RGB values and convert to hex - fixed regex to handle spaces
-      const match = pwaThemeColor.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+      const rgbaRegex = /rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/;
+      const match = pwaThemeColor.match(rgbaRegex);
       if (match) {
-        const [, r, g, b] = match;
-        themeColor = `#${parseInt(r).toString(16).padStart(2, '0')}${parseInt(g).toString(16).padStart(2, '0')}${parseInt(b).toString(16).padStart(2, '0')}`;
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const rHex = r.toString(16).padStart(2, '0');
+        const gHex = g.toString(16).padStart(2, '0');
+        const bHex = b.toString(16).padStart(2, '0');
+        themeColor = `#${rHex}${gHex}${bHex}`;
       } else {
         themeColor = '#000000';
       }
