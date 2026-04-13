@@ -21,21 +21,32 @@ const allCTAs = await getCollection('CTAs');
 try {
   const allContentBlocks = await getCollection('contentBlocks');
   
-  // Find the main entry (metadata)
-  contentBlock = allContentBlocks.find(block => block.id === slug || block.id === `${slug}.yaml`);
+  // Find the main entry (metadata) - try multiple match patterns
+  contentBlock = allContentBlocks.find(block => 
+    block.id === slug || 
+    block.id === `${slug}.yaml` ||
+    block.id.replace(/\.yaml$/, '') === slug ||
+    block.id.toLowerCase() === slug.toLowerCase() ||
+    block.id.toLowerCase().replace(/\.yaml$/, '') === slug.toLowerCase()
+  );
   
   // Find the content entry
-  contentEntry = allContentBlocks.find(block => block.id === `${slug}/content`);
+  contentEntry = allContentBlocks.find(block => 
+    block.id === `${slug}/content` ||
+    block.id.replace(/\.yaml$/, '') === `${slug}/content`
+  );
   
   // Find the secondary content entry
-  secondaryContentEntry = allContentBlocks.find(block => block.id === `${slug}/secondarycontent` || block.id === `${slug}/secondaryContent`);
+  secondaryContentEntry = allContentBlocks.find(block => 
+    block.id === `${slug}/secondarycontent` || 
+    block.id === `${slug}/secondaryContent` ||
+    block.id.toLowerCase() === `${slug}/secondarycontent`
+  );
   
   if (!contentBlock) {
-    console.error('❌ ContentBlock not found:', slug);
     return null;
   }
 } catch (error) {
-  console.error('❌ Error loading ContentBlock:', slug, error);
   return null;
 }
 

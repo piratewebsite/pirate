@@ -64,7 +64,6 @@ const allYouTubeFeeds = await getCollection('youtubeFeeds');
 
 // Get CTAs for CTA sections
 const allCTAs = await getCollection('CTAs');
-console.log('📋 All CTAs loaded:', allCTAs.map(c => ({ id: c.id, title: c.data?.title })));
 
 // Get section data for CTAs and content blocks - need to load these for sections that reference them
 const sectionData = await Promise.all(
@@ -84,21 +83,17 @@ const sectionData = await Promise.all(
         );
         
         if (ctaEntry) {
-          console.log(`✓ CTA found: ${section.cta}`, { id: ctaEntry.id, title: ctaEntry.data?.title });
           return { type: 'cta', data: ctaEntry };
         } else {
-          console.warn(`✗ CTA not found in collection: ${section.cta}. Available CTAs:`, allCTAs.map(c => c.id));
           return { type: 'cta', data: null };
         }
       } catch (error) {
-        console.error(`✗ Error loading CTA ${section.cta}:`, error);
         return { type: 'cta', data: null };
       }
     } else if ((section.type === 'content' || section.type === 'contentblock') && section.contentBlockSlug) {
       try {
         return { type: 'content', data: await getEntry('contentBlocks', section.contentBlockSlug) };
       } catch (error) {
-        console.log(`Content block not found: ${section.contentBlockSlug}`);
         return { type: 'content', data: null };
       }
     }
@@ -707,15 +702,7 @@ function getSectionWidthClass(width?: string) {
               const ctaData = sectionData[index];
               const cta = ctaData?.type === 'cta' ? ctaData.data : null;
               
-              console.log(`📍 CTA section ${index}:`, { 
-                ctaDataType: ctaData?.type, 
-                hasCta: !!cta,
-                ctaId: cta?.id,
-                ctaTitle: cta?.data?.title 
-              });
-              
               if (!cta) {
-                console.warn(`⚠️  CTA section ${index} is empty - returning null`);
                 return null;
               }
               
