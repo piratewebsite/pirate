@@ -3379,9 +3379,9 @@ async function initializeMemberFavoriteButtons(container) {
     });
   }
   
-  // Import the membership utilities
+  // Check membership status using global MembershipUtils
   try {
-    const { MembershipUtils } = await import('/membershipUtils.js');
+    const MembershipUtils = window.MembershipUtils;
     
     // Check membership status and show buttons only for Premium members
     const membershipStatus = await MembershipUtils.checkMembershipStatus();
@@ -3465,9 +3465,7 @@ async function initializeMemberFavoriteButtons(container) {
           const channelId = bookmarkBtn.dataset.channelId;
           const channelTitle = bookmarkBtn.dataset.channelTitle;
           
-
-          
-          const { MembershipUtils } = await import('/membershipUtils.js');
+          const MembershipUtils = window.MembershipUtils;
           const isBookmarked = MembershipUtils.isChannelBookmarked(channelId);
           
           if (isBookmarked) {
@@ -3502,7 +3500,7 @@ async function initializeMemberFavoriteButtons(container) {
           // Use the resolveAndBookmarkChannel function to get channel info
           const channel = await resolveAndBookmarkChannel(null, null, videoUrl);
           
-          const { MembershipUtils } = await import('/membershipUtils.js');
+          const MembershipUtils = window.MembershipUtils;
           const isBookmarked = MembershipUtils.isChannelBookmarked(channel.channelId);
           
           if (isBookmarked) {
