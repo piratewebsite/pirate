@@ -1,0 +1,177 @@
+---
+const tools = [
+  {
+    id: "adblock-video",
+    name: "AdBlock.video",
+    tagline: "Ad-Free YouTube Viewing",
+    description: "Watch and subscribe to YouTube videos without ads. Browser plugin, web app, or Bluesky integration—enjoy uninterrupted viewing however you prefer.",
+    features: ["Chrome & Firefox plugins", "Web app install", "Bluesky #AdBlock integration", "Customize channels & favorites", "Data backup & management"],
+    url: "https://adblock.video",
+    logo: "/ad-block-logo.svg"
+  },
+  {
+    id: "clipslide",
+    name: "ClipSlide.app",
+    tagline: "Shareable Video Playlists",
+    description: "Build shareable video playlists with drag-and-drop controls, post directly to Bluesky. Create stunning slideshows from your photo libraries and YouTube videos.",
+    features: ["Photo/video library upload", "Drag-and-drop slide editor", "Clip & Hide quiz features", "Video Music Challenges", "Customize Preview Images", "Local storage & backup"],
+    url: "https://clipslide.app",
+    logo: "/ClipSlide-Logo.svg"
+  },
+  {
+    id: "finalword",
+    name: "FinalWord.app",
+    tagline: "Post Scheduler for Bluesky",
+    description: "Compose and schedule posts for automatic publishing. Create dead man switches for posts that will publish after your passing—leave a lasting legacy.",
+    features: ["Post composer", "Scheduled posting", "Dead man switch posts", "Bluesky integration", "Settings management", "Customize Preview Images"],
+    url: "https://finalword.app",
+    logo: "/FinalWord-logo.svg"
+  },
+  {
+    id: "skypost",
+    name: "SkyPost.app",
+    tagline: "Advanced Bluesky Client",
+    description: "Post and browse Bluesky with superpowers. An alternate client with editable posts, scheduled posting, and advanced features beyond the standard app.",
+    features: ["Editable posts", "Scheduled posts", "Advanced filtering", "Squads", "Tag Manager", "Customize Preview Images"],
+    url: "https://skypost.app",
+    logo: "/SkyPost-logo.svg"
+  }
+];
+---
+
+<div class="tools-section" style="padding:0 2vw;">
+  <!-- Products Grid -->
+  <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+    {tools.map((tool) => (
+      <div class="group flex flex-col rounded-2xl border border-slate-200 bg-white p-8 transition hover:border-blue-300 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900 dark:hover:border-blue-700">
+        <div class="mb-6 flex justify-center">
+          <a 
+          href={tool.url}
+          class="mt-auto inline-flex items-center justify-center rounded-lg bg-slate-100 px-4 py-2 font-semibold text-slate-900 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
+        ><img src={tool.logo} alt={tool.name} class="h-28 object-contain" /></a>
+        </div>
+        <h3 class="mb-2 text-xl font-bold text-slate-900 dark:text-white">
+          {tool.name}
+        </h3>
+        <p class="mb-4 text-sm font-semibold text-blue-600 dark:text-blue-400">
+          {tool.tagline}
+        </p>
+        <p class="mb-6 flex-grow text-slate-600 dark:text-slate-300">
+          {tool.description}
+        </p>
+        
+        <ul class="mb-6 space-y-2">
+          {tool.features.map((feature) => (
+            <li class="flex items-center text-sm text-slate-600 dark:text-slate-400">
+              <span class="mr-2 text-blue-600 dark:text-blue-400">✓</span>
+              {feature}
+            </li>
+          ))}
+        </ul>
+
+        <a 
+          href={tool.url}
+          class="mt-auto inline-flex items-center justify-center rounded-lg bg-slate-100 px-4 py-2 font-semibold text-slate-900 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
+        >
+          Visit {tool.name}
+          <span class="ml-2">→</span>
+        </a>
+      </div>
+    ))}
+  </div>
+
+  <!-- Features Overview -->
+  <!-- <div class="mt-20 rounded-xl bg-slate-50 p-8 dark:bg-slate-800">
+    <h3 class="mb-8 text-center text-3xl font-bold text-slate-900 dark:text-white">Why Bsky Tools?</h3>
+    <div class="grid gap-8 md:grid-cols-3">
+      <div class="rounded-lg bg-blue-50 p-6 dark:bg-blue-900/20">
+        <div class="mb-3 text-3xl">🆓</div>
+        <h4 class="mb-2 font-bold text-slate-900 dark:text-white">Completely Free</h4>
+        <p class="text-slate-600 dark:text-slate-300">
+          All tools are freeware with optional donations to support development
+        </p>
+      </div>
+
+      <div class="rounded-lg bg-green-50 p-6 dark:bg-green-900/20">
+        <div class="mb-3 text-3xl">⚡</div>
+        <h4 class="mb-2 font-bold text-slate-900 dark:text-white">Powerful Features</h4>
+        <p class="text-slate-600 dark:text-slate-300">
+          Advanced capabilities that extend Bluesky's native functionality
+        </p>
+      </div>
+
+      <div class="rounded-lg bg-purple-50 p-6 dark:bg-purple-900/20">
+        <div class="mb-3 text-3xl">🔧</div>
+        <h4 class="mb-2 font-bold text-slate-900 dark:text-white">Highly Configurable</h4>
+        <p class="text-slate-600 dark:text-slate-300">
+          Customize each tool to match your workflow and preferences
+        </p>
+      </div>
+    </div>
+  </div> -->
+
+  <!-- FAQ Section -->
+  <!-- <div class="mt-20">
+    <h3 class="mb-8 text-center text-3xl font-bold text-slate-900 dark:text-white">Frequently Asked Questions</h3>
+    <div class="space-y-6">
+      <div class="rounded-lg border border-slate-200 p-6 dark:border-slate-800">
+        <h4 class="mb-2 font-bold text-slate-900 dark:text-white">Are these tools really free?</h4>
+        <p class="text-slate-600 dark:text-slate-400">
+          Yes! All Bsky Tools are completely free to use. We offer optional donations to help support ongoing development and maintenance.
+        </p>
+      </div>
+
+      <div class="rounded-lg border border-slate-200 p-6 dark:border-slate-800">
+        <h4 class="mb-2 font-bold text-slate-900 dark:text-white">What is a "dead man switch"?</h4>
+        <p class="text-slate-600 dark:text-slate-400">
+          FinalWord's dead man switch feature allows you to schedule posts that will automatically publish after your passing if you don't disable them. It's a unique way to leave a lasting message.
+        </p>
+      </div>
+
+      <div class="rounded-lg border border-slate-200 p-6 dark:border-slate-800">
+        <h4 class="mb-2 font-bold text-slate-900 dark:text-white">Can I use multiple tools together?</h4>
+        <p class="text-slate-600 dark:text-slate-400">
+          Absolutely! Each tool is designed to work independently, but they complement each other perfectly for a comprehensive Bluesky experience.
+        </p>
+      </div>
+
+      <div class="rounded-lg border border-slate-200 p-6 dark:border-slate-800">
+        <h4 class="mb-2 font-bold text-slate-900 dark:text-white">Is my data private?</h4>
+        <p class="text-slate-600 dark:text-slate-400">
+          Privacy is important to us. Each tool respects your data and follows best practices for security. Check individual tool pages for detailed privacy policies.
+        </p>
+      </div>
+    </div>
+  </div> -->
+
+  <!-- Donation Section -->
+  <!-- <div class="mt-20 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-16 dark:from-blue-900 dark:to-blue-800 text-center">
+    <h3 class="mb-4 text-3xl font-bold text-white">Support Development</h3>
+    <p class="mb-8 text-lg text-blue-100">
+      These tools are built with passion and maintained by a dedicated team. If you find them valuable, consider supporting the project with a donation.
+    </p>
+    <p class="mb-2 text-sm text-blue-100">Every contribution helps us:</p>
+    <ul class="mb-8 inline-flex flex-col gap-2 text-blue-100">
+      <li class="flex items-center justify-center">
+        <span class="mr-2">✨</span> Add new features
+      </li>
+      <li class="flex items-center justify-center">
+        <span class="mr-2">🐛</span> Fix bugs faster
+      </li>
+      <li class="flex items-center justify-center">
+        <span class="mr-2">⚡</span> Improve performance
+      </li>
+    </ul>
+    
+    <button class="rounded-lg bg-white px-8 py-3 font-semibold text-blue-600 transition hover:bg-blue-50">
+      Donate Now
+    </button>
+  </div> -->
+</div>
+
+<style>
+  .tools-section {
+    width: 100%;
+    padding: 2rem 0;
+  }
+</style>
