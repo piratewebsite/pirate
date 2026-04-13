@@ -412,19 +412,23 @@ export default config({
             label: 'Page Sections',
             description: 'Configure the sections for this page (only used when Template System is enabled)',
             itemLabel: (props) => {
-              const sectionType = props.fields.type.value;
-              const customTitle = props.fields.customTitle.value;
-              const contentBlockSlug = props.fields.contentBlockSlug.value;
-              const feedConfig = props.fields.feedConfig.value;
-              const cta = props.fields.cta.value;
-              
-              if (customTitle) return `${sectionType} - ${customTitle}`;
-              if (sectionType === 'contentblock' && contentBlockSlug) return `Content Block - ${contentBlockSlug}`;
-              if (sectionType === 'youtubefeeds' && feedConfig) return `YouTube Feed - ${feedConfig}`;
-              if (sectionType === 'ctas' && cta) return `CTA - ${cta}`;
-              if (sectionType === 'magicsearch') return 'Magic Search';
-              if (sectionType === 'installguide') return 'Install Guide';
-              return sectionType || 'Untitled Section';
+              try {
+                const sectionType = props.fields?.type?.value;
+                const customTitle = props.fields?.customTitle?.value;
+                const contentBlockSlug = props.fields?.contentBlockSlug?.value;
+                const feedConfig = props.fields?.feedConfig?.value;
+                const cta = props.fields?.cta?.value;
+                
+                if (customTitle) return `${sectionType} - ${customTitle}`;
+                if (sectionType === 'contentblock' && contentBlockSlug) return `Content Block - ${contentBlockSlug}`;
+                if (sectionType === 'youtubefeeds' && feedConfig) return `YouTube Feed - ${feedConfig}`;
+                if (sectionType === 'ctas' && cta) return `CTA - ${cta}`;
+                if (sectionType === 'magicsearch') return 'Magic Search';
+                if (sectionType === 'installguide') return 'Install Guide';
+                return sectionType || 'Untitled Section';
+              } catch (e) {
+                return 'Section';
+              }
             }
           }
         ),
@@ -434,14 +438,14 @@ export default config({
     CTAs: collection({
       label: 'Call-To-Actions',
       path: 'content/CTAs/*',
+      slugField: 'title',
       schema: {
         title: fields.text({ label: 'CTA Title', description: 'The text on the CTA Button' }),
         ctaUrl: fields.text({ label: 'CTA Url', description: 'The location of your CTA', defaultValue: '/', validation: { length: { min: 1 } } }),
-        description: fields.text({ label: 'Description', description: 'The description for the CTA', multiline: true }),
+        description: fields.text({ label: 'Description', description: 'The description for the CTA', multiline: true, defaultValue: '' }),
         showFancy: fields.checkbox({ label: 'Show Fancy Button', description: 'Use the Fancy style with animated button', defaultValue: true }),
         showTransition: fields.checkbox({ label: 'Hide page transition', description: 'Hide the view transition on page change', defaultValue: false }),
-      },
-      slugField: 'description'
+      }
     }),
 
 

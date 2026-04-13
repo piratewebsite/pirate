@@ -1,7 +1,7 @@
 ---
 interface Props {
   title: string;
-  description: string;
+  description?: string;
   ctaUrl: string;
   showFancy?: boolean;
   showTransition?: boolean;
@@ -9,7 +9,7 @@ interface Props {
 
 const { title, description, ctaUrl, showTransition=false, showFancy = false } = Astro.props;
 ---
-<div style="margin:2rem 0 !important;">
+<div style="margin:2rem 0 !important; z-index: 1; position: relative;">
 {description && <p>{description}</p>}
 
 {title && (

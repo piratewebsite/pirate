@@ -15,6 +15,7 @@ import PhotoSection from "@/components/PhotoGallery.astro";
 import ContactForm from "@/components/ContactForm.astro";
 import MagicSearch from "@/components/MagicSearch.astro";
 import InstallGuide from "@/components/InstallGuide.astro";
+import Tools from "@/components/Tools.astro";
 import { renderMarkdown } from "../utils/utils";
 
 // Simple markdown-to-HTML converter for inline content - now using enhanced marked plugin
@@ -61,14 +62,36 @@ const sortedFaqs = allFaqs.sort((a, b) => {
 // Get YouTube feeds for YouTube sections
 const allYouTubeFeeds = await getCollection('youtubeFeeds');
 
+// Get CTAs for CTA sections
+const allCTAs = await getCollection('CTAs');
+console.log('📋 All CTAs loaded:', allCTAs.map(c => ({ id: c.id, title: c.data?.title })));
+
 // Get section data for CTAs and content blocks - need to load these for sections that reference them
 const sectionData = await Promise.all(
   sections.map(async (section, index) => {
     if (section.type === 'ctas' && section.cta) {
       try {
-        return { type: 'cta', data: await getEntry('CTAs', section.cta) };
+        // Find CTA by ID (filename without extension) - CTAs use YAML format with ID = filename
+        // Normalize the CTA reference to lowercase slug format for matching
+        const ctaSlug = section.cta.toLowerCase().replace(/\s+/g, '-').replace(/_/g, '-');
+        
+        const ctaEntry = allCTAs.find(cta => 
+          cta.id === section.cta || 
+          cta.id === ctaSlug ||
+          cta.id === `${section.cta}.yaml` ||
+          cta.id === `${ctaSlug}.yaml` ||
+          cta.data?.title?.toLowerCase() === section.cta.toLowerCase()
+        );
+        
+        if (ctaEntry) {
+          console.log(`✓ CTA found: ${section.cta}`, { id: ctaEntry.id, title: ctaEntry.data?.title });
+          return { type: 'cta', data: ctaEntry };
+        } else {
+          console.warn(`✗ CTA not found in collection: ${section.cta}. Available CTAs:`, allCTAs.map(c => c.id));
+          return { type: 'cta', data: null };
+        }
       } catch (error) {
-        console.log(`CTA not found: ${section.cta}`);
+        console.error(`✗ Error loading CTA ${section.cta}:`, error);
         return { type: 'cta', data: null };
       }
     } else if ((section.type === 'content' || section.type === 'contentblock') && section.contentBlockSlug) {
@@ -574,6 +597,45 @@ function getSectionWidthClass(width?: string) {
                 </div>
               );
 
+            case 'tools':
+              const toolsTitle = customTitle || "Bsky Tools";
+              const toolsDescription = customDescription || "";
+              const toolsShowTitle = showTitle;
+              
+              return (
+                <div data-section-id={`tools-section-${index}`}>
+                  {((toolsShowTitle && (toolsTitle || toolsDescription)) || !hideCollapseButton) && (
+                    <div class="section-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; padding: 0 3%;">
+                      <div style="flex: 1;">
+                        {toolsShowTitle && toolsTitle && (
+                          <h2 class="posties glow text-[clamp(1.4rem,1.9vw,4rem)] shadow-text theme-accent" style={`margin: 0; margin-bottom: ${toolsDescription ? '1rem' : '0'};`}>
+                            {toolsTitle}
+                          </h2>
+                        )}
+                        {toolsShowTitle && toolsDescription && (
+                          <p style="font-size: 1.2rem; color: var(--theme-text); opacity: 0.8; margin: 0;">
+                            {toolsDescription}
+                          </p>
+                        )}
+                      </div>
+                      {!hideCollapseButton && (
+                        <button 
+                          class="section-collapse-toggle" 
+                          data-section={`tools-section-${index}`}
+                          style="background: var(--theme-header); border: none; border-radius: 4px; color: white; padding: 6px 12px; font-size: 18px; cursor: pointer;"
+                          title="Collapse/Expand Section">
+                          ▼
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  <div class="section-content" style="width: 100%;">
+                    <Tools />
+                  </div>
+                </div>
+              );
+
+
             case 'youtubefeeds':
               const currentFeedConfig = section.feedConfig;
               const currentYoutubeFeed = allYouTubeFeeds.find(feed => feed.id === currentFeedConfig);
@@ -644,7 +706,16 @@ function getSectionWidthClass(width?: string) {
               // Get the CTA from the pre-loaded section data
               const ctaData = sectionData[index];
               const cta = ctaData?.type === 'cta' ? ctaData.data : null;
+              
+              console.log(`📍 CTA section ${index}:`, { 
+                ctaDataType: ctaData?.type, 
+                hasCta: !!cta,
+                ctaId: cta?.id,
+                ctaTitle: cta?.data?.title 
+              });
+              
               if (!cta) {
+                console.warn(`⚠️  CTA section ${index} is empty - returning null`);
                 return null;
               }
               

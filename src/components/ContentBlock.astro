@@ -15,6 +15,9 @@ let contentBlock;
 let contentEntry;
 let secondaryContentEntry;
 
+// Load all CTAs for CTA rendering
+const allCTAs = await getCollection('CTAs');
+
 try {
   const allContentBlocks = await getCollection('contentBlocks');
   
@@ -57,6 +60,24 @@ const {
   youtube,
   videoPosition = 'top'
 } = contentBlock.data;
+
+// Get CTA data if CTA is specified
+let ctaData = null;
+if (cta) {
+  // Normalize the CTA reference to lowercase slug format
+  const ctaSlug = cta.toLowerCase().replace(/\s+/g, '-').replace(/_/g, '-');
+  
+  const ctaEntry = allCTAs.find(c => 
+    c.id === cta || 
+    c.id === ctaSlug ||
+    c.id === `${cta}.yaml` ||
+    c.id === `${ctaSlug}.yaml` ||
+    c.data?.title?.toLowerCase() === cta.toLowerCase()
+  );
+  if (ctaEntry) {
+    ctaData = ctaEntry;
+  }
+}
 
 // Get content from the separate content entries
 const content = contentEntry?.body;
@@ -172,17 +193,19 @@ function getCTAButtonClasses(style = 'primary') {
   {showTitle && title && (
     <header class="content-block-header mb-6">
       <h2 class="text-2xl lg:text-3xl font-bold">{title}</h2>
-      {/* {ctaPosition === 'after-title' && ctaData?.data && (
-        <div class={`cta-container cta-after-title mt-6 ${ctaAlignmentClasses[ctaAlignment] || ctaAlignmentClasses.left}`}>
-          <a 
-            href={ctaData.data.ctaUrl && ctaData.data.ctaUrl.trim() ? ctaData.data.ctaUrl : '#'}
-            class={`inline-block px-6 py-3 rounded-lg font-semibold transition-colors duration-200 ${getCTAButtonClasses(ctaData.data.style)}`}
-          >
-            {ctaData.data.title}
-          </a>
-        </div>
-      )} */}
     </header>
+  )}
+
+  {/* CTA after title - for single column layouts only */}
+  {(layout === 'single') && ctaPosition === 'after-title' && ctaData?.data && ctaData.data.ctaUrl && (
+    <div class={`cta-container cta-after-title mb-6 ${ctaAlignmentClasses[ctaAlignment] || ctaAlignmentClasses.left}`} style="z-index: 1;">
+      <a 
+        href={ctaData.data.ctaUrl}
+        class="inline-block px-6 py-3 rounded-lg font-semibold transition-colors duration-200 bg-blue-600 hover:bg-blue-700 text-white"
+      >
+        {ctaData.data.title}
+      </a>
+    </div>
   )}
 
   <div class={`content-wrapper ${layoutClasses[layout]}`}>
@@ -235,6 +258,18 @@ function getCTAButtonClasses(style = 'primary') {
 
     {/* Main Content Area */}
     <div class={`main-content ${layout === 'two-column' ? 'lg:col-span-3' : layout === 'two-column-equal' ? 'lg:col-span-1' : 'col-span-full'}`}>
+      {/* CTA after title - for 2-column layouts in the left column */}
+      {(layout === 'two-column' || layout === 'two-column-equal') && ctaPosition === 'after-title' && ctaData?.data && ctaData.data.ctaUrl && (
+        <div class={`cta-container cta-after-title mb-6 ${ctaAlignmentClasses[ctaAlignment] || ctaAlignmentClasses.left}`} style="z-index: 1;">
+          <a 
+            href={ctaData.data.ctaUrl}
+            class="inline-block px-6 py-3 rounded-lg font-semibold transition-colors duration-200 bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            {ctaData.data.title}
+          </a>
+        </div>
+      )}
+
       {/* Render content - handle rendered markdoc, markdown string, or YAML content field */}
       {actualContent && (
         <div class="prose prose-lg max-w-none dark:prose-invert" set:html={actualContent} />
@@ -250,6 +285,18 @@ function getCTAButtonClasses(style = 'primary') {
       
       {!contentBlock.body && !content && (
         ''
+      )}
+
+      {/* CTA after content - for 2-column layouts in the left column */}
+      {(layout === 'two-column' || layout === 'two-column-equal') && ctaPosition === 'after-content' && ctaData?.data && ctaData.data.ctaUrl && (
+        <div class={`cta-container cta-after-content mt-6 ${ctaAlignmentClasses[ctaAlignment] || ctaAlignmentClasses.left}`} style="z-index: 1;">
+          <a 
+            href={ctaData.data.ctaUrl}
+            class="inline-block px-6 py-3 rounded-lg font-semibold transition-colors duration-200 bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            {ctaData.data.title}
+          </a>
+        </div>
       )}
     </div>
 
@@ -308,17 +355,29 @@ function getCTAButtonClasses(style = 'primary') {
     )}
   </div>
 
-  {/* Bottom CTA */}
-  {/* {ctaPosition === 'bottom' && ctaData?.data && ctaData.data.ctaUrl && (
-    <div class={`cta-container cta-bottom mt-6 ${ctaAlignmentClasses[ctaAlignment] || ctaAlignmentClasses.left}`}>
+  {/* CTA after content - for single column layouts only */}
+  {(layout === 'single') && ctaPosition === 'after-content' && ctaData?.data && ctaData.data.ctaUrl && (
+    <div class={`cta-container cta-after-content mt-6 ${ctaAlignmentClasses[ctaAlignment] || ctaAlignmentClasses.left}`} style="z-index: 1;">
       <a 
         href={ctaData.data.ctaUrl}
-        class={`inline-block px-6 py-3 rounded-lg font-semibold transition-colors duration-200 ${getCTAButtonClasses(ctaData.data.style)}`}
+        class="inline-block px-6 py-3 rounded-lg font-semibold transition-colors duration-200 bg-blue-600 hover:bg-blue-700 text-white"
       >
         {ctaData.data.title}
       </a>
     </div>
-  )} */}
+  )}
+
+  {/* Bottom CTA */}
+  {ctaPosition === 'bottom' && ctaData?.data && ctaData.data.ctaUrl && (
+    <div class={`cta-container cta-bottom mt-8 ${ctaAlignmentClasses[ctaAlignment] || ctaAlignmentClasses.left}`} style="z-index: 1;">
+      <a 
+        href={ctaData.data.ctaUrl}
+        class="inline-block px-6 py-3 rounded-lg font-semibold transition-colors duration-200 bg-blue-600 hover:bg-blue-700 text-white"
+      >
+        {ctaData.data.title}
+      </a>
+    </div>
+  )}
 </section>
 
 <style>
