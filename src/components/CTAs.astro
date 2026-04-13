@@ -9,7 +9,7 @@ interface Props {
 
 const { title, description, ctaUrl, showTransition=false, showFancy = false } = Astro.props;
 ---
-<div style={{ margin: '2rem 0 !important', zIndex: '1', position: 'relative' }}>
+<div style={{ margin: '2rem 0', zIndex: '1', position: 'relative' }}>
   {description && <p>{description}</p>}
 
   {title && (
