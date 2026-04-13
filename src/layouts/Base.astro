@@ -95,15 +95,21 @@ const pageOgImage = ogImage || meta?.ogImage;
     </head>
     
     <body>
-        <script type="module">
-            import { MembershipUtils } from '/membershipUtils.js';
-            window.MembershipUtils = MembershipUtils;
-            window.checkUnifiedMembershipStatus = MembershipUtils.checkUnifiedMembershipStatus.bind(MembershipUtils);
-            globalThis.MembershipUtils = MembershipUtils;
-            globalThis.checkUnifiedMembershipStatus = MembershipUtils.checkUnifiedMembershipStatus.bind(MembershipUtils);
-            // Signal that membership utilities are ready
-            window.membershipUtilsReady = true;
-            window.dispatchEvent(new Event('membershipUtilsLoaded'));
+        <script src="/membershipUtils.js"></script>
+        <script is:inline>
+            // Wait for membershipUtils to load, then set up globals
+            function setupMembershipUtils() {
+                if (window.MembershipUtils) {
+                    window.checkUnifiedMembershipStatus = window.MembershipUtils.checkUnifiedMembershipStatus.bind(window.MembershipUtils);
+                    globalThis.MembershipUtils = window.MembershipUtils;
+                    globalThis.checkUnifiedMembershipStatus = window.MembershipUtils.checkUnifiedMembershipStatus.bind(window.MembershipUtils);
+                    window.membershipUtilsReady = true;
+                    window.dispatchEvent(new Event('membershipUtilsLoaded'));
+                } else {
+                    setTimeout(setupMembershipUtils, 100);
+                }
+            }
+            setupMembershipUtils();
         </script>
         <script is:inline>
             // Handle PWA start page redirect
@@ -128,9 +134,6 @@ const pageOgImage = ogImage || meta?.ogImage;
                     }
                 }
             })();
-        </script>
-        <script type="module">
-            import('/src/pwa.ts');
         </script>
         <SkipLink />
         <div id="nav-container"></div>

@@ -88,6 +88,3 @@ class MembershipUtils {
     return this.getBookmarkedChannels().some(ch => platform ? ch.channelId === channelId && ch.platform === platform : ch.channelId === channelId);
   }
 }
-
-// Export for ES6 module imports
-export { MembershipUtils };
