@@ -147,5 +147,15 @@ const socialImageURL = ogImage
 <meta name="mobile-web-app-capable" content="yes">
 
 <!-- PWA Service Worker Registration -->
-<script src="/src/pwa.ts"></script>
+<script client:only>
+  import { registerSW } from 'virtual:pwa-register'
+
+  registerSW({
+    immediate: true,
+    onRegisteredSW(swScriptUrl) {
+    },
+    onOfflineReady() {
+    },
+  })
+</script>
 
