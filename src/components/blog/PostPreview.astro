@@ -16,7 +16,8 @@ const { showTitles, showDates = true, showTags = false } = siteSettings?.data ??
 const formattedDate = post.data.publishDate ? formatDate(post.data.publishDate) : '';
 
 const defaultImageSrc = `${import.meta.env.BASE_URL}socialCard.webp`;
-const defaultImageWidth = 900; 
+const defaultImageWidth = 900;
+const defaultImageHeight = 506; // 16:9; thumbnails crop via object-cover so this only reserves layout
 
 function getYouTubeId(url: string) {
   const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
@@ -274,7 +275,7 @@ const useCustomPlayer = post.data.youtube?.value?.useCustomPlayer ?? true;
                         loading="eager"
                         fetchpriority="high"
                         width={defaultImageWidth}
-                        inferSize
+                        height={defaultImageHeight}
                     />
                 ) : (
                     <Image
@@ -284,7 +285,7 @@ const useCustomPlayer = post.data.youtube?.value?.useCustomPlayer ?? true;
                         loading="eager"
                         src={defaultImageSrc}
                         width={defaultImageWidth}
-                        inferSize
+                        height={defaultImageHeight}
                     />
                 )}
             </div>
