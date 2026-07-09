@@ -306,28 +306,31 @@ if [ -f "tmp_theme/src/content/config.ts" ]; then
 fi
 
 # ============================================================================
-# PRESERVE KEYSTATIC PROJECT ID (Line 7)
+# PRESERVE KEYSTATIC CLOUD PROJECT ID
 # ============================================================================
 
 echo ""
 log_info "Updating keystatic.config.ts..."
 
-# Save line 7 (project ID) before updating
+# Capture a literal cloud project id (project: 'team/site') if the site has
+# one. Match by content, never by line number — file layouts drift between
+# theme versions, and grafting a fixed line corrupts the config.
+OLD_PROJECT=""
 if [ -f keystatic.config.ts ]; then
-    LINE_7=$(sed -n '7p' keystatic.config.ts || true)
-else
-    LINE_7=""
+    OLD_PROJECT=$(grep -oE "project:[[:space:]]*['\"][^'\"]+['\"]" keystatic.config.ts | head -1 || true)
 fi
 
 # Update keystatic config
 if [ -f tmp_theme/keystatic.config.ts ]; then
     cp -f tmp_theme/keystatic.config.ts keystatic.config.ts
-    
-    # Restore project ID
-    if [ -n "$LINE_7" ]; then
-        awk -v line="$LINE_7" 'NR==7 {print line; next} {print}' keystatic.config.ts > keystatic.config.ts.tmp
-        mv keystatic.config.ts.tmp keystatic.config.ts
-        log_info "Preserved Keystatic project ID"
+
+    # Re-apply the site's project id (skip placeholders; configs that read
+    # the id from an env var have no literal id and need nothing preserved)
+    if [ -n "$OLD_PROJECT" ] && ! printf '%s' "$OLD_PROJECT" | grep -q placeholder; then
+        OLD_PROJECT="$OLD_PROJECT" perl -pi -e \
+            's/project:\s*([\x27"])[^\x27"]*\1/$ENV{OLD_PROJECT}/ && ($done=1) unless $done;' \
+            keystatic.config.ts
+        log_info "Preserved Keystatic project id ($OLD_PROJECT)"
     fi
 fi
 
